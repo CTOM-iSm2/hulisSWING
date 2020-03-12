@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src-engine"/>
+	<classpathentry kind="src" path="src-ctomUtils"/>
+	<classpathentry kind="src" path="src-swing-gui"/>
+	<classpathentry kind="lib" path="/Users/nicolasgoudard/Documents/workspace/git/hulisSwing-repo/lib/flanagan/flanagan.jar"/>
+	<classpathentry kind="lib" path="/Users/nicolasgoudard/Documents/workspace/git/hulisSwing-repo/lib/jama-1.0.2/Jama-1.0.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="lib/jdom-2.0.5/jdom-2.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/batik-1.7/batik.jar"/>
+	<classpathentry kind="lib" path="lib/javaws.jar"/>
+	<classpathentry kind="lib" path="lib/plugin.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
