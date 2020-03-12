@@ -305,13 +305,14 @@ public class Geometry {
 		List <Atom >tripletHuckelAtom;
 		List <List <Atom>> lstTripletAtom = new ArrayList<List <Atom>>();
 		Atom atom1, atom2, atom3;
-		for (int i = 0 ; i < this.getAtoms().size() - 2 ; i++)	{
+		int nb = this.getAtoms().size();
+		for (int i = 0 ; i < nb - 2 ; i++)	{
 			atom1 = this.getAtoms().get(i);
 		//	if (atom1.getElement() != PeriodicTable.Element.H) {
-				for (int j = i+1; j < this.getAtoms().size()-1; j++ )	{
+				for (int j = i+1; j < nb -1; j++ )	{
 					atom2 = this.getAtoms().get(j);
 			//		if (atom2.getElement() != PeriodicTable.Element.H) {
-						for (int k = j+1; k< this.getAtoms().size(); k++)	{
+						for (int k = j+1; k< nb ; k++)	{
 							atom3 = this.getAtoms().get(k);
 					//		if ( (atom3.getElement() != PeriodicTable.Element.H) && (atom1 != atom2) && (atom2 != atom3) && (atom1 != atom3) ) {
 								tripletHuckelAtom = new ArrayList<Atom> ();
@@ -319,7 +320,7 @@ public class Geometry {
 								tripletHuckelAtom.add(atom2);
 								tripletHuckelAtom.add(atom3);
 								lstTripletAtom.add(tripletHuckelAtom);
-								HuckelIO.PrintIf (atom1 + " "+  atom2 + " " + atom3 + atom3.getLocation() );
+								HuckelIO.PrintIfln(atom1 + " "+  atom2 + " " + atom3 + atom3.getLocation() );
 				//			}
 						}
 			//		}
@@ -336,7 +337,8 @@ public class Geometry {
 		// on calcul l'angle des vecteurs AB (X1,Y1,Z1),AC (X2,Y2,Z2)  ou X1=xA-XB, etc.... 
 		VecteurCTOM memo_n = null;
 		VecteurCTOM vZ = VecteurCTOM.V_Z_AXIS; //vecteur de l'axe z;
-		for (int i = 0 ; i < lstTripletAtom.size() ; i++) {
+		nb =lstTripletAtom.size();
+		for (int i = 0 ; i < nb ; i++) {
 			tripletHuckelAtom = lstTripletAtom.get(i);
 			a= tripletHuckelAtom.get(0);
 			b= tripletHuckelAtom.get(1);
@@ -376,7 +378,8 @@ public class Geometry {
 		
 		// on calcule la moyenne
 		double abar = 0.0, bbar =0.0, cbar = 0.0;
-		for (int i = 0; i< lstPlan.size(); i++) {
+		nb =lstPlan.size();
+		for (int i = 0; i< nb; i++) {
 			n = lstPlan.get(i);
 			abar += n.getX();
 			bbar += n.getY();
@@ -455,7 +458,6 @@ public class Geometry {
 		
 		//HuckelIO.PrintIf ("Readxyz.flatGeom() initial orientation saved = " + savedInitialOrientation );
 	}
-	
 	
 	/**
 	 * 
