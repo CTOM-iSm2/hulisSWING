@@ -83,14 +83,28 @@ public class AtomDrawer {
 	AtomColor atomColor;
 	double atomRadius = 0.0;
 	String symbol;
+	private boolean toHighlight;
 	protected AtomDrawer(StructureView structureView, Atom atom) {
 		this.structureView = structureView;
 		this.atom = atom;
+		PreferencesGUI.setSHOWSYMMETRY(PreferencesGUI.getSuperMario());
+		if (PreferencesGUI.isSHOWSYMMETRY()) {
+			if (atom instanceof HuckelAtom) {
+				int num = ((HuckelAtom)atom).getSeqNum()-1;
+				if (structureView.getAtomsToHighlight().contains(num)) {
+					toHighlight=true;
+				}
+			}
+		}
 		//String input ="";
 		try {
 			atomColor = AtomColor.valueOf(this.atom.getSigle());
 			atomRadius =  atomColor.getRadius();
 			atomBorderColor =  atomColor.getBorderColor();
+			if (toHighlight) {
+				atomBorderColor = new Color(255, 255, 0);
+				atomRadius =  1.5*atomColor.getRadius();
+			}
 			atomFillColor =  atomColor.getFillcolor();
 			if (this.atom.getElement() == null)
 				symbol  = this.atom.getSigle();

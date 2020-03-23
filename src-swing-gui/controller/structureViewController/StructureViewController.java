@@ -4,6 +4,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 import org.ctom.hulis.huckel.HuckelAtom;
 import org.ctom.hulis.huckel.IHuckelObject;
@@ -11,6 +12,7 @@ import org.ctom.hulis.huckel.IMoleculeComponent;
 import org.ctom.hulis.huckel.OrbitaleAtomique;
 import org.ctom.hulis.huckel.OrbitaleMoleculaire;
 import org.ctom.hulis.huckel.structures.Structure;
+import org.ctom.hulis.huckel.structures.symmetry.Symmetry;
 import org.ctom.hulis.prefs.Preferences;
 import org.ctom.hulis.prefs.Preferences.DISPLAY_ORBITAL_TYPE;
 
@@ -117,6 +119,7 @@ public class StructureViewController implements MouseListener, MouseMotionListen
 	public void mouseMoved(MouseEvent e) {
 		Point2D p = e.getPoint();
 		this.setToolTipText(p);
+		this.showSymmetryInfo(p);
 		FrameApp app = structureView.getMesomeryView().getFrameApp();
 		IStructureViewControllerState state = app.getCurrentStructureViewControllerState();
 
@@ -218,6 +221,24 @@ public class StructureViewController implements MouseListener, MouseMotionListen
 
 	}
 	
+	public void showSymmetryInfo (Point2D p) {
+		Structure structure = structureView.getStructure();
+
+		Point2D pTransformed = structureView.getAntecedentPoint(p);
+		
+		IMoleculeComponent component = this.structureView
+				.getMoleculeComponent(pTransformed);
+
+		if (component != null)  {
+
+			if (component instanceof HuckelAtom) {
+				Symmetry sym = structure.getSymmetry();
+				HuckelAtom atom = (HuckelAtom) component;
+				ArrayList<Integer> list = sym.getGroupOfAtom(atom);
+				structureView.setAtomsToHighlight(list);
+			}
+		}
+	}
 }
 
 

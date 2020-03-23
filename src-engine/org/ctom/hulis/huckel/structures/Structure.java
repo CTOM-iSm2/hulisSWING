@@ -38,6 +38,8 @@ import org.ctom.hulis.huckel.listeners.IMoleculeValueListener;
 import org.ctom.hulis.huckel.listeners.IMonoExcitationListener;
 import org.ctom.hulis.huckel.listeners.IStructureListener;
 import org.ctom.hulis.huckel.methods.HLPMethod;
+import org.ctom.hulis.huckel.spectrum.DensityOfStates;
+import org.ctom.hulis.huckel.structures.symmetry.Symmetry;
 import org.ctom.hulis.polynomes.CharacteristicPolynomial;
 import org.ctom.hulis.util.VectorssHuckel;
 import org.ctom.hulis.util.io.HuckelIO;
@@ -79,6 +81,11 @@ IMonoExcitationListener{
 	protected Energy totalEnergy;
 	private double overlapHLP;
 	private int indexSelection;
+	
+	private DensityOfStates dos;
+	private Symmetry symmetry;
+
+
 
 
 	public transient Comparator<Structure> compareByOverlap;
@@ -694,7 +701,7 @@ IMonoExcitationListener{
 		super.fireBlocDelocalizedNbElectronsChanged(e);
 
 	}
-
+	
 
 	@Override
 	protected void fireBlocDelocalizedAdded(Molecule source, Object oldValue, Object newValue) {
@@ -1918,6 +1925,10 @@ IMonoExcitationListener{
 		return naturalOrbitals.get(i);
 	}
 
+	public Symmetry getSymmetry() {
+		if (symmetry==null) return new Symmetry(this);
+		return symmetry;
+	}
 
 
 

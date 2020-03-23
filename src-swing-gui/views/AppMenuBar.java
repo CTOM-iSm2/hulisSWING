@@ -4,11 +4,9 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -18,14 +16,15 @@ import javax.swing.KeyStroke;
 import org.ctom.hulis.huckel.comparators.MethodNameComparator;
 import org.ctom.hulis.huckel.methods.IMethod;
 
+import access.IRightsTest;
+import access.Rights;
+import controller.globalCommands.ChangeLanguage;
+import controller.globalCommands.IGlobalCommands;
 import util.MyResourceBundle;
 import util.languages.InitResources;
 import util.languages.Language;
 import util.languages.LanguageManager;
 import views.prefs.PreferencesGUI;
-import access.Rights;
-import controller.globalCommands.ChangeLanguage;
-import controller.globalCommands.IGlobalCommands;
 
 @SuppressWarnings("serial")
 public class AppMenuBar extends JMenuBar  {
@@ -317,7 +316,7 @@ public class AppMenuBar extends JMenuBar  {
 		this.displayMenu.add(this.superMario);
 		try {
 			PreferencesGUI.setSuperMario(System.getProperty("user.name").equals("yannick"));
-			PreferencesGUI.setSuperMario(System.getenv("SUPERMARIO").equals("bump"));
+			PreferencesGUI.setSuperMario( (app.getRights() instanceof IRightsTest) || System.getenv("SUPERMARIO").equals("bump"));
 		} catch (Exception e) {
 			//nothing to do: probablement une exception de securite.
 		}

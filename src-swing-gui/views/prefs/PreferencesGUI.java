@@ -26,6 +26,8 @@ public final class PreferencesGUI {
 	private static final boolean SEND_INFORMATION_DEFAULT = true;
 	private static final int TOTAL_USE_DEFAULT = 0;
 	private static double SCALE_ORB_DEFAULT = 4.0;
+	private static boolean SHOWSYMMETRY=false;
+
 	private static boolean printingSet=false;
 	private static String radicalPrint="";
 	private static String extPrint="";
@@ -33,8 +35,9 @@ public final class PreferencesGUI {
 
 	private static PreferencesGUI instance;
 
-	private static boolean superMario=false;
+	private static boolean superMario=true;
 	private IPreferences prefs;
+	private boolean devMode = true;
 	
 
 	/**
@@ -303,6 +306,37 @@ public final class PreferencesGUI {
 	public Locale getLanguage() {
 		return new Locale(prefs.getString("language",  MyLocale.getDefault().getLanguage()));
 	}
+	/**
+	 * @return
+	 */
+	public static boolean isSHOWSYMMETRY() {
+		return SHOWSYMMETRY;
+	}
 
+	/**
+	 * @param sHOWSYMMETRY
+	 */
+	public static void setSHOWSYMMETRY(boolean sHOWSYMMETRY) {
+		SHOWSYMMETRY = sHOWSYMMETRY;
+	}
+
+	
+
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isDevMode() {
+		return this.devMode;
+	}
+	
+	/**
+	 * 
+	 * @param b
+	 */
+	public void setDevMode(boolean b) {
+		this.devMode=b;
+		
+	}
 
 }

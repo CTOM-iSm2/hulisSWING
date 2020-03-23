@@ -9,12 +9,14 @@ import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -54,13 +56,14 @@ import org.ctom.hulis.huckel.structures.symmetry.Symmetry;
 import org.ctom.hulis.prefs.Preferences;
 import org.ctom.util.maths.Point3D;
 
+import controller.globalCommands.IGlobalCommands;
+import controller.structureViewController.GhostMolecule;
+import controller.structureViewController.StructureViewController;
 import util.ComponentsTools;
 import util.MyJOptionPane;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
-import controller.globalCommands.IGlobalCommands;
-import controller.structureViewController.StructureViewController;
 
 /**
  * Atom : This class describes a org.ctom.view for a structure object
@@ -119,6 +122,9 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 
 	private Symmetry symmetry;
 
+	private GhostMolecule ghost;
+
+	private ArrayList<Integer> atomsToHighlight;
 
 	/**
 	 * StructureView : constructor
@@ -387,7 +393,23 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 		for (Atom a : this.structure.getAtoms()) {
 			new AtomDrawer(this, a).draw(g2d);
 		}
-		long endTime = System.currentTimeMillis();
+		
+	}
+
+	private void drawGhost(Graphics2D g2d) {
+		if (this.ghost!=null) {
+			AffineTransform at_reset = g2d.getTransform();
+			AffineTransform trans = new AffineTransform();
+			trans.translate(ghost.getOffset().getX(),ghost.getOffset().getY());
+			g2d.transform(trans);
+			for (Atom a : this.ghost.getAtoms()) {
+				new GhostAtomDrawer(this, a).draw(g2d);
+			}
+			for (Bond b : this.ghost.getBonds()) {
+				new GhostBondDrawer(this, b).draw(g2d);
+			}
+			g2d.setTransform(at_reset);
+		}
 	}
 
 	public void erase() {
@@ -1004,13 +1026,22 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 		this.controller = controller;
 	}
 
-	//@Override
-	public void structureLocalizedCoupleRemoved(StructureLocalizedEvent event) {
-		// mise en commentaire : car le rafraichissement est pris en charge par mesomeryview car mesomery envoie l'evenement avant molecule
-		// en effet mesomery ecoute molecule avant structureview donc huckelAtomRadRChanged est renvoye a mesomeryview avant le lancement des laculs des poids
-		// molecule.huckelAtomRadRChanged est renvoye  apres le calcul. donc si les calculs sont longs, le retour d'information n'est pa instantane
-		//repaint()	;	
+	public void setGhost(GhostMolecule ghostMolecule) {
+		this.ghost=ghostMolecule;
 	}
+	
+	
+	public void setAtomsToHighlight(ArrayList<Integer> list) {
+		for (int i : list) {
+			System.out.println(i);
+		}
+		this.atomsToHighlight=list;
+	}
+
+	public ArrayList<Integer> getAtomsToHighlight() {
+		return this.atomsToHighlight;
+	}
+
 
 	//@Override
 	public void structureLocalizedWeightChanged(StructureLocalizedEvent event) {
@@ -1209,6 +1240,12 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 	 */
 	private void createSymmetry() {
 		symmetry = new Symmetry(this.getStructure());
+	}
+
+	@Override
+	public void structureLocalizedCoupleRemoved(StructureLocalizedEvent event) {
+		repaint();
+	    
 	}
 
 
