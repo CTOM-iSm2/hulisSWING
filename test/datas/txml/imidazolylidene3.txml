@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mesomery>
+  <structure>
+    <type>StructureDelocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>9.82</beta>
+    </energy>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>7.48</beta>
+    </energy>
+    <weight method="HLCI">0.11</weight>
+    <weight method="HLP">-0.36</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>8.36</beta>
+    </energy>
+    <weight method="HLCI">0.25</weight>
+    <weight method="HLP">0.55</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>8.36</beta>
+    </energy>
+    <weight method="HLCI">0.25</weight>
+    <weight method="HLP">0.55</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>6.36</beta>
+    </energy>
+    <weight method="HLCI">0.06</weight>
+    <weight method="HLP">-0.03</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>6.36</beta>
+    </energy>
+    <weight method="HLCI">0.06</weight>
+    <weight method="HLP">-0.03</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>7.23</beta>
+    </energy>
+    <weight method="HLCI">0.09</weight>
+    <weight method="HLP">0.05</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>7.23</beta>
+    </energy>
+    <weight method="HLCI">0.09</weight>
+    <weight method="HLP">0.14</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>7.23</beta>
+    </energy>
+    <weight method="HLCI">0.09</weight>
+    <weight method="HLP">0.14</weight>
+  </structure>
+</mesomery>
+

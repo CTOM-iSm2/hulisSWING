@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mesomery>
+  <structure>
+    <type>StructureDelocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>8.0</beta>
+    </energy>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>6.0</beta>
+    </energy>
+    <weight method="HLCI">0.14</weight>
+    <weight method="HLP">0.22</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>6.0</beta>
+    </energy>
+    <weight method="HLCI">0.14</weight>
+    <weight method="HLP">0.22</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.03</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.05</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.03</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.03</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.05</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.03</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.03</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.05</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>4.0</beta>
+    </energy>
+    <weight method="HLCI">0.04</weight>
+    <weight method="HLP">0.03</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>2.0</beta>
+    </energy>
+    <weight method="HLCI">0.02</weight>
+    <weight method="HLP">0.01</weight>
+  </structure>
+</mesomery>
+

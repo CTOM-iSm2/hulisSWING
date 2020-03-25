@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mesomery>
+  <structure>
+    <type>StructureDelocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>8.2</beta>
+    </energy>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>6.74</beta>
+    </energy>
+    <weight method="HLCI">0.38</weight>
+    <weight method="HLP">0.50</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>5.62</beta>
+    </energy>
+    <weight method="HLCI">0.16</weight>
+    <weight method="HLP">0.12</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>5.62</beta>
+    </energy>
+    <weight method="HLCI">0.16</weight>
+    <weight method="HLP">0.13</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>5.62</beta>
+    </energy>
+    <weight method="HLCI">0.16</weight>
+    <weight method="HLP">0.12</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>6.0</alpha>
+      <beta>5.62</beta>
+    </energy>
+    <weight method="HLCI">0.16</weight>
+    <weight method="HLP">0.13</weight>
+  </structure>
+</mesomery>
+

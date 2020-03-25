@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mesomery>
+  <structure>
+    <type>StructureDelocalized</type>
+    <energy>
+      <alpha>4.0</alpha>
+      <beta>7.27</beta>
+    </energy>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>4.0</alpha>
+      <beta>6.18</beta>
+    </energy>
+    <weight method="HLCI">0.39</weight>
+    <weight method="HLP">0.39</weight>
+  </structure>
+  <structure>
+    <type>StructureLocalized</type>
+    <energy>
+      <alpha>4.0</alpha>
+      <beta>6.56</beta>
+    </energy>
+    <weight method="HLCI">0.61</weight>
+    <weight method="HLP">0.61</weight>
+  </structure>
+</mesomery>
+
