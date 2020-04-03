@@ -1,5 +1,6 @@
 package org.ctom.hulis.huckel;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,7 +83,7 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 
 
 	public boolean isEnabledFlyCalculate; // flag to enable / disable auto-calculation after a change
-	private transient final ArrayList<IMesomeryListener> listeners; // object list that listen mesomery changes
+	private ArrayList<IMesomeryListener> listeners; // object list that listen mesomery changes
 	private HashMap<String, IMethod> lstMethods; // methods of weights calculations 
 	private ArrayList<Structure> lstSelectedStructs; // selected structures : mesomery structures under the level defined by the structures selector
 	private ArrayList<Structure> lstStructs; // this array contains all the mesomery structures
@@ -115,6 +116,14 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 		this.structuresSelector = null;
 	}
 
+	/*private void readObject(java.io.ObjectInputStream in)
+		    throws IOException, ClassNotFoundException {
+	    	in.defaultReadObject();
+	    	this.listeners = new ArrayList<IMesomeryListener>();
+		
+	}*/
+	
+	
 	/**
 	 * Constructor by copy
 	 * @param mesomery

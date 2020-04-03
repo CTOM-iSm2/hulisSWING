@@ -35,8 +35,8 @@ public class Bond implements IMoleculeComponent, Cloneable, Serializable {
 	protected Atom atom1; // first atom in the bond
 	protected Atom atom2; // second atom in the bond
 	protected int index; // sequence number of the bond in the molecule
-	protected transient Molecule moleculeParentContainer; // molecule that contains the bond
-	protected transient final ArrayList<IBondListener> listeners;
+	protected Molecule moleculeParentContainer; // molecule that contains the bond
+	protected final ArrayList<IBondListener> listeners;
 
 	
 

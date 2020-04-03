@@ -37,7 +37,7 @@ public class HLPMethod implements Cloneable, IMethod, IMethodHasOptimizableMatri
 	private static final long serialVersionUID = 9057058480708583811L;
 	private double[] ciCoeff; // Ci vector
 	private double[] ciWeights; // weights array
-	private transient Mesomery mesomery; // mesomery that implements HLP method
+	private Mesomery mesomery; // mesomery that implements HLP method
 	final private String name = "HLP";
 	private double[][] overlapTab; // overlap matrix kept to improve data access
 	private double tau; // tau

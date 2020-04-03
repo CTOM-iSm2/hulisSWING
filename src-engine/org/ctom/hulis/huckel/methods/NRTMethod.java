@@ -246,7 +246,7 @@ public class NRTMethod implements Cloneable, IMethod, Serializable {
 		return this.mesomery;
 	}
 
-	private class Fonction implements flanagan.math.MinimisationFunction {
+	private class Fonction implements flanagan.math.MinimisationFunction, Serializable {
 
 		int nBas;
 		int nMatLoc;

@@ -71,7 +71,7 @@ IMonoExcitationListener{
 	private double[][] hamiltonianArray;
 	private boolean isEnabledFlyCalculate;
 	//protected IMoleculeComponent[] locationsElecPi;
-	protected transient Mesomery mesomeryParent;
+	protected Mesomery mesomeryParent;
 	private ArrayList<MonoExcitation> monoExcitations;
 	private String name;
 	protected double[][] orbitalsCoeffArray;
@@ -85,10 +85,6 @@ IMonoExcitationListener{
 	private DensityOfStates dos;
 	private Symmetry symmetry;
 
-
-
-
-	public transient Comparator<Structure> compareByOverlap;
 
 	public Structure() {
 		super();

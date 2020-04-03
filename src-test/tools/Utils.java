@@ -20,7 +20,7 @@ public class Utils {
 		if (! app.menuBar.getItemMethod("HLP").isSelected())
 			TestOut.println("WARNING : HLP NOT Tested ! ");
 			
-		new XMLCompareToMesomery(app.getCurrentMesomery(),  "./test/datas/txml/" + name + ".txml").execute();
+		new XMLCompareToMesomery(app.getCurrentMesomery(),  "./src-test/datas/txml/" + name + ".txml").execute();
 	
 	}
 	
@@ -32,7 +32,7 @@ public class Utils {
 	 */
 	public static void openGaussianAndCompareToXML (final FrameApp app, final String name) {
 		try {
-			new ReadGaussianCommand(app, new IOReadGaussianTest(new File("./test/datas/test/" + name + ".com.test")) ).execute();
+			new ReadGaussianCommand(app, new IOReadGaussianTest(new File("./src-test/datas/test/" + name + ".com.test")) ).execute();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			TestOut.println ("TEST FAILED !!! Cannot open file : "+name);

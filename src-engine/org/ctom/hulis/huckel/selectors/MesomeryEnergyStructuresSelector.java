@@ -22,7 +22,7 @@ public class MesomeryEnergyStructuresSelector implements IStructuresSelector, Se
 	 */
 	private static final long serialVersionUID = -173683615706926362L;
 	
-	private transient Mesomery mesomery;
+	private Mesomery mesomery;
 	double energyMax;
 
 	/**

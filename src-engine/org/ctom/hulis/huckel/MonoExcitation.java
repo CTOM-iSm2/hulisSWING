@@ -20,8 +20,8 @@ public class MonoExcitation implements Cloneable, Serializable {
 	
 	SpinOrbitaleMoleculaire from;
 	SpinOrbitaleMoleculaire to;
-	private transient final ArrayList<IMonoExcitationListener> listeners;
-	protected transient Structure structure;
+	private  final ArrayList<IMonoExcitationListener> listeners;
+	protected  Structure structure;
 
 	public Structure getStructure(){
 		return structure;

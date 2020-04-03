@@ -231,49 +231,9 @@ public class StateManager implements StateEditable, IMesomeryListener {
 
 
 			}
-
-			this.app.getCurrentMesomeryView().setMesomery(m);
-			m.addListener(this.app.getToolBarHuckel());
-			m.addListener(this.app.getStateManager());
-
-			this.app.getToolBarMesomery().setMesomery(m);
-
-			// Maj refernce dans fenetres ouvertes
-			ArrayList <JFrame> toClose = new ArrayList <JFrame>();
-			for (Window  r : JFrame.getWindows()) {
-				if (r instanceof IStructureReference) {
-					IStructureReference sr = (IStructureReference) r;
-					Structure s = sr.getStructure();
-					String name = s.getName();
-					Structure searched =m.getStructureByName(name);
-					if (searched != null) 
-						sr.setStructure(searched);
-
-					else 
-						toClose.add((JFrame) sr);
-				} else if (r instanceof IMesomeryReference) {
-					FrameResultMesomery mr = (FrameResultMesomery) r;
-					mr.setMesomery(m);
-
-				}
-			}
-
-			for (JFrame fr : toClose)
-				fr.dispose();
-
-			Structure current = m.getStructureByName(currentStructureName);
-			if (current==null) {
-				SwingIO.warning(this.getClass().getName(), "restoreState", "structure Psi" + currentStructureName +  " was not found in the restored mesomery, try to get the delocalized structure");
-				current = m.getDelocalizedStructure();
-				if (current == null)
-					SwingIO.warning(this.getClass().getName(), "restoreState", "structure Psitot was not found anymore in the restored mesomery");
-			}
-			this.app.getCurrentMesomeryView().setCurrentStructure(current);
-			ActionCommandRegistry.getInstance().enableAll(); // active tous les boutons de facon a ce que l'instruction suivante puisse cliquer sur un bouton. Le contextmanager se chargera de rsesactiver le boutons necessaires apres
-			this.app.clickButtonCommand(selectedCommand);
-			EnableActionManager.getInstance().updateActionsToEnable(app);
-			this.app.getToolBarHuckel().refresh();
-			this.app.getToolBarMesomery().refresh();
+			
+			this.app.setMesomery(m, currentStructureName, selectedCommand);
+			
 		} catch (Exception e) {
 			SwingIO.error(this.getClass().getName(), "restoreState", e
 					.getMessage(), e);

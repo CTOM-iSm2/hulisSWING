@@ -20,6 +20,7 @@ import java.util.List;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.ToolTipManager;
@@ -37,6 +38,7 @@ import org.ctom.hulis.huckel.methods.HLPMethod;
 import org.ctom.hulis.huckel.methods.IMethod;
 import org.ctom.hulis.huckel.methods.NRTMethod;
 import org.ctom.hulis.huckel.selectors.MesomeryHLPOverlapStructuresSelector;
+import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
 
 import robots.TutorialBuildMolecule;
@@ -514,10 +516,8 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 
 			if (this.rights.isValidUser()) {
 				mesomery.addDelocalizedStruct(new StructureDelocalized());
-				if (Rights.ALLOW_NRT)
-					this.selectMethod("NRT", true);
-				else
-					this.selectMethod("HLP", true);
+			
+				this.selectMethod("HLP", true);
 				EnableActionManager.getInstance().updateActionsToEnable(this);
 				this.getStateManager().initNewState();
 				this.getStateManager().saveState();
@@ -1373,6 +1373,62 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	public void setCookieManager(CookieManager cookieManager) {
 		this.cookieManager=cookieManager;
 		
+	}
+
+
+	/**
+	 * @param m
+	 */
+	public void setMesomery(Mesomery m, String currentStructureName, String selectedCommand) {
+	    	if (currentStructureName=="")
+	    	    currentStructureName = "tot";
+	    	if (selectedCommand =="") {
+	    	    selectedCommand=this.getCurrentEnabledCommand();
+	    	}
+		this.getCurrentMesomeryView().setMesomery(m);
+		m.addListener(this.getToolBarHuckel());
+		m.addListener(this.getStateManager());
+
+		this.getToolBarMesomery().setMesomery(m);
+
+		// Maj refernce dans fenetres ouvertes
+		ArrayList <JFrame> toClose = new ArrayList <JFrame>();
+		for (Window  r : JFrame.getWindows()) {
+			if (r instanceof IStructureReference) {
+				IStructureReference sr = (IStructureReference) r;
+				Structure s = sr.getStructure();
+				String name = s.getName();
+				Structure searched =m.getStructureByName(name);
+				if (searched != null) 
+					sr.setStructure(searched);
+
+				else 
+					toClose.add((JFrame) sr);
+			} else if (r instanceof IMesomeryReference) {
+				FrameResultMesomery mr = (FrameResultMesomery) r;
+				mr.setMesomery(m);
+
+			}
+		}
+
+		for (JFrame fr : toClose)
+			fr.dispose();
+
+		Structure current = m.getStructureByName(currentStructureName);
+		if (current==null) {
+			SwingIO.warning(this.getClass().getName(), "restoreState", "structure Psi" + currentStructureName +  " was not found in the restored mesomery, try to get the delocalized structure");
+			current = m.getDelocalizedStructure();
+			if (current == null)
+				SwingIO.warning(this.getClass().getName(), "restoreState", "structure Psitot was not found anymore in the restored mesomery");
+		}
+		this.getCurrentMesomeryView().setCurrentStructure(current);
+		ActionCommandRegistry.getInstance().enableAll(); // active tous les boutons de facon a ce que l'instruction suivante puisse cliquer sur un bouton. Le contextmanager se chargera de rsesactiver le boutons necessaires apres
+		this.clickButtonCommand(selectedCommand);
+		EnableActionManager.getInstance().updateActionsToEnable(this);
+		this.getToolBarHuckel().refresh();
+		this.getToolBarMesomery().refresh();
+
+	    
 	}
 
 	

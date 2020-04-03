@@ -22,7 +22,7 @@ public class MesomeryHLPOverlapStructuresSelector implements IStructuresSelector
 	 */
 	private static final long serialVersionUID = 2672586164032318807L;
 	
-	transient private Mesomery mesomery;
+	private Mesomery mesomery;
 	private double overlapValue;
 
 	/**

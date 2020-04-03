@@ -1,5 +1,6 @@
 package org.ctom.hulis.huckel.methods;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.ctom.hulis.huckel.Mesomery;
@@ -12,7 +13,7 @@ import org.ctom.hulis.huckel.warning.IMethodWarning;
  * @author ngoudard
  *
  */
-public interface IMethod {
+public interface IMethod extends Serializable {
 	
 	/**
 	 * This method calculate mesomery weights

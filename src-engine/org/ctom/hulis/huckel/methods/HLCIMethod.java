@@ -35,7 +35,7 @@ public class HLCIMethod implements IMethod, Cloneable, IMethodHasOptimizableMatr
 	private double[][] coeffB; // matrix B coeff
 	private double[] ciHLCI;  // CI vector
 	private double[][] hamiltonian; // Hamiltonian
-	transient Mesomery mesomery;   // mesomery that implements HLCI method
+	private Mesomery mesomery;   // mesomery that implements HLCI method
 	private double[] weightsHLCIArray; // weights
 	double tau;
 	boolean isImplementedTau ;

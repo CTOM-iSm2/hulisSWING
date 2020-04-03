@@ -59,7 +59,7 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 	private int superSymbol; // sequence number used in Geom classs
 
 	/* members used to get the atom in the parent molecule ***/
-	public transient Molecule moleculeParentContainer; // Molecule that contains this atom
+	public Molecule moleculeParentContainer; // Molecule that contains this atom
 	protected int index; // sequence number of an atom in the molecule
 
 	/* members used to localize atoms in the space ***/
@@ -67,8 +67,8 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 	Point3D pGeom3D; // this variable is set by the geometry file reader
 	                // and can be modified if the atoms is moved by setLoation
 	
-	protected transient final ArrayList<IAtomValueListener> atomValuelisteners;
-	protected transient final ArrayList<IAtomGeometryListener> geometryListeners;
+	protected final ArrayList<IAtomValueListener> atomValuelisteners;
+	protected final ArrayList<IAtomGeometryListener> geometryListeners;
 	private int atomicNumber;
 
 

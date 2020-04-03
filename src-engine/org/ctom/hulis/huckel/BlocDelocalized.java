@@ -19,8 +19,8 @@ import org.ctom.hulis.huckel.structures.StructureDelocalized;
 public class BlocDelocalized implements Serializable {
 	ArrayList<IHuckelObject> lstHuckelObject; // objects org.ctom.hulis.huckel in the bloc 
 	int nbElectrons; // number of electrons of the bloc
-	transient Molecule moleculeParent; // structure wich owns the bloc
-	protected final transient List<IBlocDelocalizedListener> listeners;
+	Molecule moleculeParent; // structure wich owns the bloc
+	protected final List<IBlocDelocalizedListener> listeners;
 	
 	protected void do_addHuckelObject(IHuckelObject o){
 		lstHuckelObject.add(o);

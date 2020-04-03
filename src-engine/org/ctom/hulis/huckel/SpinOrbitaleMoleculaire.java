@@ -14,7 +14,7 @@ public class SpinOrbitaleMoleculaire extends OrbitaleMoleculaire implements Clon
 	private static final long serialVersionUID = -7473959347477473706L;
 	
 	private Spin spin = Spin.NOSPIN_ALPHA;
-	private transient SpinOrbitaleMoleculaire partner=null;
+	private SpinOrbitaleMoleculaire partner=null;
 	
 	private int index=-1;
 

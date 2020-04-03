@@ -63,10 +63,10 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 	public final static double LENGTH_H_BOND = (CovalentRadii.C.getCovRad()+CovalentRadii.H.getCovRad()) * Geometry.SCALE; // 1 
 	private boolean autoCorrectH;
 	private boolean enabledNotify;
-	protected transient Geometry geometry;
+	protected  Geometry geometry;
 
-	protected transient final ArrayList<IMoleculeGeometryListener> geometryListeners;
-	protected transient final ArrayList<IMoleculeValueListener> valueListeners;
+	protected  final ArrayList<IMoleculeGeometryListener> geometryListeners;
+	protected  final ArrayList<IMoleculeValueListener> valueListeners;
 	private ArrayList<Atom> lstAtoms; // atoms which compose a molecule
 
 	private ArrayList<Bond> lstBonds; // Bonds that compose a molecule

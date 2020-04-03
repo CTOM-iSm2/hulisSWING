@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DateFormat;
@@ -22,6 +23,7 @@ import org.ctom.hulis.util.io.HuckelIO;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
+import controller.globalCommands.SaveMesomeryToXML;
 import util.MyDecimalFormat;
 import util.MyJOptionPane;
 import util.MyResourceBundle;
@@ -33,7 +35,6 @@ import util.xyz.PrintWriterAdapter;
 import views.FrameApp;
 import views.StructureView;
 import views.prefs.PreferencesGUI;
-import controller.globalCommands.SaveMesomeryToXML;
 
 public class SaveFile {
 
@@ -94,6 +95,12 @@ public class SaveFile {
 			} else if (type.equals("test")) {
 				PrintWriterAdapter writer = new PrintWriterAdapter(file);
 				new IOWriteGaussian(app.getCurrentMesomery()).writeAll(writer);
+			}
+			else if (type.equals("hulis")) {
+			    	FileOutputStream fs = new FileOutputStream(file);
+			         ObjectOutputStream os = new ObjectOutputStream(fs);
+			         os.writeObject(app.getCurrentMesomery().clone()); 
+			         os.close();
 			} else if (type.equals("xml")) {
 				new SaveMesomeryToXML(app.getCurrentMesomery(), file).execute();
 			}
