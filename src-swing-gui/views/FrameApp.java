@@ -172,7 +172,7 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	 */
 
 
-	final Version version = new Version(3, 3, 4); // VERSION OF HULIS
+	final Version version = new Version(3, 4, 0, "c dev"); // VERSION OF HULIS
 
 
 	static {
