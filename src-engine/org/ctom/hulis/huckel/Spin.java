@@ -5,7 +5,7 @@ public enum Spin {
 	//BETA : spin BETA
 	//NOSPIN : no electron
 	//SWITCH : ALPHA=SWITCH*BETA
-	ALPHA(1),BETA(-1),SWITCH(-1),NOSPIN_ALPHA(91),NOSPIN_BETA(92);
+	ALPHA(1),BETA(-1),SWITCH(-1),NOSPIN_ALPHA(91),NOSPIN_BETA(92), DEMI_ELECTRON(103), NO_DEMI_ELECTRON(-103);
 
 	private final int val;
 	

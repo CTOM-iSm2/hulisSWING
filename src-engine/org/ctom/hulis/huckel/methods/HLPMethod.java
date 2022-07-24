@@ -72,6 +72,7 @@ public class HLPMethod implements Cloneable, IMethod, IMethodHasOptimizableMatri
 	 * @throws  
 	 */
 	public void calculate() throws IMethodException {
+		System.out.println (">>>>>>>>>>>>>>  DEBUT COMPUTE HLP <<<<<<<<<<<<<<<<< ");
 		int i;
 		this.ciCoeff = new double[0];
 		this.ciWeights = new double[0];
@@ -177,25 +178,21 @@ public class HLPMethod implements Cloneable, IMethod, IMethodHasOptimizableMatri
 
 		//on repercute les poids vers les structures de la mesomerie
 		StructureLocalized struct;
+	
 		for (i = 0; i < nbSelLocalizedStructs; i++) {
 			struct = this.mesomery.getSelectedLocalizedStruct(i);
 			struct.setWeight(this.getName(), this.getWeights()[i]);
 		}
+		System.out.println (">>>>>>>>>>>>>>  FIN COMPUTE HLP <<<<<<<<<<<<<<<<< ");
 
 	} // Calculate HLP
 
-	/**
-	 * This method returns a copy of the HLCI method
-	 * 
-	 * @return HLP method
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Object clone() {
-		try {
-			super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
 		return new HLPMethod(this);
 	}
 

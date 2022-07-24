@@ -108,7 +108,7 @@ ChangeListener, IMesomeryListener {
 
 		for (StructureView sv : this.getListStructureView()) 
 
-			if (sv.getSelectedBlocDelocalized() != null) 
+			if (StructureView.getSelectedBlocDelocalized() != null && StructureView.getSelectedBlocDelocalized().getMoleculeParent() == sv.getStructure()) 
 				return sv;
 
 		return null;

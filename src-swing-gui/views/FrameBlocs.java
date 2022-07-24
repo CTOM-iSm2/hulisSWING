@@ -37,7 +37,7 @@ import org.ctom.hulis.huckel.listeners.IStructureDelocalizedListener;
 import org.ctom.hulis.huckel.listeners.IStructureListener;
 import org.ctom.hulis.huckel.listeners.IStructureLocalizedListener;
 import org.ctom.hulis.huckel.structures.Structure;
-import org.ctom.hulis.huckel.structures.StructureDelocalized;
+import org.ctom.hulis.huckel.structures.StructureLocalized;
 
 import util.MyResourceBundle;
 import util.ThreadUtils;
@@ -88,13 +88,13 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 	protected JTextField txtNbElec;
 	JList lstBlocs;
 	StructureView structureView;
-	Structure structure;
+	StructureLocalized structure;
 	enum Mode {ADD, CHANGE};
 	Mode mode;
 	
 	public void actionPerformed (ActionEvent e) {
 		if (e.getSource() == this.btAjouter){
-			if (structure.getMesomeryParent().countAllSructs()>1 && (structure instanceof StructureDelocalized))
+			if (structure.getMesomeryParent().countAllSructs()>1)
 				return;
 			
 			if (this.mode == Mode.ADD)
@@ -109,7 +109,7 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 		else if (e.getSource() == this.btSupprimer){
 			
 			// impossible de modfier un bloc s'il ya des structures loclaisees dans la mesomerie
-			if (structure.getMesomeryParent().countAllSructs()>1 && (structure instanceof StructureDelocalized))
+			if (structure.getMesomeryParent().countAllSructs()>1)
 				return;
 			
 			if (this.mode == Mode.ADD) {
@@ -128,12 +128,12 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 			this.structure.removeBlocDelocalized(bloc);
 			bloc.clear();
 			bloc = null;
-			this.structureView.setSelectedBlocDelocalized(null);
+			StructureView.setSelectedBlocDelocalized(null);
 			this.mode = Mode.CHANGE;
 		}
 		else if (e.getSource() == this.btSave){
 			// impossible de modfier un bloc s'il ya des structures loclaisees dans la mesomerie
-			if (structure.getMesomeryParent().countAllSructs()>1  && (structure instanceof StructureDelocalized))
+			if (structure.getMesomeryParent().countAllSructs()>1 )
 				return;
 			BlocDelocalized bloc;
 			if (this.mode == Mode.ADD){
@@ -158,7 +158,7 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 			} 
 		}
 		else if (e.getSource() == this.btOk){
-			this.structureView.setSelectedBlocDelocalized(null);
+			StructureView.setSelectedBlocDelocalized(null);
 			this.structureView.repaint();
 			this.dispose();
 			
@@ -177,7 +177,7 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 			throw new Exception("structureView must be initialized");
 		
 		this.structureView = structureView;
-		this.structure = structureView.getStructure();
+		this.structure = (StructureLocalized) structureView.getStructure();
 		structure.addListener(this);
 		
 		this.txtNbElec = new JTextField(5);
@@ -408,7 +408,7 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 
 	public void setStructure(Structure s) {
 		this.structure.removeListener(this);
-		this.structure = s;
+		this.structure = (StructureLocalized) s;
 		this.structure.addListener(this);
 		this.showBlocs();
 	}
@@ -617,7 +617,7 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 		if (bloc != null) {
 			this.txtNbElec.setText(Integer.toString(bloc.getNbElectron()));
 			
-			this.structureView.setSelectedBlocDelocalized(bloc);
+			StructureView.setSelectedBlocDelocalized(bloc);
 			this.structureView.repaint();
 		}
 		this.mode = Mode.CHANGE;
@@ -636,13 +636,13 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 		System.out.println("focus gained")
 		;		if (bloc != null) {
 			
-			this.structureView.setSelectedBlocDelocalized(bloc);
+			StructureView.setSelectedBlocDelocalized(bloc);
 			this.structureView.repaint();
 		}		
 	}
 
 	public void focusLost(FocusEvent arg0) {
-		this.structureView.setSelectedBlocDelocalized(null);
+		StructureView.setSelectedBlocDelocalized(null);
 		System.out.println("focus lost")
 ;		this.structureView.repaint();
 	

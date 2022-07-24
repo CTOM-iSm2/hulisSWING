@@ -40,12 +40,6 @@ public class PopUp {
 		i3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PASTE,shortcutKeyMask));
 		i4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,shortcutKeyMask));
 
-		Font btFont = (Font) menus.getObject("mnfont");
-		i1.setFont(btFont);
-		i2.setFont(btFont);
-		i3.setFont(btFont);
-		i4.setFont(btFont);
-		
 		/* x.add(i1); */x.add(i2);/* x.add(i3); */
 		x.addSeparator();
 		x.add(i4);

@@ -157,15 +157,12 @@ public class HuckelBond extends Bond implements IHuckelObject, Cloneable, Serial
 			throws BondException, HuckelBondException {
 		super(atom1, atom2);
 
-		if ((bondType < 1) || (bondType > HuckelBond.MAX_TYPE_BOND))
-			throw new HuckelBondException("incorrect type of bond");
-
 		this.bondType = bondType;
 		this.hxy = 0.0;
 		if ((atom1.getEntry() != null) &&  (atom2.getEntry() != null))
 			this.hxy = HuckelBond.getHxy(atom1.getEntry(), atom2.getEntry());
 		this.blocDelocalizedParent = null;
-	
+		checkCoherence();
 	}
 
 	/**
@@ -180,25 +177,31 @@ public class HuckelBond extends Bond implements IHuckelObject, Cloneable, Serial
 		this.bondType = bond.bondType;
 		this.hxy = bond.hxy;
 		this.blocDelocalizedParent = null;
-	
 	}
 	
-	public BlocDelocalized getBlocDelocalizedParent() {
-		return blocDelocalizedParent;
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Bond#clone()
+	 */
+	public Object clone() {
+		return new HuckelBond(this);
 	}
 
-	public void setBlocDelocalizedParent(BlocDelocalized blocDelocalizedParent) {
-		this.blocDelocalizedParent = blocDelocalizedParent;
-	}
-
-
-	/**
-	 * @return a copy of his org.ctom.hulis.huckel bond
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Bond#hashCode()
 	 */
 	@Override
-	public Object clone() {
-
-		return new HuckelBond(this);
+    public int hashCode () {
+        final int multiplier = 23;
+        if (hashCode == 0) {
+            int code = 133;
+            code = multiplier * code + super.hashCode();
+            code = multiplier * code +  this.bondType;
+            code = multiplier * code + new Double(this.hxy).hashCode() ;
+            hashCode = code;
+        }
+        return hashCode;
+	
 	}
 
 	/**
@@ -218,20 +221,35 @@ public class HuckelBond extends Bond implements IHuckelObject, Cloneable, Serial
 	}
 
 
-	@Override
-    public int hashCode () {
-        final int multiplier = 23;
-        if (hashCode == 0) {
-            int code = 133;
-            code = multiplier * code + super.hashCode();
-            code = multiplier * code +  this.bondType;
-            code = multiplier * code + new Double(this.hxy).hashCode() ;
-            hashCode = code;
-        }
-        return hashCode;
 	
+	/**
+	 * 
+	 * @throws HuckelBondException
+	 */
+	public void checkCoherence() throws HuckelBondException {
+		
+		if ((bondType < 1) || (bondType > HuckelBond.MAX_TYPE_BOND))
+			throw new HuckelBondException("set unavailable valye type of bond : " + bondType + " for " + this);
+
+		else if ((bondType > 1 ) && (this.blocDelocalizedParent != null) || (this.getAtom1().getBlocDelocalizedParent()!= null) || (this.getAtom2().getBlocDelocalizedParent()!= null) ) 
+			throw new HuckelBondException("Cannot change bond type : the bond " + this + " owns to a  delocalized block");
+
 	}
-	
+	/**
+	 * 
+	 */
+	public BlocDelocalized getBlocDelocalizedParent() {
+		return blocDelocalizedParent;
+	}
+
+	/**
+	 * 
+	 */
+	public void setBlocDelocalizedParent(BlocDelocalized blocDelocalizedParent) {
+		this.blocDelocalizedParent = blocDelocalizedParent;
+	}
+
+
 	/**
 	 * This function returns the first linked Huckel atom
 	 * @return org.ctom.hulis.huckel atom 
@@ -351,11 +369,11 @@ public class HuckelBond extends Bond implements IHuckelObject, Cloneable, Serial
 		if ((bondType < 1) || (bondType > HuckelBond.MAX_TYPE_BOND))
 			throw new HuckelBondException("incorrect type of bond");
 
-		if (this.blocDelocalizedParent != null)
-			throw new HuckelBondException("Cannot change bond type : this bond  owns to a  delocalized block");
-
 		int old = getBondType();
 		do_setBondType(bondType);
+		
+		checkCoherence();
+		
 		if (old != this.bondType)
 			this.fireBondTypeChanged(this, old,
 					getBondType());

@@ -122,9 +122,9 @@ public class HuckelAtom extends Atom implements IHuckelObject, Cloneable, Serial
 
 	}
 
-	/**
-	 * This method returns a copy of this Huckel atom
-	 * @return a new Huckel atom
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Atom#clone()
 	 */
 	@Override
 	public Object clone() {

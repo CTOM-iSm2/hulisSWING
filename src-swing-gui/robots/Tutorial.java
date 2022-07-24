@@ -148,7 +148,7 @@ public abstract class Tutorial extends Robot implements ActionListener, Runnable
 	synchronized public void mousePress(int buttons) {
 		Multimedia m;
 		try {
-			m = new Multimedia("standalone_addons/audio/simpleclick.wav");
+			m = new Multimedia("src-swing-gui/audio/simpleclick.wav");
 			m.playwav();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

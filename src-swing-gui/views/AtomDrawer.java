@@ -178,8 +178,8 @@ public class AtomDrawer {
 		// evalue si l'atome est dans un bloc survole ou un bloc selectionne
 		if (atom instanceof HuckelAtom) {
 			HuckelAtom huckelAtom =  (HuckelAtom) atom;
-			if ((huckelAtom.getBlocDelocalizedParent() == this.structureView.getSelectedBlocDelocalized())
-					&&  ( this.structureView.getSelectedBlocDelocalized() != null) ) 
+			if ((huckelAtom.getBlocDelocalizedParent() == StructureView.getSelectedBlocDelocalized())
+					&&  ( StructureView.getSelectedBlocDelocalized() != null) ) 
 				isAtomInSelectedBloc = true;
 
 			else if ( (huckelAtom.getBlocDelocalizedParent() == this.structureView.getOverflightBlocDelocalized())

@@ -59,16 +59,15 @@ public class MonoExcitation implements Cloneable, Serializable {
 		//this.to = null;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
 	@Override
 	public Object clone() {
-		try {
-			super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
-
 		return new MonoExcitation(this.from, this.to, this.structure,
 				this.listeners);
+
+
 	}
 
 	public SpinOrbitaleMoleculaire getFrom() {

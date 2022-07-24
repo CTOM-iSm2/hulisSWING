@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
+import java.text.DecimalFormat;
 
 import org.ctom.hulis.huckel.Spin;
 import org.ctom.hulis.huckel.SpinOrbitaleMoleculaire;
@@ -23,6 +24,7 @@ public class EnergyControl extends OrbitalControl {
 	public final static double WIDTH = 13;
 	public final Color COLOR_ARROW = Color.RED;
 	public final Color COLOR_EXCITATION = Color.ORANGE;
+	DecimalFormat FORMATTER = new DecimalFormat("#.##");
 	
 	public EnergyControl(GraphOM graphOM, SpinOrbitaleMoleculaire som,
 			Point2D p) {
@@ -35,50 +37,57 @@ public class EnergyControl extends OrbitalControl {
 		// DESSINE DEUX FLECHES VERTICALES
 
 		g2d.setStroke(new BasicStroke(EnergyControl.ARROW_STROKE));
-		g2d.setColor(this.COLOR_ARROW);
+		g2d.setColor(COLOR_ARROW);
 		
-		if (this.getSOM().getSpin() == Spin.ALPHA) {
-			// left arrow
-			g2d.draw(new Line2D.Double(
-					this.p.getX() - EnergyControl.WIDTH / 4,
-					this.p.getY() - EnergyControl.HEIGHT / 2 + VMARGIN_ARROW - VDECALAGE_ARROW ,
-					this.p.getX() - EnergyControl.WIDTH / 4, 
-					this.p.getY() + EnergyControl.HEIGHT / 2 - VMARGIN_ARROW - VDECALAGE_ARROW ));
-			if (GraphOM.DRAW_ARROW_HEAD_PART1) 
-				g2d.draw(new Line2D.Double(
-						this.p.getX() - EnergyControl.WIDTH * 3 / 8, 
-						this.p.getY() - EnergyControl.HEIGHT / 8 - VDECALAGE_ARROW , 
-						this.p.getX() - EnergyControl.WIDTH / 4,
-						this.p.getY() - EnergyControl.HEIGHT / 2 -  VDECALAGE_ARROW ));
-			if (GraphOM.DRAW_ARROW_HEAD_PART2) 
-				g2d.draw(new Line2D.Double(
-						this.p.getX()- EnergyControl.WIDTH / 4, 
-						this.p.getY()- EnergyControl.HEIGHT / 2 - VDECALAGE_ARROW, 
-						this.p.getX() - EnergyControl.WIDTH / 8, 
-						this.p.getY()- EnergyControl.HEIGHT / 8 - VDECALAGE_ARROW));
-			
+		// si l'orbitale a des demi electrons on affiche un nombre sinon on affiche les spins alpha et beta
+		if ( this.getSOM().getSpin() ==  Spin.DEMI_ELECTRON ) {
+			g2d.drawString(FORMATTER.format(this.getSOM().getNbElectrons()), (int) (this.p.getX() - EnergyControl.WIDTH / 4), (int) (this.p.getY()) );
 		}
-		if (this.getSOM().getSpin() == Spin.BETA) {
-			// right arrow
-		// right arrow
+		else {
+			if (this.getSOM().getSpin() == Spin.ALPHA) {
+				// left arrow
 				g2d.draw(new Line2D.Double(
-						this.p.getX() + EnergyControl.WIDTH / 4, 
-						this.p.getY()- EnergyControl.HEIGHT / 2 + VMARGIN_ARROW + VDECALAGE_ARROW , 
-						this.p.getX()+ EnergyControl.WIDTH / 4, 
-						this.p.getY()+ EnergyControl.HEIGHT / 2 - VMARGIN_ARROW + VDECALAGE_ARROW ));
-				if (GraphOM.DRAW_ARROW_HEAD_PART1) {
+						this.p.getX() - EnergyControl.WIDTH / 4,
+						this.p.getY() - EnergyControl.HEIGHT / 2 + VMARGIN_ARROW - VDECALAGE_ARROW ,
+						this.p.getX() - EnergyControl.WIDTH / 4, 
+						this.p.getY() + EnergyControl.HEIGHT / 2 - VMARGIN_ARROW - VDECALAGE_ARROW ));
+				if (GraphOM.DRAW_ARROW_HEAD_PART1) 
 					g2d.draw(new Line2D.Double(
-							this.p.getX() + EnergyControl.WIDTH * 3 / 8, 
-							this.p.getY() + EnergyControl.HEIGHT / 8 + VDECALAGE_ARROW , 
-							this.p.getX()+ EnergyControl.WIDTH / 4,
-							this.p.getY() + EnergyControl.HEIGHT / 2 + VDECALAGE_ARROW  ));
+							this.p.getX() - EnergyControl.WIDTH * 3 / 8, 
+							this.p.getY() - EnergyControl.HEIGHT / 8 - VDECALAGE_ARROW , 
+							this.p.getX() - EnergyControl.WIDTH / 4,
+							this.p.getY() - EnergyControl.HEIGHT / 2 -  VDECALAGE_ARROW ));
 				if (GraphOM.DRAW_ARROW_HEAD_PART2) 
 					g2d.draw(new Line2D.Double(
+							this.p.getX()- EnergyControl.WIDTH / 4, 
+							this.p.getY()- EnergyControl.HEIGHT / 2 - VDECALAGE_ARROW, 
+							this.p.getX() - EnergyControl.WIDTH / 8, 
+							this.p.getY()- EnergyControl.HEIGHT / 8 - VDECALAGE_ARROW));
+				
+			}
+			if (this.getSOM().getSpin() == Spin.BETA) {
+				// right arrow
+			// right arrow
+					g2d.draw(new Line2D.Double(
+							this.p.getX() + EnergyControl.WIDTH / 4, 
+							this.p.getY()- EnergyControl.HEIGHT / 2 + VMARGIN_ARROW + VDECALAGE_ARROW , 
 							this.p.getX()+ EnergyControl.WIDTH / 4, 
-							this.p.getY()+ EnergyControl.HEIGHT / 2 + VDECALAGE_ARROW , 
-							this.p.getX() + EnergyControl.WIDTH / 8, 
-							this.p.getY() + EnergyControl.HEIGHT / 8 + VDECALAGE_ARROW ));
-						}
+							this.p.getY()+ EnergyControl.HEIGHT / 2 - VMARGIN_ARROW + VDECALAGE_ARROW ));
+					if (GraphOM.DRAW_ARROW_HEAD_PART1) {
+						g2d.draw(new Line2D.Double(
+								this.p.getX() + EnergyControl.WIDTH * 3 / 8, 
+								this.p.getY() + EnergyControl.HEIGHT / 8 + VDECALAGE_ARROW , 
+								this.p.getX()+ EnergyControl.WIDTH / 4,
+								this.p.getY() + EnergyControl.HEIGHT / 2 + VDECALAGE_ARROW  ));
+					if (GraphOM.DRAW_ARROW_HEAD_PART2) 
+						g2d.draw(new Line2D.Double(
+								this.p.getX()+ EnergyControl.WIDTH / 4, 
+								this.p.getY()+ EnergyControl.HEIGHT / 2 + VDECALAGE_ARROW , 
+								this.p.getX() + EnergyControl.WIDTH / 8, 
+								this.p.getY() + EnergyControl.HEIGHT / 8 + VDECALAGE_ARROW ));
+							}
+			}
+
 		}
 
 		if (gom.isDrawingExcitation()
@@ -116,5 +125,7 @@ public class EnergyControl extends OrbitalControl {
 	public SpinOrbitaleMoleculaire getSOM() {
 		return (SpinOrbitaleMoleculaire) super.getOM();
 	}
+
+	
 
 } // class EnergyControl

@@ -25,7 +25,7 @@ import org.ctom.hulis.huckel.Atom;
 import org.ctom.hulis.huckel.BlocDelocalized;
 import org.ctom.hulis.huckel.Bond;
 import org.ctom.hulis.huckel.CoupleLocal;
-import org.ctom.hulis.huckel.EnergyOrb;
+import org.ctom.hulis.huckel.Energy;
 import org.ctom.hulis.huckel.IHuckelObject;
 import org.ctom.hulis.huckel.IMoleculeComponent;
 import org.ctom.hulis.huckel.Mesomery;
@@ -77,7 +77,7 @@ import util.languages.LanguageManager;
 @SuppressWarnings("serial")
 public class StructureView extends JPanel implements IStructureLocalizedListener, IStructureDelocalizedListener, IStructureListener, IMoleculeGeometryListener {
 	public static boolean WARNING_NEGATIVE_CHARGE = false; 
-
+	public static boolean DEBUG = false; // HuckelIO.isverbose();
 	private static final Color COLOR_ETOT = Color.BLACK;
 
 	private static final Color COLOR_ERROR_INFOS = Color.RED;
@@ -102,7 +102,14 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 	public static final int FONT_SIZE_BLOC_NB_ELECTRONS =14;
 	public static int SPACE_BETWEEN_MOLECULE_AND_TEXT = 10; // space between molecule graphic and text under
 	private static final int X_TEXT_MARGIN = 10; // text margin under the molecule in the panel
+	private static  BlocDelocalized selectedBlocDelocalized;
+	public static void setSelectedBlocDelocalized(BlocDelocalized blocDelocalized) {
+		selectedBlocDelocalized = blocDelocalized;
+	}
 
+	public static BlocDelocalized getSelectedBlocDelocalized() {
+		return selectedBlocDelocalized;
+	}
 
 	protected MyResourceBundle bundle;
 
@@ -111,8 +118,7 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 	private GraphOM graphOM;
 
 	private OrbitaleMoleculaire orbitalMoleculaireShown;
-	private BlocDelocalized selectedBlocDelocalized;
-
+	
 	private Structure structure;
 
 	private MesomeryView mesomeryView;
@@ -147,8 +153,7 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 
 		this.structure = structure;
 		this.mesomeryView = mesomeryView;
-		this.selectedBlocDelocalized = null;
-
+	
 		this.controller = new StructureViewController(this, structure);
 		addMouseListener(this.controller);
 		addMouseMotionListener(this.controller);
@@ -697,16 +702,17 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 	 * @param g2d
 	 */
 	protected void writeBlocElectronsNumber(Graphics2D g2d) {
-
+		if (structure instanceof StructureDelocalized)
+			return;
 		g2d.setFont(getFontBlocElectronsNumber());
 
-		for (BlocDelocalized blocDelocalized : structure.getListBlocDelocalized()) {
+		for (BlocDelocalized blocDelocalized : ((StructureLocalized) structure).getListBlocDelocalized()) {
 			if (blocDelocalized.countHuckelObjects() == 0) continue;
 
 			Point2D barycentre = getBlocBarycenter(blocDelocalized);
 			double xBary = barycentre.getX();
 			double yBary = barycentre.getY();
-			if (blocDelocalized == this.getSelectedBlocDelocalized())
+			if (blocDelocalized == StructureView.getSelectedBlocDelocalized())
 				g2d.setColor(SELECTED_BLOC_DELOCALIZED_COLOR);
 			else if (blocDelocalized == this.getOverflightBlocDelocalized())
 				g2d.setColor(OVERFLIGHT_BLOC_DELOCALIZED_COLOR);
@@ -727,6 +733,9 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 	 * @return
 	 */
 	public BlocDelocalized getBlocDelocalized(Point2D p){
+		if (structure instanceof StructureDelocalized)
+			return null;
+		
 		IMoleculeComponent moleculeComponent  = this.getMoleculeComponent(p);
 		// un bloc est survole si on passe sur un composant du bloc ou le nombre d'electron au barycentre 
 		if (moleculeComponent instanceof IHuckelObject) {
@@ -742,7 +751,7 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 			int height = 0;// fontMetrics.getHeight();
 			int width;
 			Point2D barycentre;
-			for (BlocDelocalized bloc : structure.getListBlocDelocalized()){
+			for (BlocDelocalized bloc : ((StructureLocalized) structure).getListBlocDelocalized()){
 				width = 0; //fontMetrics.stringWidth(this.getFormattedStringBlocElectronsNumber(bloc));
 				barycentre = this.getBlocBarycenter(bloc);
 
@@ -840,18 +849,29 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 			int y = yResult + (++incr) ;
 			Font currentFont = g2d.getFont();
 			FontMetrics metrics = this.getFontMetrics(currentFont);		
-			g2d.drawString(EnergyOrb.EPSILON_SYMBOL, xResult, y );
-
+			int indexOrb=0, index=0, indexPartner=0;
+			if ( this.getShownOrbital() instanceof SpinOrbitaleMoleculaire) {
+				indexOrb=((SpinOrbitaleMoleculaire)this.getShownOrbital()).getIndexTableOrbitale();
+				index=((SpinOrbitaleMoleculaire)this.getShownOrbital()).getIndex();
+				indexPartner=((SpinOrbitaleMoleculaire)this.getShownOrbital()).getPartner().getIndex();
+			}
+			if (DEBUG)
+				g2d.drawString("(" + index + ", " + indexPartner + ") " + indexOrb  + " - " + Energy.EPSILON_SYMBOL , xResult, y );
+			else
+				g2d.drawString(Energy.EPSILON_SYMBOL, xResult, y );
 			Font f = new Font(currentFont.getFamily(), currentFont.getStyle(), currentFont.getSize()-3);
 			g2d.setFont(f);
 			//	FontMetrics metrics2 = this.getFontMetrics(g2d.getFont());		
-			int l1= metrics.stringWidth(EnergyOrb.EPSILON_SYMBOL);
+			int l1=metrics.stringWidth(Energy.EPSILON_SYMBOL); 
+			if (DEBUG)
+				l1= metrics.stringWidth("(" + index + ", " + indexPartner + ") " + indexOrb  + " - " + Energy.EPSILON_SYMBOL);
+		
 			//	String sId=Integer.toString(this.getShownOrbital().getIndex());
 
 			/*g2d.drawString(sId, xResult + l1, y + 5 );*/ // PB : Index incorrect depuis spinOM
 
 			//g2d.setFont(currentFont);
-			g2d.drawString(" = "+ this.getShownOrbital().getEnergy(), xResult + l1 /*+ metrics2.stringWidth(sId)*/, y);
+			g2d.drawString(" = "+ this.getShownOrbital().getEnergy(), xResult + l1  /*+ metrics2.stringWidth(sId)*/, y);
 		} // fin ecrire valeur de l'orbitale selectionnee dans le graphe d'energie
 
 		// ecrire : terminer votre bloc
@@ -1011,13 +1031,7 @@ public class StructureView extends JPanel implements IStructureLocalizedListener
 		this.orbitalMoleculaireShown = orbShown;
 	}
 
-	public void setSelectedBlocDelocalized(BlocDelocalized blocDelocalized) {
-		this.selectedBlocDelocalized = blocDelocalized;
-	}
-
-	public BlocDelocalized getSelectedBlocDelocalized() {
-		return this.selectedBlocDelocalized;
-	}
+	
 	public StructureViewController getController() {
 		return controller;
 	}

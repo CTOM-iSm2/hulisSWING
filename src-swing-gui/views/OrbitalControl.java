@@ -67,14 +67,14 @@ public abstract class OrbitalControl {
 		// DESSINE UN ROND POUR L'ENERGIE SELECTIONNEE
 		g2d.setStroke(new BasicStroke(EnergyControl.DEFAULT_STROKE));
 		if (gom.getsOMSelected() == this.getOM()) {
-			g2d.setColor(this.COLOR_SELECT);
+			g2d.setColor(COLOR_SELECT);
 			g2d.fill(getCircle(p));
 		}
 	
 		// DESSINE UN TRAIT HORIZONTAL
 	
 		g2d.setStroke(new BasicStroke(EnergyControl.LINE_STROKE));
-		g2d.setColor(this.COLOR_LINE);
+		g2d.setColor(COLOR_LINE);
 	
 		g2d.setStroke(new BasicStroke(EnergyControl.LINE_STROKE));
 		g2d.draw(new Line2D.Double(this.p.getX() - EnergyControl.WIDTH / 2,

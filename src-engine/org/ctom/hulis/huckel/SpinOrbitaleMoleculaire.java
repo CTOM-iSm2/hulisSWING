@@ -17,6 +17,8 @@ public class SpinOrbitaleMoleculaire extends OrbitaleMoleculaire implements Clon
 	private SpinOrbitaleMoleculaire partner=null;
 	
 	private int index=-1;
+	private double nbElectrons; // noombre d'electron total incluant le partenaire
+	private int indexTableOrbitale; // le numero de colonne dans le tableau des orbitales
 
 	/**
 	 * @param spin2 
@@ -24,11 +26,15 @@ public class SpinOrbitaleMoleculaire extends OrbitaleMoleculaire implements Clon
 	 * @param arrayList 
 	 * @param coeff : molecular orbital coefficients
 	 * @param spin : spin of the orbital
+	 * @param nbElectrons : nombre d'electrons incluant le partenaire
+	 * @param indexTableOrbitale : index de colonne dans la matrice orbitales, debute a zero ( index vaut 0 pour colonne 1 )
 	 */
 	public SpinOrbitaleMoleculaire(Energy e, double[] coeff, Spin spin) {
 		super(e, coeff);
 		String val = spin.toString();
 		setSpin(val);
+		this.nbElectrons=-1;
+		this.indexTableOrbitale=-1;
 	}
 	
 	/**
@@ -39,14 +45,15 @@ public class SpinOrbitaleMoleculaire extends OrbitaleMoleculaire implements Clon
 		this(that.getEnergy(), that.getCoeffs(), that.getSpin());
 		this.partner=that.partner;
 		this.index = that.index;
+		this.nbElectrons= that.nbElectrons;
+		this.indexTableOrbitale=that.indexTableOrbitale;
 	}
-	
 
-	/**
-	 * This function returns a copy of this spin OM
-	 * @return 
-	 **/
-	// @Override
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
 	public Object clone() {
 		return new SpinOrbitaleMoleculaire(this);
 	}
@@ -89,10 +96,25 @@ public class SpinOrbitaleMoleculaire extends OrbitaleMoleculaire implements Clon
 		return rc;
 	}
 	
-	public static void main(String[] args) {
-		SpinOrbitaleMoleculaire o = new SpinOrbitaleMoleculaire(null);
-		System.out.print(o.toLaTeX());
+
+	/**
+	 * 
+	 * @return
+	 */
+	public double getNbElectrons() {
+		return this.nbElectrons;
 	}
+	
+	/**
+	 * 
+	 * @param nbElectrons
+	 */
+	
+	public void setNbElectrons(double nbElectrons) {
+		 this.nbElectrons=nbElectrons;
+		
+	}
+
 
 	public String toHtml() {
 		return "\u025B<sub>" + "</sub> = " + this.getEnergy().toString();
@@ -153,5 +175,32 @@ public class SpinOrbitaleMoleculaire extends OrbitaleMoleculaire implements Clon
 	public int getIndex() {
 		return index;
 	}
+	
+	/**
+	 * attention, la premiere colonne vaut 0
+	 * @return
+	 */
+	public int getIndexTableOrbitale() {
+		return indexTableOrbitale;
+	}
+	
+	/**
+	 * 
+	 * @param indexTableOrbitale
+	 * @return
+	 */
+	public void setIndexTableOrbitale(int indexTableOrbitale) {
+		this.indexTableOrbitale=indexTableOrbitale;;
+	}
+
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		SpinOrbitaleMoleculaire o = new SpinOrbitaleMoleculaire(null);
+		System.out.print(o.toLaTeX());
+	}
+	
 
 }

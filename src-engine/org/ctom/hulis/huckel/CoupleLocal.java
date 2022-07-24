@@ -3,6 +3,7 @@ package org.ctom.hulis.huckel;
 import java.io.Serializable;
 
 import org.ctom.hulis.huckel.exception.CoupleException;
+import org.ctom.hulis.huckel.structures.StructureLocalized;
 
 /**
  * This class describe a couple between two Huckel atoms
@@ -14,13 +15,18 @@ import org.ctom.hulis.huckel.exception.CoupleException;
  * @since JDK 1.5
  */
 
-public class CoupleLocal extends Couple implements Serializable{
+/**
+ * @author nicolasgoudard
+ *
+ */
+public class CoupleLocal extends Couple implements Cloneable, Serializable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7357221910006124200L;
-
+	private volatile int hashCode = 0;
+	 
 	/**
 	 * Constructor by copy
 	 * @param couple
@@ -43,35 +49,31 @@ public class CoupleLocal extends Couple implements Serializable{
 		this.setObj2(a2);
 	}
 
-	/**
-	 * This method returns a copy of this couple
-	 * @return a copy of this couple
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Object clone() {
 		return new CoupleLocal(this);
 	}
 	
-	/**
-	 * This function tests if the both atoms are contained in the couple
-	 * @param a1 : first atom to test
-	 * @param a2 : second atom to test
-	 * @return true if the couple contains the both atom.
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
 	 */
-	public boolean contains(Object obj1, Object obj2) {
-		if (!(obj1 instanceof HuckelAtom)) return false;
-		if (!(obj2 instanceof HuckelAtom)) return false;
-		HuckelAtom Atom1 = (HuckelAtom) this.getObj1();
-		HuckelAtom Atom2 = (HuckelAtom) this.getObj2();
-		HuckelAtom Atom3 = (HuckelAtom) obj1;
-		HuckelAtom Atom4 = (HuckelAtom) obj1;
-		if (((Atom1 == Atom3) && (Atom2 == Atom4))
-				|| ((Atom1 == Atom4) && (Atom2 == Atom3)))
-			return true;
-		else
-			return false;
+	@Override
+    public int hashCode () {
+        final int multiplier = 23;
+        if (hashCode == 0) {
+            int code = 133;
+            code = multiplier * code + this.getHuckelAtom1().hashCode();
+            code = multiplier * code +this.getHuckelAtom2().hashCode();
+            hashCode = code;
+        }
+        return hashCode;
+	
 	}
-
+	
 	/**
 	 * This function tests if two couples are equals 
 	 * @param c : another couple
@@ -92,19 +94,43 @@ public class CoupleLocal extends Couple implements Serializable{
 				.equals(cLocal.getHuckelAtom1())));
 	}
 
-	private volatile int hashCode = 0;
-	 
-	@Override
-    public int hashCode () {
-        final int multiplier = 23;
-        if (hashCode == 0) {
-            int code = 133;
-            code = multiplier * code + this.getHuckelAtom1().hashCode();
-            code = multiplier * code +this.getHuckelAtom2().hashCode();
-            hashCode = code;
-        }
-        return hashCode;
+	/**
+	 * 
+	 * @param target
+	 * @return
+	 */
+	public CoupleLocal getCopy (StructureLocalized target) {
+		try {
+			return new CoupleLocal(
+			(HuckelAtom) target.getAtomByIndex(this
+					.getHuckelAtom1().getIndex()),
+					(HuckelAtom) target.getAtomByIndex(this
+							.getHuckelAtom2().getIndex()));
+		} catch (CoupleException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	
+	/**
+	 * This function tests if the both atoms are contained in the couple
+	 * @param a1 : first atom to test
+	 * @param a2 : second atom to test
+	 * @return true if the couple contains the both atom.
+	 */
+	public boolean contains(Object obj1, Object obj2) {
+		if (!(obj1 instanceof HuckelAtom)) return false;
+		if (!(obj2 instanceof HuckelAtom)) return false;
+		HuckelAtom Atom1 = (HuckelAtom) this.getObj1();
+		HuckelAtom Atom2 = (HuckelAtom) this.getObj2();
+		HuckelAtom Atom3 = (HuckelAtom) obj1;
+		HuckelAtom Atom4 = (HuckelAtom) obj1;
+		if (((Atom1 == Atom3) && (Atom2 == Atom4))
+				|| ((Atom1 == Atom4) && (Atom2 == Atom3)))
+			return true;
+		else
+			return false;
 	}
 	
 	/**

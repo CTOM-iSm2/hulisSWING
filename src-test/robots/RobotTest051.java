@@ -30,7 +30,6 @@ public class RobotTest051 extends TutorialCommands {
 		clickEraseAll();
 		syncAndDelay();
 		delay(2000);
-		SwingIO.setVerbose(false);
 		applet.selectMethod  ("HLCI", false);
 		applet.selectMethod  ("HLP", false);
 		try {
@@ -65,9 +64,6 @@ public class RobotTest051 extends TutorialCommands {
 			applet.selectMethod  ("HLCI", true);	
 
 			Utils.compareMesomeryXML (applet , "C5H5");
-
-			
-			SwingIO.setVerbose(true);
 
 			TestOut.println("TEST OK. Open "+TestOut.OUT_NAME + " to read the speed time");
 		

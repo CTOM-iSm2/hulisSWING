@@ -14,7 +14,7 @@ import org.ctom.hulis.huckel.exception.CoupleException;
  * @since JDK 1.5
  */
 
-public abstract class Couple implements Cloneable, Serializable{
+public abstract class Couple implements Serializable{
 	/**
 	 * 
 	 */
@@ -73,13 +73,7 @@ public abstract class Couple implements Cloneable, Serializable{
 			throw new CoupleException("objects to couple must be different");
 	}
 
-	/**
-	 * This method returns a copy of this couple
-	 * @return a copy of this couple
-	 */
-	@Override
-	public abstract Object clone();
-	
+		
 	/**
 	 * This function tests if the both atoms are contained in the couple
 	 * @param a1 : first atom to test

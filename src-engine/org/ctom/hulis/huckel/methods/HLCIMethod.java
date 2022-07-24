@@ -446,19 +446,11 @@ public class HLCIMethod implements IMethod, Cloneable, IMethodHasOptimizableMatr
 	}
 
 
-
-	/**
-	 * This function returns a copy of the HLCI method
-	 * @return a copy of hamiltonian, Ci, weights 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Object clone() {
-		try {
-			super.clone();
-		}
-		 catch (CloneNotSupportedException e) {
-			return null;
-		}
 		return new HLCIMethod(this);
 	}
 

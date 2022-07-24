@@ -9,7 +9,7 @@ public class HuckelIO {
 
 	private static MyLogger logger = new MyLogger();
 
-	private static boolean verbose = true;
+	private static final boolean verbose = true;
 
 	public static MyLogger getLooger() {
 		return HuckelIO.logger;
@@ -95,9 +95,6 @@ public class HuckelIO {
 		return HuckelIO.verbose;
 	}
 
-	public static void setVerbose(boolean verbose) {
-		HuckelIO.verbose = verbose;
-	}
 	
 	public static void log(String sourceClass, String sourceMethod, String msg) {
 		HuckelIO.logger.logp("INFO", sourceClass, sourceMethod, msg);

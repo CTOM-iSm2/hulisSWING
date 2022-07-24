@@ -27,14 +27,16 @@ import org.ctom.hulis.huckel.exception.MonoExcitationException;
 import org.ctom.hulis.huckel.exception.SpinOrbitaleMoleculaireException;
 import org.ctom.hulis.huckel.listeners.IMoleculeValueListener;
 import org.ctom.hulis.huckel.listeners.IStructureDelocalizedListener;
+import org.ctom.hulis.util.VectorssHuckel;
 import org.ctom.hulis.util.geometry.Geometry;
 import org.ctom.hulis.util.io.HuckelIO;
 import org.ctom.util.maths.Maths;
 import org.ctom.util.maths.Rotation;
 
+import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
-public class StructureDelocalized extends Structure implements Serializable  {
+public class StructureDelocalized extends Structure implements Cloneable, Serializable  {
 
 	/**
 	 * 
@@ -51,6 +53,15 @@ public class StructureDelocalized extends Structure implements Serializable  {
 		setName(StructureDelocalized.NAME_DELOCALIZED_STRUCTURE);
 	}
 
+	/**
+	 * @param readxyz
+	 * @throws HuckelBondException
+	 * @throws BondException
+	 * @throws MoleculeTooManyNeighboursException
+	 * @throws MoleculeCoherenceException
+	 * @throws MoleculeBondExistsException
+	 * @throws ReadxyzException
+	 */
 	public StructureDelocalized(GeometryReader readxyz) throws HuckelBondException, BondException, MoleculeTooManyNeighboursException, MoleculeCoherenceException, MoleculeBondExistsException, ReadxyzException {
 		super();
 		setName(StructureDelocalized.NAME_DELOCALIZED_STRUCTURE);
@@ -61,15 +72,6 @@ public class StructureDelocalized extends Structure implements Serializable  {
 		setAutoCorrectH(true);
 		if (isEnabledFlyCalculate())
 			calculate();
-	}
-
-
-	/**
-	 * @param cloneResults
-	 * @return
-	 */
-	public Object clone(boolean cloneResults) {
-		return new StructureDelocalized (this, cloneResults);
 	}
 
 
@@ -86,7 +88,51 @@ public class StructureDelocalized extends Structure implements Serializable  {
 		setName(s.getName());
 	}
 
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Molecule#clone()
+	 */
+	@Override
+	public Object clone() {
+		return new StructureDelocalized(this);
+	}
 
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#hashCode()
+	 */
+	@Override
+    public int hashCode () {
+        final int multiplier = 23;
+        if (hashCode == 0) {
+            int code = 133;
+            code = multiplier * code + super.hashCode();
+            hashCode = code;
+        }
+        return hashCode;
+	
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (!super.equals(o))
+			return false;
+		
+		if (!(o instanceof StructureDelocalized))
+			return false;
+		
+		return true;
+	}
+
+
+	/**
+	 * @param cloneResults
+	 * @return
+	 */
+	public Object clone(boolean cloneResults) {
+		return new StructureDelocalized (this, cloneResults);
+	}
 
 	@Override
 	public void addAtom(Atom a) throws HuckelBondException, BondException, MoleculeTooManyNeighboursException, MoleculeCoherenceException, MoleculeBondExistsException {
@@ -112,22 +158,6 @@ public class StructureDelocalized extends Structure implements Serializable  {
 	}
 
 	@Override
-	public void addBlocDelocalized(BlocDelocalized blocDelocalized) {
-		if  ((this.mesomeryParent != null) && (this.mesomeryParent.countLocalizedStructs() >0))
-			throw new RuntimeException ("Cannot add a block in the delocalized structure. There are localized structures in the mesomery");
-		super.addBlocDelocalized(blocDelocalized);
-	
-	}
-
-	@Override
-	public void removeBlocDelocalized(BlocDelocalized blocDelocalized) {
-		if  ((this.mesomeryParent != null) && (this.mesomeryParent.countLocalizedStructs() >0))
-			throw new RuntimeException ("Cannot remove a block in the delocalized structure. There are localized structures in the mesomery");
-		super.removeBlocDelocalized(blocDelocalized);
-	
-	}
-
-	@Override
 	public void removeBond(Bond l) throws HuckelBondException, BondException, MoleculeTooManyNeighboursException, MoleculeCoherenceException, MoleculeBondExistsException {
 		if  ((this.mesomeryParent != null) && (this.mesomeryParent.countLocalizedStructs() >0))
 			throw new MoleculeCoherenceException ("Cannot remove a bond in the delocalized structure. There are localized structures in the mesomery");
@@ -147,17 +177,7 @@ public class StructureDelocalized extends Structure implements Serializable  {
 		if  ((this.mesomeryParent != null) && (this.mesomeryParent.countLocalizedStructs() >0))
 			throw new RuntimeException("Cannot remove excitation in the delocalized structure. There are localized structures in the mesomery");
 		super.removeMonoExcitation(monoExcitation);
-	}
-
-
-	@Override
-	public void monoExcitationTriggered(MonoExcitationEvent e) {
-		if  ((this.mesomeryParent != null) && (this.mesomeryParent.countLocalizedStructs() >0))
-			throw new RuntimeException("Cannot trigger a monoexcitation in the delocalized structure. There are localized structures in the mesomery");
-		super.monoExcitationTriggered(e);
-	}
-	
-	
+	}	
 
 	@Override
 	public void rotate(Rotation mRot) {
@@ -203,10 +223,91 @@ public class StructureDelocalized extends Structure implements Serializable  {
 	protected void appliqueCouplage() {
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calcOrbitalsEnergies()
+	 */
 	@Override
-	protected int[] calcDistributionElecArray() {
+	protected  double[] calcOrbitalsEnergies() {
+		Matrix hamiltonien = getMatrixHamiltonian();
+		EigenvalueDecomposition eigenvalueDecomposition = new EigenvalueDecomposition(hamiltonien);
+		return VectorssHuckel.sort(eigenvalueDecomposition.getRealEigenvalues());
+		
 
-		int[] repartitionElec = new int[countHuckelAtoms()];
+	}
+	
+	
+	/**
+	 * This function returns the charges of the molecule
+	 * 
+	 * @return double []
+	 */
+	protected double[] calcChargeDensitiesArray() {
+		double[] tblCharges = new double[countHuckelAtoms()];
+		double somme = 0.0;
+		double Ci = 0.0;
+		double[] repartitionElec = distributionElecPiArray;
+		int i;
+		int j;
+		HuckelAtom a;
+
+		for (i = 0; i < this.orbitalsCoeffArray.length; i++) {
+			somme = 0;
+			for (j = 0; j < this.orbitalsCoeffArray[i].length; j++) {
+				Ci = this.orbitalsCoeffArray[i][j];
+				somme += (Ci * Ci) * repartitionElec[j];
+			}
+			a = getHuckelAtomBySeqNum(i + 1);
+			tblCharges[i] = a.getNbElecPi() - somme;
+			a.setDensity(tblCharges[i]);
+		}
+
+
+		return tblCharges;
+	}
+	
+	
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calcBondOrdersArray()
+	 */
+	protected double[][] calcBondOrdersArray() {
+		double somme = 0.0;
+		double CA = 0.0;
+		double CB = 0.0;
+		double[] repartitionElec = distributionElecPiArray;
+		double[][] ordresLiaison = new double[this.orbitalsCoeffArray.length][this.orbitalsCoeffArray.length];
+		int i;
+		int j;
+		int l;
+
+		for (i = 0; i < ordresLiaison.length; i++) {
+			for (j = 0; j < ordresLiaison[i].length; j++) {
+				somme = 0;
+				for (l = 0; l < this.orbitalsCoeffArray.length; l++) {
+					CA = this.orbitalsCoeffArray[i][l];
+					CB = this.orbitalsCoeffArray[j][l];
+					somme += (CA * CB) * repartitionElec[l];
+				}
+				ordresLiaison[i][j] = somme;
+			}
+		}
+
+		for (HuckelBond b : getHuckelBonds()) {
+			b.setBondOrder(ordresLiaison[b.getAtom1().getSeqNum() - 1][b
+			                                                           .getAtom2().getSeqNum() - 1]);
+		}
+
+		return ordresLiaison;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calcDistributionElecArray()
+	 */
+	@Override
+	protected double[] calcDistributionElecArray() {
+
+		double[] repartitionElec = new double[countHuckelAtoms()];
 		double[] energies = getOrbitalsEnergies();
 		int nbElecADistribuer = getNbElecCharge() + getSumAtomsNbElecPi();
 
@@ -250,8 +351,8 @@ public class StructureDelocalized extends Structure implements Serializable  {
 		return repartitionElec;
 	}
 
-	public int[] TreatExcitations(int[] repartitionInit) {
-		int[] repartitionNew = repartitionInit.clone();
+	public double[] TreatExcitations(double[] repartitionInit) {
+		double[] repartitionNew = repartitionInit.clone();
 		// yannick
 		// traitement des monoexcitations
 		/*
@@ -298,39 +399,14 @@ public class StructureDelocalized extends Structure implements Serializable  {
 
 	}
 
-	@Override
-	public Object clone() {
-		return new StructureDelocalized(this);
-	}
+
+	
+	
 
 	public StructureLocalized cloneToLocalized() {
 		return new StructureLocalized(this);
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		
-		if (!(o instanceof StructureDelocalized))
-			return false;
-		StructureDelocalized s = (StructureDelocalized) o;
-
-		return super.equals(s);
-	}
-
-	
-	@Override
-    public int hashCode () {
-        final int multiplier = 23;
-        if (hashCode == 0) {
-            int code = 133;
-            code = multiplier * code + super.hashCode();
-            hashCode = code;
-        }
-        return hashCode;
-	
-	}
 	
 	@Override
 	protected Matrix getMatrixHamiltonian() {
@@ -346,11 +422,10 @@ public class StructureDelocalized extends Structure implements Serializable  {
 
 
 		for (HuckelAtom a : this.getHuckelAtoms()){
-			if (a.getSeqNum() == 0)
+			if (a.getSeqNum() <= 0)
 				return null;
 
-			if (a.getSeqNum() > 0)
-				hamiltonien.set(a.getSeqNum() - 1, a.getSeqNum() - 1, a
+			hamiltonien.set(a.getSeqNum() - 1, a.getSeqNum() - 1, a
 						.getHx());
 		}
 
@@ -398,6 +473,7 @@ public class StructureDelocalized extends Structure implements Serializable  {
 				this.bondOrdersArray = calcBondOrdersArray();
 				this.totalEnergy.set(getTotalEnergyAlpha(), getTotalEnergyBeta());
 
+				resetSOM();
 				this.fireStructureDelocalizedSpinChanged(this, null, null);
 				break;
 			case 2:
@@ -418,7 +494,7 @@ public class StructureDelocalized extends Structure implements Serializable  {
 				this.bondOrdersArray = calcBondOrdersArray();
 				this.totalEnergy.set(getTotalEnergyAlpha(), getTotalEnergyBeta());
 
-
+				resetSOM();
 				this.fireStructureDelocalizedSpinChanged(this, null, null);
 				break;
 			default:
@@ -466,6 +542,7 @@ public class StructureDelocalized extends Structure implements Serializable  {
 				this.bondOrdersArray = calcBondOrdersArray();
 				this.totalEnergy.set(getTotalEnergyAlpha(), getTotalEnergyBeta());
 
+				resetSOM();
 				this.fireStructureDelocalizedSpinChanged(this, null, null);
 				break;
 			case 2:
@@ -486,6 +563,7 @@ public class StructureDelocalized extends Structure implements Serializable  {
 				this.bondOrdersArray = calcBondOrdersArray();
 				this.totalEnergy.set(getTotalEnergyAlpha(), getTotalEnergyBeta());
 
+				resetSOM();
 				this.fireStructureDelocalizedSpinChanged(this, null, null);
 				break;
 			default:
@@ -516,6 +594,22 @@ public class StructureDelocalized extends Structure implements Serializable  {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	protected double[][] calcOrbitalsCoefficients() {
+		Matrix hamiltionianOutsideBlocks  = this.getMatrixHamiltonian();
+		EigenvalueDecomposition eigenvalueDecomposition = new EigenvalueDecomposition(hamiltionianOutsideBlocks);
+		return VectorssHuckel.sort(eigenvalueDecomposition.getV().getArray());
+		
+	}
+
+	@Override
+	public void monoExcitationTriggered(MonoExcitationEvent e) {
+		if  ((this.mesomeryParent != null) && (this.mesomeryParent.countLocalizedStructs() >0))
+			throw new RuntimeException("Cannot trigger a monoexcitation in the delocalized structure. There are localized structures in the mesomery");
+		super.monoExcitationTriggered(e);
+	}
+	
 
 	protected void fireStructureDelocalizedSpinChanged(StructureDelocalized source, Object oldValue, Object newValue) {
 		resetSOM();
@@ -540,5 +634,7 @@ public class StructureDelocalized extends Structure implements Serializable  {
 	public void removeListener(IStructureDelocalizedListener listener) {
 		super.removeListener(listener);
 	}
+
+	
 
 }

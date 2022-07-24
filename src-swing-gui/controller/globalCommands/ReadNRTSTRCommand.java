@@ -13,6 +13,7 @@ import org.ctom.hulis.huckel.exception.IMethodException;
 import org.ctom.hulis.huckel.exception.MesomeryCopyException;
 import org.ctom.hulis.huckel.exception.MesomeryDelocalizedStructureExistsException;
 import org.ctom.hulis.huckel.exception.MesomeryNoStructureLocalizedException;
+import org.ctom.hulis.huckel.exception.SelectionException;
 import org.ctom.hulis.huckel.methods.IMethod;
 
 import util.io.SwingIO;
@@ -124,22 +125,7 @@ public class ReadNRTSTRCommand implements ICommand {
 			this.app.getStateManager().saveState();
 			
 
-		} catch (CoupleException e) {
-			this.failReason = e.getMessage();
-			e.printStackTrace();
-		} catch (IMethodException e) {
-			this.failReason = e.getMessage();
-			e.printStackTrace();
-		} catch (MesomeryNoStructureLocalizedException e) {
-			this.failReason = e.getMessage();
-			e.printStackTrace();
-		} catch (MesomeryDelocalizedStructureExistsException e) {
-			this.failReason = e.getMessage();
-			e.printStackTrace();
-		} catch (MesomeryCopyException e) {
-			this.failReason = e.getMessage();
-			e.printStackTrace();
-		} catch (ReadGaussianException e) {
+		} catch (CoupleException | SelectionException | IMethodException | MesomeryNoStructureLocalizedException e) {
 			this.failReason = e.getMessage();
 			e.printStackTrace();
 		} catch (Exception e) {

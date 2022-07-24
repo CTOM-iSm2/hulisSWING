@@ -13,13 +13,14 @@ import org.ctom.hulis.huckel.exception.IMethodException;
 import org.ctom.hulis.huckel.exception.IncorrectNumberPiElectronsException;
 import org.ctom.hulis.huckel.exception.MesomeryNoStructureLocalizedException;
 import org.ctom.hulis.huckel.structures.Structure;
+import org.ctom.hulis.huckel.structures.StructureLocalized;
 import org.ctom.util.maths.Point3D;
 
+import controller.globalCommands.ActionEndBloc;
 import util.io.SwingIO;
 import views.DialogChangeBloc;
 import views.Selection;
 import views.StructureView;
-import controller.globalCommands.ActionEndBloc;
 /***
  * this class describes the mouse events in the molecule panel if the bloc button is selected
  * 
@@ -33,27 +34,33 @@ public class BlocState implements IStructureViewControllerState{
 	BlocDelocalized currentBlocDelocalized;
 	boolean savStructCalculateFly ;
 	boolean savMesomeryCalculateFly ;
+	 // variable startSelectRect qui se met a true quand on commence a selectioner un atome, ca permet de ne pas detruire le bloc quand on clique dehors
+	private boolean startSelectRect;
 	
 	public BlocState(){
 		pRectBegin = null;
 		pRectEnd = null;
 		currentBlocDelocalized= null;
+		this.startSelectRect=false;
 	}
 	
 	//@Override
 	public void mouseClicked(StructureViewController structureViewController, Point2D p) {
 		if (!ActionEndBloc.checkCurrentBlocInCurrentStructure(structureViewController.getStructureView().getMesomeryView().getFrameApp()))
 			return;
+
 		SwingIO.log(this.getClass().getName(), "mouseClicked", "create or modify bloc");
 				
 		StructureView structureView = structureViewController.getStructureView();
-		Structure structure = structureViewController.getStructure();
+		StructureLocalized structure = (StructureLocalized) structureViewController.getStructure();
+		
+		System.out.println("debut clicked PSi" + structure.getName() + ", " + currentBlocDelocalized);
 		
 		Point3D p3d = structureView.getPoint3D(p);
 		IMoleculeComponent component = structureView.getMoleculeComponent(p);
 	
 		//  selectionner le bloc de l'object ou on clique ou creer un nouveau bloc
-		currentBlocDelocalized = structureView.getSelectedBlocDelocalized();
+		currentBlocDelocalized = StructureView.getSelectedBlocDelocalized();
 		if ( currentBlocDelocalized == null){
 			BlocDelocalized blocSelect = structureView.getBlocDelocalized(p);
 			if (blocSelect != null){
@@ -67,7 +74,7 @@ public class BlocState implements IStructureViewControllerState{
 					return;
 
 				currentBlocDelocalized = new BlocDelocalized();
-				structureView.setSelectedBlocDelocalized(currentBlocDelocalized);
+				StructureView.setSelectedBlocDelocalized(currentBlocDelocalized);
 				structure.addBlocDelocalized(currentBlocDelocalized);
 			}
 		}
@@ -75,12 +82,11 @@ public class BlocState implements IStructureViewControllerState{
 		IHuckelObject huckelObject = (IHuckelObject) component;
 
 		if (huckelObject.getBlocDelocalizedParent() == null) {
+			SwingIO.log(this.getClass().getName(), "mouseClicked", "add " + huckelObject  + " in block");
 			try {
-				SwingIO.log(this.getClass().getName(), "mouseClicked", "add " + huckelObject  + " in block");
 				currentBlocDelocalized.addHuckelObject(huckelObject);
 			} catch (BlocDelocalizedException e) {
-				// si un atome ou liaison n'appartient pas a un bloc, cree un log
-				SwingIO.warning(this.getClass().getName(), "mouseClicked", e.getMessage(), e);		
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -88,7 +94,8 @@ public class BlocState implements IStructureViewControllerState{
 			SwingIO.log(this.getClass().getName(), "mouseClicked", "remove " + huckelObject  + " from block");
 			currentBlocDelocalized.removeHuckelObject(huckelObject);
 		}
-		currentBlocDelocalized.setNbElectron(currentBlocDelocalized.getSumAtomsNbElecPi());
+
+		System.out.println("fin clicked PSi" + structure.getName() + ", " + currentBlocDelocalized);
 	}
 
 	//@Override
@@ -99,7 +106,7 @@ public class BlocState implements IStructureViewControllerState{
 		SwingIO.log(this.getClass().getName(), "mouseDragged", "drag to select multiple element to add in a block");
 		StructureView structureView = structureViewController.getStructureView();
 		// tracer un rectangle pour la zone selectionnee
-		Structure structure  = structureViewController.getStructure();
+		StructureLocalized structure  =  (StructureLocalized) structureViewController.getStructure();
 		
 		pRectEnd = p;
 	
@@ -121,11 +128,14 @@ public class BlocState implements IStructureViewControllerState{
 		Selection selection =new Selection(rect,StructureView.SELECTED_BLOC_DELOCALIZED_COLOR, StructureView.SELECTED_BLOC_DELOCALIZED_STROKE );
 		structureView.setSelection(selection);
 		
-		
 		// s'il y a un bloc deja selecionne, on le prend et on le vide
 		currentBlocDelocalized = structureView.getSelectedBlocDelocalized();
-		if ( currentBlocDelocalized != null)
+
+	    	if ( currentBlocDelocalized != null &&   this.startSelectRect ) {
 			currentBlocDelocalized.empty();
+	    	}
+
+	    	
 	
 		Point2D p2d;
 		// quand on tire la souris en appuyant sur le bouton, selectionner les objets a l'interieur de 
@@ -135,30 +145,30 @@ public class BlocState implements IStructureViewControllerState{
 			x = p2d.getX();
 			y = p2d.getY();
 			if (((Rectangle2D) (selection.getShape())).contains(x,y) && (o.getBlocDelocalizedParent()==null) ) {
-			//  selectionner le bloc de l'object ou on clique ou creer un nouveau bloc
-				// on le fait dnas cette boucle car ca ne sert a rien de creer un bloc si rien n'est selectionner
+				this.startSelectRect=true;
+				//  selectionner le bloc de l'object ou on clique ou creer un nouveau bloc
+				// on le fait dans cette boucle car ca ne sert a rien de creer un bloc si rien n'est selectionner
 				// sinon ca fausse le comportemment de ActionEndBloc
 				if ( currentBlocDelocalized == null){
 					currentBlocDelocalized = new BlocDelocalized();
-					structureView.setSelectedBlocDelocalized(currentBlocDelocalized);
+					StructureView.setSelectedBlocDelocalized(currentBlocDelocalized);
 					structure.addBlocDelocalized(currentBlocDelocalized);
 				}
 				
+				SwingIO.log(this.getClass().getName(), "mouseDragged", "add " + o + " in block");
 				try {
-					SwingIO.log(this.getClass().getName(), "mouseDragged", "add " + o + " in block");
 					currentBlocDelocalized.addHuckelObject(o);
 				} catch (BlocDelocalizedException e) {
-					// si un atome ou liaison n'appartient pas a un bloc, cree un log
-					SwingIO.warning(this.getClass().getName(), "mouseDragged", e.getMessage(), e);		
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			
-				currentBlocDelocalized.setNbElectron(currentBlocDelocalized.getSumAtomsNbElecPi());
+				
 
 			}
 		}
 		
-		
+		currentBlocDelocalized.setNbElectron(currentBlocDelocalized.getSumAtomsNbElecPi());
+
 		structureView.repaint();
 	}
 
@@ -208,15 +218,18 @@ public class BlocState implements IStructureViewControllerState{
 		SwingIO.log(this.getClass().getName(), "mouseReleased", "end multiple selection : recalculate weights, etc...");
 		StructureView structureView = structureViewController.getStructureView();
 		Structure structure = structureViewController.getStructure();
-		if (structure != null && savStructCalculateFly){
+		if ((structure != null) && savStructCalculateFly){
 			structure.startFlyCalculate();
-			structure.calculate();
+			if (currentBlocDelocalized!= null)
+				structure.calculate();
 		}
+		
 		Mesomery mesomery = structure.getMesomeryParent();
 		if (mesomery != null && savMesomeryCalculateFly){
 			mesomery.startFlyCalculate();
 			try {
-				mesomery.calculate();
+				if (currentBlocDelocalized!= null)
+					mesomery.calculate();
 			} catch (IncorrectNumberPiElectronsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -232,10 +245,11 @@ public class BlocState implements IStructureViewControllerState{
 			}
 		}
 		structureView.setSelection(null);
-		structureView.repaint();
 		pRectBegin = null;
 		pRectEnd = null;
-			
+		this.startSelectRect=false;
+		structureView.repaint();
+		
 	}
 
 }

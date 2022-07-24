@@ -1313,7 +1313,15 @@ IMesomeryReference, IGlobalCommands, ChangeListener {
 	//@Override
 	public void moleculeBlocDelocalizedAdded(
 			MoleculeEvent event) {
-		// TODO Auto-generated method stub
+		ThreadUtils.invokeAsSoonAsPossible(new Runnable(){
+
+			public void run() {
+				refresh();
+
+
+			}
+
+		});
 
 	}
 

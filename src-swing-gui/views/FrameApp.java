@@ -172,7 +172,7 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	 */
 
 
-	final Version version = new Version(3, 4, 0, "c dev"); // VERSION OF HULIS
+	final Version version = new Version(3, 4, 0, "dev 6"); // VERSION OF HULIS
 
 
 	static {
@@ -421,14 +421,27 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	 * 
 	 * 
 	 */
-
 	static final float getMajorJavaVersion(String javaVersion) {
 		try {
-			return Float.valueOf(javaVersion.substring(0, 3)); // Float.parseFloat(javaVersion.substring(0,
+			String x="0",y="0";
+			int p = javaVersion.indexOf('.');
+				
+			if (p>0)
+				x= javaVersion.substring(0, p);
+			else 
+				return Float.valueOf(javaVersion);
+				
+			int p2 = javaVersion.indexOf('.',p+1);
+			if (p2>p)
+				y= javaVersion.substring(p+1, p2);
+			else 
+				y= javaVersion.substring(p+1);
+			
+			return Float.valueOf(x+"."+y); // Float.parseFloat(javaVersion.substring(0,
 			// 3));
 		} catch (NumberFormatException e) {
 			// Some JVMs may not conform to the x.y.z java.version format
-			return FrameApp.MINIMAL_REQUIRED_JAVA_VERSION;
+			return MINIMAL_REQUIRED_JAVA_VERSION;
 		}
 	}
 
@@ -439,7 +452,6 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 
 		ThreadUtils.invokeAsSoonAsPossible(new Runnable() {
 			public void run() {
-
 				AppletToFrame.createAndShowGUI(true);
 			}
 		});
@@ -1013,7 +1025,6 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	@Override
 	public void init() {
 		
-		SwingIO.setVerbose(Rights.CONSOLE_VERBOSE);
 		SwingIO.log(this.getClass().getName(), "init", "start applet "  + FrameApp.ksoftname + " "+this.getVersion());
 		
 		super.init();

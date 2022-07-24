@@ -73,7 +73,6 @@ public class RobotTest050 extends TutorialCommands {
 		clickEraseAll();
 		syncAndDelay();
 		delay(2000);
-		SwingIO.setVerbose(false);
 		//applet.selectMethod  ("HLCI", false);
 		applet.selectMethod  ("HLP", false);
 		try {
@@ -117,8 +116,6 @@ public class RobotTest050 extends TutorialCommands {
 			Utils.compareMesomeryXML (applet , "benzene");
 			
 			
-			SwingIO.setVerbose(true);
-
 			TestOut.println("TEST OK");
 
 			

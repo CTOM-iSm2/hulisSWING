@@ -2,14 +2,10 @@ package org.ctom.hulis.huckel.structures;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 import org.ctom.hulis.huckel.Atom;
 import org.ctom.hulis.huckel.Energy;
-import org.ctom.hulis.huckel.HuckelAtom;
-import org.ctom.hulis.huckel.HuckelBond;
 import org.ctom.hulis.huckel.IDebuggable;
-import org.ctom.hulis.huckel.IHuckelObject;
 import org.ctom.hulis.huckel.Mesomery;
 import org.ctom.hulis.huckel.Molecule;
 import org.ctom.hulis.huckel.MonoExcitation;
@@ -25,7 +21,6 @@ import org.ctom.hulis.huckel.exception.BondException;
 import org.ctom.hulis.huckel.exception.HLPOverlapException;
 import org.ctom.hulis.huckel.exception.HuckelBondException;
 import org.ctom.hulis.huckel.exception.HulisException;
-import org.ctom.hulis.huckel.exception.MoleculeAtomNullException;
 import org.ctom.hulis.huckel.exception.MoleculeBondExistsException;
 import org.ctom.hulis.huckel.exception.MoleculeCoherenceException;
 import org.ctom.hulis.huckel.exception.MoleculeTooManyNeighboursException;
@@ -64,7 +59,7 @@ IMonoExcitationListener{
 
 	protected double[] chargeDensitiesArray;
 
-	protected int[] distributionElecPiArray;
+	protected double[] distributionElecPiArray;
 
 	protected double[] energiesArray;
 	private SpinOrbitaleMoleculaire[] SOM = null;
@@ -81,11 +76,16 @@ IMonoExcitationListener{
 	protected Energy totalEnergy;
 	private double overlapHLP;
 	private int indexSelection;
-	
 	private DensityOfStates dos;
 	private Symmetry symmetry;
+	private SpinOrbitaleMoleculaire[] occSOMs=null;
+	private boolean isCloneResultsCacheWhenCloneStructure;
+	private ArrayList<NatOrbitaleMoleculaire> naturalOrbitals=new ArrayList<NatOrbitaleMoleculaire>();
 
 
+	/**
+	 * 
+	 */
 	public Structure() {
 		super();
 		this.index = 0;
@@ -100,11 +100,9 @@ IMonoExcitationListener{
 	}
 
 
-
-	public double getOverlapHLP() {
-		return this.overlapHLP;
-	}
-
+	/**
+	 * @param structure
+	 */
 	public Structure(Structure structure) {
 		super(structure);
 
@@ -137,7 +135,87 @@ IMonoExcitationListener{
 		}
 
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Molecule#hashCode()
+	 */
+	@Override
+	public int hashCode () {
+		final int multiplier = 23;
+		if (hashCode == 0) {
+			int code = 133;
+			code = multiplier * code + this.getIndex();
+			code = multiplier * code + this.getName().hashCode();
+			code = multiplier * code +  super.hashCode();
+			hashCode = code;
+		}
+		return hashCode;
 
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Molecule#equals(java.lang.Object)
+	 */
+	@Override 
+	public boolean equals(Object o) {
+		if (!super.equals(o))
+			return false;
+		
+		if (!(o instanceof Structure))
+			return false;
+
+		Structure s = (Structure) o;
+
+		if (this.getIndex() != s.getIndex())
+			return false;
+
+		if (!this.getName().equals(s.getName()))
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isEmpty() {
+		return(this.countAtoms() == 0);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean hasDemiElectrons() {
+		for (int i=0; i<this.countSpinOM();i++) {
+			SpinOrbitaleMoleculaire som;
+			try {
+				som = this.getSpinOM(i);
+				if (som.getSpin()==Spin.DEMI_ELECTRON) 
+					return true;
+			} catch (NoSOMAvailableException | UnavailableSOMException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			} 
+
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public double getOverlapHLP() {
+		return this.overlapHLP;
+	}
+
+	/**
+	 * 
+	 * @param structure
+	 */
 	public void copyArrays(Structure structure) {
 		if (!areCorrectAtomsSeqNum() || countAtoms() == 0) {
 			this.clearDataCache();
@@ -186,7 +264,7 @@ IMonoExcitationListener{
 		this.SOM = null;
 		bondOrdersArray = new double[0][0];
 		chargeDensitiesArray = new double[0];
-		distributionElecPiArray = new int[0];
+		distributionElecPiArray = new double[0];
 		energiesArray= new double[0];
 		hamiltonianArray= new double[0][0];
 		monoExcitations.clear();
@@ -215,66 +293,17 @@ IMonoExcitationListener{
 	 * 
 	 * @return double[][]
 	 */
-
-	protected double[][] calcBondOrdersArray() {
-		double somme = 0.0;
-		double CA = 0.0;
-		double CB = 0.0;
-		int[] repartitionElec = calcDistributionElecArray();
-		double[][] ordresLiaison = new double[this.orbitalsCoeffArray.length][this.orbitalsCoeffArray.length];
-		int i;
-		int j;
-		int l;
-
-		for (i = 0; i < ordresLiaison.length; i++) {
-			for (j = 0; j < ordresLiaison[i].length; j++) {
-				somme = 0;
-				for (l = 0; l < this.orbitalsCoeffArray.length; l++) {
-					CA = this.orbitalsCoeffArray[i][l];
-					CB = this.orbitalsCoeffArray[j][l];
-					somme += (CA * CB) * repartitionElec[l];
-				}
-				ordresLiaison[i][j] = somme;
-			}
-		}
-
-		for (HuckelBond b : getHuckelBonds()) {
-			b.setBondOrder(ordresLiaison[b.getAtom1().getSeqNum() - 1][b
-			                                                           .getAtom2().getSeqNum() - 1]);
-		}
-
-		return ordresLiaison;
-	}
+	protected abstract double[][] calcBondOrdersArray();
+	
 
 
 	/**
-	 * This function returns the charges of the molecule
-	 * 
-	 * @return double []
+	 *  This function returns the charges of the molecule
+	 * @return
 	 */
-	protected double[] calcChargeDensitiesArray() {
-		double[] tblCharges = new double[countHuckelAtoms()];
-		double somme = 0.0;
-		double Ci = 0.0;
-		int[] repartitionElec = calcDistributionElecArray();
-		int i;
-		int j;
-		HuckelAtom a;
-
-		for (i = 0; i < this.orbitalsCoeffArray.length; i++) {
-			somme = 0;
-			for (j = 0; j < this.orbitalsCoeffArray[i].length; j++) {
-				Ci = this.orbitalsCoeffArray[i][j];
-				somme += (Ci * Ci) * repartitionElec[j];
-			}
-			a = getHuckelAtomBySeqNum(i + 1);
-			tblCharges[i] = a.getNbElecPi() - somme;
-			a.setDensity(tblCharges[i]);
-		}
-
-
-		return tblCharges;
-	}
+	abstract protected double[] calcChargeDensitiesArray();
+	
+	
 
 	/**
 	 * This function returns the electronic distribution in the molecule : it
@@ -285,7 +314,7 @@ IMonoExcitationListener{
 	 * @return int [] : electronic distribution sorted by orbital
 	 */
 
-	abstract protected int[] calcDistributionElecArray();
+	abstract protected double[] calcDistributionElecArray();
 
 	/**
 	 * This function returns the total charge of the molecule
@@ -295,7 +324,7 @@ IMonoExcitationListener{
 
 	protected double calcSumOfChargesDensities() {
 		double chargeTotale = 0.0;
-		double[] tblCharge = calcChargeDensitiesArray();
+		double[] tblCharge = chargeDensitiesArray;
 
 		for (int i = 0; i < tblCharge.length; i++) {
 			chargeTotale += tblCharge[i];
@@ -311,7 +340,7 @@ IMonoExcitationListener{
 	 * @return Sum of electronic distribution on orbitals
 	 */
 	protected int calcSumofDistributionElec() {
-		int[] repartitionElec = calcDistributionElecArray();
+		double[] repartitionElec = distributionElecPiArray;
 		int nbElecPi = 0;
 
 		for (int i = 0; i < repartitionElec.length; i++) {
@@ -345,8 +374,11 @@ IMonoExcitationListener{
 			return;
 
 		this.hamiltonianArray = hamiltonien.getArray();
-		this.energiesArray = getEigenValues(hamiltonien);
-		this.orbitalsCoeffArray = getEgeinVectors(hamiltonien);
+		this.energiesArray = calcOrbitalsEnergies();
+		this.orbitalsCoeffArray = calcOrbitalsCoefficients(); 
+		HuckelIO.PrintMatrix(new Matrix(hamiltonianArray), "hamiltonianArray calculé");
+		HuckelIO.PrintMatrix(new Matrix(orbitalsCoeffArray), "orbitalsCoeffArray calculé");
+
 		this.distributionElecPiArray = calcDistributionElecArray();
 		this.chargeDensitiesArray = calcChargeDensitiesArray();
 		this.sumOfChargeDensities = calcSumOfChargesDensities();
@@ -374,6 +406,19 @@ IMonoExcitationListener{
 	}
 
 
+	protected abstract double[][] calcOrbitalsCoefficients();
+
+
+
+	/**
+	 * 
+	 * @return
+	 */
+	protected abstract double[] calcOrbitalsEnergies() ;
+
+
+
+
 	/* a appeler imperativement apres generateSpinOM()
 	 * 
 	 */
@@ -390,7 +435,7 @@ IMonoExcitationListener{
 					return;
 				}
 				this.overlapHLP =  hlpMethod.computeOverlap(-1, this.getIndex()-2);
-				//System.out.println("overlap=" + this.overlapHLP);
+				System.out.println("Psi" + this.getName() +  " - overlap =" + this.overlapHLP);
 			} catch (NoElectronException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -516,26 +561,6 @@ IMonoExcitationListener{
 
 
 
-	@Override 
-	public boolean equals(Object o) {
-		if (!(o instanceof Structure))
-			return false;
-
-		Structure s = (Structure) o;
-
-		if (this.getIndex() != s.getIndex())
-			return false;
-
-		if (!this.getName().equals(s.getName()))
-			return false;
-
-		if (!super.equals(s))
-			return false;
-
-
-		return true;
-	}
-
 
 	/**
 	 * @return the index of the structure in the mesomery
@@ -569,31 +594,6 @@ IMonoExcitationListener{
 
 
 
-	public boolean geometryEquals(Structure s) {
-		return super.equals(s);
-	}
-
-
-
-	private SpinOrbitaleMoleculaire[] occSOMs=null;
-
-	private boolean isCloneResultsCacheWhenCloneStructure;
-	private ArrayList<NatOrbitaleMoleculaire> naturalOrbitals=new ArrayList<NatOrbitaleMoleculaire>();
-
-	@Override
-	public int hashCode () {
-		final int multiplier = 23;
-		if (hashCode == 0) {
-			int code = 133;
-			code = multiplier * code + this.getIndex();
-			code = multiplier * code + this.getName().hashCode();
-			code = multiplier * code +  super.hashCode();
-			hashCode = code;
-		}
-		return hashCode;
-
-	}
-
 	/**
 	 * generates the molecular spin orbital set in the SOM array
 	 * 
@@ -606,7 +606,7 @@ IMonoExcitationListener{
 	 */
 	protected void generateSpinOM() throws NoElectronException, NoSOMAvailableException, UnavailableSOMException{
 	
-		int[] electronDistrib = this.getDistributionElecPiArray();
+		double[] electronDistrib = this.getDistributionElecPiArray();
 	
 		if (electronDistrib == null)
 			return;
@@ -621,193 +621,76 @@ IMonoExcitationListener{
 		for (int i = 0; i < electronDistrib.length; i++) {
 			SpinOrbitaleMoleculaire somA=null;
 			SpinOrbitaleMoleculaire somB=null;
-			switch (electronDistrib[i]) {
-			case 2:
-				somA=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
-						Spin.ALPHA);
-				somA.setIndex(idx);
-				idx++;
-				somB=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
-						Spin.BETA);
-				somB.setIndex(idx);
-				idx++;
-				break;
-			case 1:
-				if (( ! oneSingleElectron)||(this instanceof StructureLocalized)) {
-					somA=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
-							Spin.ALPHA);
-					somA.setIndex(idx);
-					idx++;
-					somB=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
-							Spin.NOSPIN_BETA);
-					somB.setIndex(idx);
-					idx++;
-					oneSingleElectron=true;
-				} else {
-					somA=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
-							Spin.NOSPIN_ALPHA);
-					somA.setIndex(idx);
-					idx++;
-					somB=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
-							Spin.BETA);
-					somB.setIndex(idx);
-					idx++;
+			if (electronDistrib[i]% 1 ==  0) { // if ajoute par NG pour gerer les demi electrons dans le ELSE
+				switch ((int) electronDistrib[i]) {
+					case 2:
+						somA=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
+								Spin.ALPHA);
+						somA.setIndex(idx);
+						idx++;
+						somB=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
+								Spin.BETA);
+						somB.setIndex(idx);
+						idx++;
+						break;
+					case 1:
+						if (( ! oneSingleElectron)||(this instanceof StructureLocalized)) {
+							somA=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
+									Spin.ALPHA);
+							somA.setIndex(idx);
+							idx++;
+							somB=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
+									Spin.NOSPIN_BETA);
+							somB.setIndex(idx);
+							idx++;
+							oneSingleElectron=true;
+						} else {
+							somA=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
+									Spin.NOSPIN_ALPHA);
+							somA.setIndex(idx);
+							idx++;
+							somB=new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
+									Spin.BETA);
+							somB.setIndex(idx);
+							idx++;
+						}
+						break;
+					default:
+						somA = new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
+								Spin.NOSPIN_ALPHA);
+						somA.setIndex(idx);
+						idx++;
+						somB = new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
+								Spin.NOSPIN_BETA);
+						somB.setIndex(idx);
+						idx++;
+						break;
 				}
-				break;
-			default:
+		
+			} else {
+				// ELSE ajoute PAR NG pour gere les demi electrons
 				somA = new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
-						Spin.NOSPIN_ALPHA);
+						Spin.DEMI_ELECTRON);
 				somA.setIndex(idx);
 				idx++;
 				somB = new SpinOrbitaleMoleculaire(new Energy(1.0,this.energiesArray[i]), getOM(i),
-						Spin.NOSPIN_BETA);
+						Spin.NO_DEMI_ELECTRON);
 				somB.setIndex(idx);
 				idx++;
-				break;
-			}
+				// FIN NG
+			}	
+			// DEBUT NG
+			somA.setNbElectrons(electronDistrib[i]);
+			somB.setNbElectrons(0);
+			somA.setIndexTableOrbitale(i);
+			somB.setIndexTableOrbitale(i);
+			// FIN NG
 			SpinOrbitaleMoleculaire.setPartner(somA,somB);
 			getSOM()[iSOM++] = somA;
 			getSOM()[iSOM++] = somB;
 		}
 		this.getOccSOM();
 	}
-	
-	@Override
-	protected void fireBlocDelocalizedHuckelObjectAdded(BlocDelocalizedEvent e) {
-		if (e.getSource().getNbElectron() >0 && this.isEnabledFlyCalculate())
-			calculate();
-		super.fireBlocDelocalizedHuckelObjectAdded(e);
-
-
-	}
-
-	@Override
-	protected void fireBlocDelocalizedHuckelObjectRemoved(BlocDelocalizedEvent e) {
-		if (e.getSource().getNbElectron() >0 && this.isEnabledFlyCalculate())
-			calculate();
-		super.fireBlocDelocalizedHuckelObjectRemoved(e);
-
-
-	}
-
-	@Override
-	protected void fireBlocDelocalizedNbElectronsChanged(BlocDelocalizedEvent e) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireBlocDelocalizedNbElectronsChanged(e);
-
-	}
-	
-
-	@Override
-	protected void fireBlocDelocalizedAdded(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireBlocDelocalizedAdded(source,oldValue,newValue);
-	}
-
-	@Override
-	protected void fireBlocDelocalizedRemoved(Molecule source,	Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireBlocDelocalizedRemoved(source,oldValue,newValue);
-	}
-
-	@Override
-	protected void fireHuckelAtomHxChanged(HuckelAtomEvent e){
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireHuckelAtomHxChanged(e);
-	}
-
-	@Override
-	protected void fireHuckelAtomRadRChanged(HuckelAtomEvent e){
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireHuckelAtomRadRChanged(e);
-	}
-
-	@Override
-	protected void fireHuckelAtomSeqNumChanged(HuckelAtomEvent e){
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireHuckelAtomSeqNumChanged(e);
-	}
-
-	@Override
-	protected void fireHuckelBondBondTypeChanged(HuckelBondEvent e) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireHuckelBondBondTypeChanged(e);
-	}
-
-	@Override
-	protected void fireHuckelBondHxyChanged(HuckelBondEvent e) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireHuckelBondHxyChanged(e);
-	}
-
-	@Override
-	protected void fireMoleculeAtomAdded(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireMoleculeAtomAdded(source, oldValue, newValue);
-	}
-	@Override
-	protected void fireMoleculeAtomRemoved(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireMoleculeAtomRemoved(source, oldValue, newValue);
-	}
-
-	@Override
-	protected void fireMoleculeAtomReplaced(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireMoleculeAtomReplaced(source, oldValue, newValue);
-	}
-
-	@Override
-	protected void fireMoleculeBondAdded(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireMoleculeBondAdded(source, oldValue, newValue);
-	}
-
-	@Override
-	protected void fireMoleculeBondRemoved(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireMoleculeBondRemoved(source, oldValue, newValue);
-	}
-
-
-	@Override
-	protected void fireMoleculeChargeChanged(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireMoleculeChargeChanged(source, oldValue, newValue);
-	}
-
-
-	@Override
-	protected void fireMoleculeListHuckelAtomSeqNumAutoSetted(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireMoleculeListHuckelAtomSeqNumAutoSetted(source, oldValue, newValue);
-	}
-
-	@Override
-	protected void fireMoleculeListHuckelAtomSeqNumReset(Molecule source, Object oldValue, Object newValue) {
-		if (this.isEnabledFlyCalculate())
-			calculate();
-		super.fireMoleculeListHuckelAtomSeqNumReset(source, oldValue, newValue);
-	}
-
-
-
-
 
 	public int countSpinOM() {
 		SpinOrbitaleMoleculaire[] som = this.getSOM();
@@ -847,10 +730,10 @@ IMonoExcitationListener{
 	 * This function returns the distribution of Elec Pi in the molecule, sorted
 	 * by orbital
 	 * 
-	 * @return int []
+	 * @return double []
 	 */
 
-	public int[] getDistributionElecPiArray() {
+	public double[] getDistributionElecPiArray() {
 		return this.distributionElecPiArray;
 	}
 
@@ -880,32 +763,6 @@ IMonoExcitationListener{
 	public Matrix getRestrictedDensityMatrix() {
 		Matrix d = new Matrix(this.getBondOrdersArray());
 		return d;
-	}
-
-	/**
-	 * This function returns the eigenvectors of the hamiltonian
-	 * 
-	 * @param hamiltonien
-	 * @return double [][]
-	 */
-	protected double[][] getEgeinVectors(Matrix hamiltonien) {
-		EigenvalueDecomposition eig = new EigenvalueDecomposition(hamiltonien);
-		double[][] eigV = VectorssHuckel.sort(eig.getV().getArray());
-
-		return eigV;
-	}
-
-	/**
-	 * This function returns the eigen values of the hamiltonian
-	 * 
-	 * @param hamiltonien
-	 * @return double []
-	 */
-	protected double[] getEigenValues(Matrix hamiltonien) {
-		EigenvalueDecomposition Eig = new EigenvalueDecomposition(hamiltonien);
-		double[] eig = VectorssHuckel.sort(Eig.getRealEigenvalues());
-
-		return eig;
 	}
 
 	/**
@@ -981,7 +838,7 @@ IMonoExcitationListener{
 	 * @throws NoSOMAvailableException 
 	 */
 	protected int getnOccSO() throws NoSOMAvailableException, UnavailableSOMException {
-		return this.getOccSOM().length;
+		return this.getOccSOM().length;		
 	}
 
 	/**
@@ -1019,6 +876,9 @@ IMonoExcitationListener{
 				case BETA:
 					list.add(som);
 					break;
+				case DEMI_ELECTRON : // AJOUT NG
+					list.add(som);
+					break;
 				}
 			}
 			occSOMs = new SpinOrbitaleMoleculaire[list.size()];
@@ -1034,6 +894,9 @@ IMonoExcitationListener{
 			switch (som.getSpin()) {
 			case NOSPIN_ALPHA:
 			case NOSPIN_BETA:
+				list.add(som);
+				break;
+			case NO_DEMI_ELECTRON : // AJOUT NG		
 				list.add(som);
 				break;
 			}
@@ -1184,7 +1047,7 @@ IMonoExcitationListener{
 	protected double getTotalEnergyBeta() {
 
 		double energieTotale = 0;
-		int[] repartitionElec = calcDistributionElecArray();
+		double[] repartitionElec = distributionElecPiArray;
 
 		for (int i = 0; i < repartitionElec.length; i++) {
 			energieTotale += this.energiesArray[i] * repartitionElec[i];
@@ -1227,38 +1090,10 @@ IMonoExcitationListener{
 	}
 
 
-	public boolean isEnabledFlyCalculate() {
-		return this.isEnabledFlyCalculate;
-	}
-
-	// yannick
 	/**
-	 * stores a monoexcitation whenever triggered in the current structure
 	 * 
-	 * @param e :
-	 *            Huckel event sent
-	 * @author yannick
+	 * @param monoExcitation
 	 */
-	public void monoExcitationTriggered(MonoExcitationEvent e) {
-		MonoExcitation ex = e.getSource();
-		if (this != ex.getStructure())
-			return;
-		boolean found = false;
-		for (MonoExcitation m : this.getMonoExcitations() ) 
-			if (m == ex)
-				found = true;
-
-		MonoExcitation excopy = (MonoExcitation) ex.clone();
-
-		if (!found) {
-			this.monoExcitations.add(excopy);
-			this.occSOMs=null;
-		}
-
-		fireMonoExcitationTriggered(new MonoExcitationEvent(excopy, null, null));
-	}
-
-	//NG 
 	public void removeMonoExcitation (MonoExcitation monoExcitation){
 		this.monoExcitations.remove(monoExcitation);
 		if (this.isEnabledFlyCalculate())
@@ -1323,8 +1158,6 @@ IMonoExcitationListener{
 		// supprime les excitations sur la structure
 		resetMonoExcitations();
 		resetSOM();
-		if (a instanceof HuckelAtom)
-			checkRemoveHuckelObjectInBloc ((IHuckelObject) a);
 		super.do_removeAtom(a);
 	}
 
@@ -1337,19 +1170,6 @@ IMonoExcitationListener{
 
 
 	}
-
-	@Override
-	protected  void do_replaceAtom(Atom old, Atom newAtom) throws HuckelBondException, BondException, MoleculeAtomNullException, MoleculeTooManyNeighboursException, MoleculeCoherenceException, MoleculeBondExistsException{
-		super.do_replaceAtom(old, newAtom);
-		// trop tot		resetSOM();
-		if(old instanceof HuckelAtom)
-			checkRemoveHuckelObjectInBloc ((IHuckelObject) old);
-	}
-
-
-
-
-
 
 
 	/**
@@ -1401,7 +1221,11 @@ IMonoExcitationListener{
 			fireStructureNameChanged(this, old, this.name);
 
 	}
-
+	
+	public boolean isEnabledFlyCalculate() {
+		return this.isEnabledFlyCalculate;
+	}
+	
 	public void setEnabledFlyCalculate(boolean isActiveFlyCalculate) {
 		this.isEnabledFlyCalculate = isActiveFlyCalculate;
 	}
@@ -1413,7 +1237,6 @@ IMonoExcitationListener{
 	public void stopFlyCalculate() {
 		this.isEnabledFlyCalculate = false;
 	}
-
 	/**
 	 * exchanges the spins of spin moleuclar orbitals iSOM and jSOM
 	 * 
@@ -1431,6 +1254,9 @@ IMonoExcitationListener{
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Molecule#toString()
+	 */
 	@Override
 	public String toString() {
 		String res = this.name + " " + super.toString();
@@ -1438,10 +1264,24 @@ IMonoExcitationListener{
 
 	}
 
+	/**
+	 * 
+	 * @param i
+	 * @return
+	 * @throws NoSOMAvailableException
+	 * @throws UnavailableSOMException
+	 */
 	public SpinOrbitaleMoleculaire getOccSpinOM(int i) throws NoSOMAvailableException, UnavailableSOMException {
 		return this.getOccSOM()[i];
 	}
 
+	/**
+	 * 
+	 * @param spin
+	 * @return
+	 * @throws NoSOMAvailableException
+	 * @throws UnavailableSOMException
+	 */
 	public SpinOrbitaleMoleculaire getHOMO(Spin spin) throws NoSOMAvailableException, UnavailableSOMException {
 		SpinOrbitaleMoleculaire[] list = this.getOccSOM();
 		Energy eMax=Energy.MIN(list[0]);
@@ -1459,6 +1299,13 @@ IMonoExcitationListener{
 		return som;
 	}
 
+	/**
+	 * 
+	 * @param spin
+	 * @return
+	 * @throws NoSOMAvailableException
+	 * @throws HulisException
+	 */
 	public SpinOrbitaleMoleculaire getLUMO(Spin spin) throws NoSOMAvailableException, HulisException {
 		SpinOrbitaleMoleculaire[] list = this.getVirtSOM();
 		Energy eMin=Energy.MAX(list[0]);
@@ -1475,53 +1322,6 @@ IMonoExcitationListener{
 		}
 		return som;
 	}
-
-
-
-	protected void fireMonoExcitationTriggered(MonoExcitationEvent e){
-
-		if (this.isEnabledFlyCalculate())
-			calculate();
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-
-			((IStructureListener)listener).monoExcitationTriggered(e);
-		}	
-	}
-
-	protected void fireStructureNameChanged(Structure source, Object oldValue, Object newValue) {
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		StructureEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new StructureEvent(source, oldValue, newValue);
-			if (listener instanceof IStructureListener) {
-				((IStructureListener)listener).structureNameChanged(event);
-			}
-		}	
-	}
-
-
-
-	public void addListener(IStructureListener listener) {
-		super.addListener(listener);
-	}
-
-
-	public void removeListener(IStructureListener listener) {
-		super.removeListener(listener);
-	}
-
 
 	public CharacteristicPolynomial getCharacteristicPolynomial() {
 		CharacteristicPolynomial poly=null;
@@ -1559,14 +1359,11 @@ IMonoExcitationListener{
 		} else {
 			Phi2 = struct2;
 		}
-		boolean savVerbose = HuckelIO.isverbose();
-		HuckelIO.setVerbose(false);
 		HuckelIO.PrintIfln(" <  " + Phi1.getName() + " | " + Phi2.getName()
 				+ " > \n");
 		Phi1.printSOMs();
 		Phi2.printSOMs();
-		HuckelIO.setVerbose(savVerbose);
-
+		
 		double ovl;
 
 		int size = Phi1.getnOccSO();
@@ -1895,6 +1692,9 @@ IMonoExcitationListener{
 
 	}
 
+	/**
+	 * 
+	 */
 	private void computeNaturalOrbitals() {
 		Matrix D = getRestrictedDensityMatrix();
 		EigenvalueDecomposition evd = new EigenvalueDecomposition(D);
@@ -1913,20 +1713,229 @@ IMonoExcitationListener{
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public ArrayList<NatOrbitaleMoleculaire> getNaturalOrbitals(){
 		return naturalOrbitals;
 	}
 
+	/**
+	 * 
+	 * @param i
+	 * @return
+	 */
 	public NatOrbitaleMoleculaire getNatOM(int i) {
 		return naturalOrbitals.get(i);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Symmetry getSymmetry() {
 		if (symmetry==null) return new Symmetry(this);
 		return symmetry;
 	}
 
 
+	/**
+	 * 
+	 * @param listener
+	 */
+	public void addListener(IStructureListener listener) {
+		super.addListener(listener);
+	}
+
+
+	/**
+	 * 
+	 * @param listener
+	 */
+	public void removeListener(IStructureListener listener) {
+		super.removeListener(listener);
+	}
+
+
+	/**
+	 * stores a monoexcitation whenever triggered in the current structure
+	 * 
+	 * @param e :
+	 *            Huckel event sent
+	 * @author yannick
+	 */
+	public void monoExcitationTriggered(MonoExcitationEvent e) {
+		MonoExcitation ex = e.getSource();
+		if (this != ex.getStructure())
+			return;
+		boolean found = false;
+		for (MonoExcitation m : this.getMonoExcitations() ) 
+			if (m == ex)
+				found = true;
+
+		MonoExcitation excopy = (MonoExcitation) ex.clone();
+
+		if (!found) {
+			this.monoExcitations.add(excopy);
+			this.occSOMs=null;
+		}
+
+		fireMonoExcitationTriggered(new MonoExcitationEvent(excopy, null, null));
+	}
+
+	
+	protected void fireMonoExcitationTriggered(MonoExcitationEvent e){
+
+		if (this.isEnabledFlyCalculate())
+			calculate();
+
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+
+			((IStructureListener)listener).monoExcitationTriggered(e);
+		}	
+	}
+
+	/**
+	 */
+	protected void fireStructureNameChanged(Structure source, Object oldValue, Object newValue) {
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+
+		StructureEvent event = null;
+
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new StructureEvent(source, oldValue, newValue);
+			if (listener instanceof IStructureListener) {
+				((IStructureListener)listener).structureNameChanged(event);
+			}
+		}	
+	}
+	
+	
+
+	@Override
+	protected void fireHuckelAtomHxChanged(HuckelAtomEvent e){
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireHuckelAtomHxChanged(e);
+	}
+
+	@Override
+	protected void fireHuckelAtomRadRChanged(HuckelAtomEvent e){
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireHuckelAtomRadRChanged(e);
+	}
+
+	@Override
+	protected void fireHuckelAtomSeqNumChanged(HuckelAtomEvent e){
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireHuckelAtomSeqNumChanged(e);
+	}
+
+	@Override
+	protected void fireHuckelBondBondTypeChanged(HuckelBondEvent e) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireHuckelBondBondTypeChanged(e);
+	}
+
+	@Override
+	protected void fireHuckelBondHxyChanged(HuckelBondEvent e) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireHuckelBondHxyChanged(e);
+	}
+
+	@Override
+	protected void fireMoleculeAtomAdded(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireMoleculeAtomAdded(source, oldValue, newValue);
+	}
+	@Override
+	protected void fireMoleculeAtomRemoved(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireMoleculeAtomRemoved(source, oldValue, newValue);
+	}
+
+	@Override
+	protected void fireMoleculeAtomReplaced(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireMoleculeAtomReplaced(source, oldValue, newValue);
+	}
+
+	@Override
+	protected void fireMoleculeBondAdded(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireMoleculeBondAdded(source, oldValue, newValue);
+	}
+
+	@Override
+	protected void fireMoleculeBondRemoved(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireMoleculeBondRemoved(source, oldValue, newValue);
+	}
+
+
+	@Override
+	protected void fireMoleculeChargeChanged(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireMoleculeChargeChanged(source, oldValue, newValue);
+	}
+
+
+	@Override
+	protected void fireMoleculeListHuckelAtomSeqNumAutoSetted(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireMoleculeListHuckelAtomSeqNumAutoSetted(source, oldValue, newValue);
+	}
+
+	@Override
+	protected void fireMoleculeListHuckelAtomSeqNumReset(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		super.fireMoleculeListHuckelAtomSeqNumReset(source, oldValue, newValue);
+	}
+
+	static public void main(String args[]) {
+		double [][] hamiltonien={
+				{0,0,0,1,0,0,0,0,1,0,0,0},
+				{0,0,1,0,0,0,0,1,0,0,0,0},
+				{0,1,0,1,0,0,0,0,0,0,0,0},
+				{1,0,1,0,0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0.5,0,0,0,0,0},
+				{0,0,0,0,0,0.5,0,0,0,0,0,0},
+				{0,1,0,0,0,0,0,0,1,0,0,0},
+				{1,0,0,0,0,0,0,1,0,0,0,0},
+				{0,0,0,0,0,0,0,0,0,0,0,0},
+				{0,0,0,0,0,0,0,0,0,0,0,1},
+				{0,0,0,0,0,0,0,0,0,0,1,0}};
+		EigenvalueDecomposition eig = new EigenvalueDecomposition(new Matrix (hamiltonien));
+		HuckelIO.PrintMatrix(new Matrix(hamiltonien), "hamiltonien");
+		HuckelIO.PrintMatrix(new Matrix(eig.getV().getArray()), "orbitales (eigenvalues)");
+		HuckelIO.PrintMatrix(new Matrix(VectorssHuckel.sort(eig.getV().getArray())), "orbitales reordonnees");
+		}
+
+
+	
 
 
 }

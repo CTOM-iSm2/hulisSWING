@@ -156,7 +156,6 @@ public class ChangeElectronsState implements IStructureViewControllerState {
 						} catch (HuckelBondException e) {
 							SwingIO.error(this.getClass().getName(), "mouseClicked",
 									e.getMessage(), e);
-							SwingIO.reportError(app);
 						}
 						catch (Exception e) {
 							SwingIO.error(this.getClass().getName(), "mouseClicked",

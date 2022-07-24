@@ -23,7 +23,9 @@ import org.ctom.hulis.huckel.listeners.IStructureLocalizedListener;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
 import org.ctom.hulis.huckel.structures.symmetry.Symmetry;
+import org.ctom.hulis.util.io.HuckelIO;
 
+import Jama.Matrix;
 import util.MyResourceBundle;
 import util.ThreadUtils;
 import util.io.SwingIO;
@@ -269,7 +271,7 @@ public class FrameResultStruct extends FrameResult implements IStructureListener
 
 			insertTXT("\n", size, align2);
 
-			int[] repartElec = this.structure.getDistributionElecPiArray();
+			double[] repartElec = this.structure.getDistributionElecPiArray();
 			insertTXT(RESULT_ELEC_DISTRIB + "\t", size, align2);
 
 			for (i = 0; i < repartElec.length; i++) {
@@ -278,12 +280,14 @@ public class FrameResultStruct extends FrameResult implements IStructureListener
 					return;
 				}
 
-				insertTXT(repartElec[i] + "\t", size2, align2);
+				insertTXT(this.getMyDecimalFormatMO().format(repartElec[i]) + "\t", size2, align2);
 
 			}
 
 			// energies des orbitales
 			double[][] orbitales = this.structure.getOrbitalsCoeffArray();
+			
+			HuckelIO.PrintMatrix(new Matrix(orbitales), "orbitals results window");
 
 			insertTXT("\n", size, align2);
 

@@ -9,9 +9,12 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.swing.JPanel;
 
+import org.apache.batik.apps.svgbrowser.TransformHistory;
 import org.ctom.hulis.huckel.NatOrbitaleMoleculaire;
 import org.ctom.hulis.huckel.OrbitaleMoleculaire;
 import org.ctom.hulis.huckel.Spin;
@@ -30,11 +33,12 @@ import org.ctom.hulis.huckel.listeners.IStructureDelocalizedListener;
 import org.ctom.hulis.huckel.listeners.IStructureListener;
 import org.ctom.hulis.huckel.listeners.IStructureLocalizedListener;
 import org.ctom.hulis.huckel.structures.Structure;
+import org.ctom.hulis.huckel.structures.StructureDelocalized;
 import org.ctom.hulis.prefs.Preferences;
 
+import controller.graphOM.GraphOMController;
 import util.ThreadUtils;
 import util.io.SwingIO;
-import controller.graphOM.GraphOMController;
 
 @SuppressWarnings("serial")
 public class GraphOM extends JPanel implements IStructureListener, IStructureDelocalizedListener, IStructureLocalizedListener {
@@ -78,6 +82,22 @@ public class GraphOM extends JPanel implements IStructureListener, IStructureDel
 		addMouseMotionListener(graphOMController);
 		this.structure.addListener(this);
 		this.currentPointDragged = new Point();
+	}
+
+
+	/**
+	 * 
+	 * @param ec1
+	 * @return
+	 */
+	private EnergyControl getPartner (OrbitalControl ec1) {
+		SpinOrbitaleMoleculaire partner =  ((EnergyControl) ec1).getSOM().getPartner() ;
+		for (OrbitalControl oc : this.getOrbitalControls()) {
+			EnergyControl current = (EnergyControl) oc;
+			if ( partner ==  current.getSOM())
+				return current;
+		}
+		return null;
 	}
 
 	public void erase() {
@@ -236,8 +256,44 @@ public class GraphOM extends JPanel implements IStructureListener, IStructureDel
 				e1.printStackTrace();
 				SwingIO.error(this.getClass().getName(), "EnergiesOrbView.paint", "Specified SOM available");
 			}
-			break;
+		
+			Collections.sort(orbitalControls, new Comparator() {
+				
+				@Override
+				public int compare(Object o1, Object o2) {
+					try {
+						SpinOrbitaleMoleculaire som1 = ( (EnergyControl) o1).getSOM();
+						SpinOrbitaleMoleculaire som2 = ( (EnergyControl) o2).getSOM();
+						// les soms partenaires sont egales
+						
+						if (som1.getPartner() == som2)
+							return 0;
+						else if (som1.getEnergy().isGreaterThan(som2.getEnergy(), StructureDelocalized.PRECISION)){
+							return 1;
+						}
+						else if (som2.getEnergy().isGreaterThan(som1.getEnergy(), StructureDelocalized.PRECISION)){
+							return -1;
+						}
+						else  {
+							// cas ou les soms ne sont pas partenaires mais egales en energie, alors le spin alpha est a gauche
+							if ((som1.getSpin() == Spin.ALPHA) && ( (som2.getSpin() == Spin.BETA) || (som2.getSpin() == Spin.NOSPIN_BETA) || (som2.getSpin() == Spin.NOSPIN_ALPHA)  ))
+								return -1;
+							else if ((som2.getSpin() == Spin.ALPHA) && ((som1.getSpin() == Spin.BETA ) || (som1.getSpin() == Spin.NOSPIN_BETA) || (som1.getSpin() == Spin.NOSPIN_ALPHA) )  )
+								return 1;
+							else return 0;
+										
+						}
+					}
+					catch (Exception e1) {
+						e1.printStackTrace();
+						return 0;
+					}
+				
+				}
+				
+			});
 
+			break;
 		case NATURAL:
 			int nNO = this.structure.getNaturalOrbitals().size();
 			for (int i = 0; i<nNO; i++) {
@@ -286,16 +342,19 @@ public class GraphOM extends JPanel implements IStructureListener, IStructureDel
 									&& (i != j)) {
 								x = ec1.getPoint().getX();
 								y = ec1.getPoint().getY();
-								x = x + EnergyControl.WIDTH * 1.5;
+								x = x - EnergyControl.WIDTH * 1.5;
 								ec1.setLocation(new Point2D.Double(
+										x, y));
+								this.getPartner(ec1).setLocation(new Point2D.Double(
 										x, y));
 
 								x = ec2.getPoint().getX();
 								y = ec2.getPoint().getY();
-								x = x - EnergyControl.WIDTH * 1.5;
+								x = x + EnergyControl.WIDTH * 1.5;
 								ec2.setLocation(new Point2D.Double(
 										x, y));
-
+								this.getPartner(ec2).setLocation(new Point2D.Double(
+										x, y));
 								ok = false;
 							}
 						}
@@ -316,13 +375,16 @@ public class GraphOM extends JPanel implements IStructureListener, IStructureDel
 							x = x + EnergyControl.WIDTH * 1.5;
 							ec1.setLocation(new Point2D.Double(
 									x, y));
-
+							this.getPartner(ec1).setLocation(new Point2D.Double(
+									x, y));
+							
 							x = ec2.getPoint().getX();
 							y = ec2.getPoint().getY();
 							x = x - EnergyControl.WIDTH * 1.5;
 							ec2.setLocation(new Point2D.Double(
 									x, y));
-
+							this.getPartner(ec2).setLocation(new Point2D.Double(
+									x, y));
 							ok = false;
 						}
 

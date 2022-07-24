@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.ctom.hulis.huckel.PeriodicTable.Entry;
 import org.ctom.hulis.huckel.comparators.SeqNumComparator;
-import org.ctom.hulis.huckel.events.BlocDelocalizedEvent;
 import org.ctom.hulis.huckel.events.GeometryEvent;
 import org.ctom.hulis.huckel.events.HuckelAtomEvent;
 import org.ctom.hulis.huckel.events.HuckelBondEvent;
@@ -24,7 +23,6 @@ import org.ctom.hulis.huckel.exception.MoleculeNotSupportedComponentException;
 import org.ctom.hulis.huckel.exception.MoleculeTooManyNeighboursException;
 import org.ctom.hulis.huckel.listeners.IAtomGeometryListener;
 import org.ctom.hulis.huckel.listeners.IAtomValueListener;
-import org.ctom.hulis.huckel.listeners.IBlocDelocalizedListener;
 import org.ctom.hulis.huckel.listeners.IHuckelAtomListener;
 import org.ctom.hulis.huckel.listeners.IHuckelBondListener;
 import org.ctom.hulis.huckel.listeners.IMoleculeGeometryListener;
@@ -52,7 +50,7 @@ import org.ctom.util.maths.VecteurCTOM;
  * 
  */
 
-public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IAtomGeometryListener, IHuckelAtomListener, IBlocDelocalizedListener, Serializable  {
+public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IAtomGeometryListener, IHuckelAtomListener, Serializable  {
 	/**
 	 * 
 	 */
@@ -70,9 +68,11 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 	private ArrayList<Atom> lstAtoms; // atoms which compose a molecule
 
 	private ArrayList<Bond> lstBonds; // Bonds that compose a molecule
-	private ArrayList<BlocDelocalized> lstBlocDelocalized; // 
-
+	
 	private int nbElecCharge; // number of electron (charge of the molecule)
+	protected volatile int hashCode = 0;
+	private int[][] topology=null;
+
 
 	/**
 	 * Constructor : this method creates an object Molecule
@@ -85,47 +85,9 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		this.geometryListeners = new ArrayList<IMoleculeGeometryListener>();
 		this.enabledNotify = true;
 		this.autoCorrectH = true;
-		this.lstBlocDelocalized = new ArrayList<BlocDelocalized>();
 		this.geometry = null;
-
-	}
-
-	/**
-	 * 
-	 */
-	public void notifyValueChanged() {
-		this.fireMoleculeAtomAdded(this, null, null);
 	}
 	
-	/**
-	 * 
-	 */
-	public void notifyGeometryChanged() {
-		this.fireAtomLocationChanged(new GeometryEvent(this, null, null));
-	}
-	
-	
-	/**
-	 * 
-	 */
-	public void optimizeGeometry() {
-		if (this instanceof StructureLocalized) 
-			try {
-				throw new MoleculeCoherenceException("Cannot optimize a localized structure");
-		
-			}
-			catch (MoleculeCoherenceException e) {
-				e.printStackTrace();
-				return;
-			}
-		Geom2DOptimizer opt = new Geom2DOptimizer(this);
-		opt.setOptimize(true);
-		opt.setVerbose(false);
-		this.fireMoleculeAtomAdded(this, this, null);
-		opt.setOptimize(false);
-
-	}
-
 	/**
 	 * Copy constructor
 	 * 
@@ -166,189 +128,114 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 
 
 		}
-		// copier blocs
-		this.lstBlocDelocalized = new ArrayList<BlocDelocalized>();
-		BlocDelocalized blocClone;
-		for (BlocDelocalized bloc : molecule.getListBlocDelocalized()){
-			blocClone = new BlocDelocalized();
-			for (IHuckelObject o : bloc.getListHuckelObject())
-				blocClone.do_addHuckelObject(this.getHuckelObjectByIndex(o.getClass(), o.getIndex()));
 
-			blocClone .setNbElectron(bloc.getNbElectron());
-			blocClone.setMoleculeParent(this);
-			blocClone.addListener(this);
-			this.lstBlocDelocalized.add(blocClone);
-			
-		}
 		this.updateTopology();
 	}
-
-	public ArrayList<BlocDelocalized> getListBlocDelocalized() {
-		return this.lstBlocDelocalized;
-	}
-
-	public void addBlocDelocalized(BlocDelocalized blocDelocalized) {
-		this.lstBlocDelocalized.add(blocDelocalized);
-		blocDelocalized.setMoleculeParent(this);
-		blocDelocalized.addListener(this);
-		fireBlocDelocalizedAdded(this, null, blocDelocalized);
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() {
+		return new Molecule(this);
 
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode () {
+		final int multiplier = 23;
+		if (hashCode == 0) {
+			int code = 133;
+			code = multiplier * code +  this.getNbElecCharge();
+			if (this.lstAtoms != null)
+				code = multiplier * code +  this.lstAtoms.hashCode();
+			if (this.lstBonds != null)
+				code = multiplier * code +  this.lstBonds.hashCode();
 
-	public void removeBlocDelocalized(BlocDelocalized blocDelocalized) {
-		do_removeBlocDelocalized(blocDelocalized);
-
-
-
-		fireBlocDelocalizedRemoved(this, blocDelocalized, 0);
-	}
-	protected void do_removeBlocDelocalized(BlocDelocalized blocDelocalized) {
-		this.lstBlocDelocalized.remove(blocDelocalized);
-		blocDelocalized.setMoleculeParent(null);
-
-		blocDelocalized.removeListener(this);
-
-	}
-
-	protected void checkRemoveHuckelObjectInBloc (IHuckelObject o){
-		BlocDelocalized bloc;
-		for (int i = this.lstBlocDelocalized.size() - 1; i>=0; i-- ){
-			bloc = this.lstBlocDelocalized.get(i);
-			if (o.getBlocDelocalizedParent() == bloc){
-				bloc.removeHuckelObject(o);
-				if (bloc.countHuckelObjects() == 0) {
-					bloc.clear();
-					do_removeBlocDelocalized(bloc);
-					bloc = null;
-				}	
-
-			}
+			hashCode = code;
 		}
-	}
-
-
-	//@Override
-	public void blocDelocalizedHuckelObjectAdded(BlocDelocalizedEvent e) {
-		this.fireBlocDelocalizedHuckelObjectAdded(e);
+		return hashCode;
 
 	}
 
-	//@Override
-	public void blocDelocalizedHuckelObjectRemoved(BlocDelocalizedEvent e) {
-		this.fireBlocDelocalizedHuckelObjectRemoved(e);
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object  o) {
+		if (this == o)
+			return true;
 
+		if (!(o instanceof Molecule))
+			return false;
+
+		return this.geometryEquals((Molecule) o);
+	}
+	
+	
+	/**
+	 * 
+	 * @param molecule
+	 */
+	public boolean geometryEquals(Molecule molecule) {
+		if (getNbElecCharge() != molecule.getNbElecCharge())
+			return false;
+		if (molecule.countAtoms() != countAtoms())
+			return false;
+		if (molecule.countBonds() != countBonds())
+			return false;
+		for (Atom a : getAtoms())
+			if (!a.equals(molecule.getAtomByIndex(a.getIndex())))
+				return false;
+		for (Bond b : getBonds())
+			if (!b.equals(molecule.getBondByIndex(b.getIndex())))
+				return false;
+		return true;
 	}
 
-	//@Override
-	public void blocDelocalizedNbElectronsChanged(BlocDelocalizedEvent e) {
-
-		this.fireBlocDelocalizedNbElectronsChanged(e);
-
-	}
 
 	/**
 	 * 
-	 * @param e
 	 */
-	protected void fireBlocDelocalizedHuckelObjectAdded(BlocDelocalizedEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO
-			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-
-			((IMoleculeValueListener) listener)
-			.blocDelocalizedHuckelObjectAdded(e);
-		}
-	}
-
-	/**
-	 * 
-	 * @param e
-	 */
-	protected void fireBlocDelocalizedHuckelObjectRemoved(BlocDelocalizedEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO
-			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-
-			((IMoleculeValueListener) listener)
-			.blocDelocalizedHuckelObjectRemoved(e);
-		}
+	public void notifyValueChanged() {
+		this.fireMoleculeAtomAdded(this, null, null);
 	}
 	
 	/**
 	 * 
-	 * @param e
 	 */
-	protected void fireBlocDelocalizedNbElectronsChanged(BlocDelocalizedEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO
-			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		for (IMoleculeValueListener listener :this.getValueListeners()) {
-
-			((IMoleculeValueListener) listener)
-			.blocDelocalizedNbElectronsChanged(e);
-		}
+	public void notifyGeometryChanged() {
+		this.fireAtomLocationChanged(new GeometryEvent(this, null, null));
 	}
-
+	
+	
 	/**
 	 * 
-	 * @param source
-	 * @param oldValue
-	 * @param newValue
 	 */
-	protected void fireBlocDelocalizedAdded(Molecule source,
-			Object oldValue, Object newValue) {
-		if (!isEnabledNotify()) {
-			HuckelIO
-			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
+	public void optimizeGeometry() {
+		if (this instanceof StructureLocalized) 
+			try {
+				throw new MoleculeCoherenceException("Cannot optimize a localized structure");
+		
+			}
+			catch (MoleculeCoherenceException e) {
+				e.printStackTrace();
+				return;
+			}
+		Geom2DOptimizer opt = new Geom2DOptimizer(this);
+		opt.setOptimize(true);
+		opt.setVerbose(false);
+		this.fireMoleculeAtomAdded(this, this, null);
+		opt.setOptimize(false);
 
-		MoleculeEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeBlocDelocalizedAdded(event);
-		}
 	}
 
-	/**
-	 * 
-	 * @param source
-	 * @param oldValue
-	 * @param newValue
-	 */
-	protected void fireBlocDelocalizedRemoved(Molecule source,
-			Object oldValue, Object newValue) {
-		if (!isEnabledNotify()) {
-			HuckelIO
-			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
+	
 
-		MoleculeEvent event = null;
 
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeBlocDelocalizedRemoved(event);
-		}
-	}
 
 	@Deprecated
 	/*
@@ -447,35 +334,6 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		} else {
 			throw new MoleculeBondExistsException("atoms already linked");
 		}
-	}
-
-
-	/**
-	 * 
-	 * @param listener
-	 */
-	public void addListener(IMoleculeValueListener listener) {
-		this.valueListeners.add((IMoleculeValueListener) listener);
-	}
-	
-	/**
-	 * 
-	 * @param listener
-	 */
-	public void addListener(IMoleculeGeometryListener listener) {
-		this.geometryListeners.add((IMoleculeGeometryListener) listener);
-
-	}
-
-	/**
-	 * 
-	 * @param listener
-	 */
-	public void addListener(IMoleculeListener listener) {
-		if ( listener instanceof IMoleculeGeometryListener)
-			this.geometryListeners.add((IMoleculeGeometryListener) listener);
-		if ( listener instanceof IMoleculeValueListener)
-			this.valueListeners.add((IMoleculeValueListener) listener);
 	}
 
 	/**
@@ -658,16 +516,6 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 			}
 		}
 		return rc;
-	}
-
-	@Override
-	public Object clone() {
-		try {
-			super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
-		return new Molecule(this);
 	}
 
 	/**
@@ -920,16 +768,7 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		return this.lstBonds.size();
 	}
 	
-	/**
-	 * 
-	 * @return the number of delocalized blocs
-	 */
-	public int countBlocsDelocalized() {
-		if (this.lstBlocDelocalized == null)
-			return 0;
-		return this.lstBlocDelocalized.size();
-	}
-
+	
 	/**
 	 * 
 	 * @param iAtom
@@ -1017,8 +856,6 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		}
 		return lstAtoms;
 	}
-
-	
 
 	/**
 	 * 
@@ -1254,16 +1091,8 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 			b = null;
 		}
 		
-
-		for (BlocDelocalized bl : lstBlocDelocalized){
-			bl.clear();
-			bl.removeListener(this);
-			bl = null;
-		}
-
 		this.lstAtoms.clear();		
 		this.lstBonds.clear();
-		this.lstBlocDelocalized.clear();
 		this.nbElecCharge = 0;
 		if (notify)
 			fireMoleculeDeleted(this, this, null);
@@ -1288,7 +1117,6 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		this.clear(notify);
 		this.lstAtoms=null;
 		this.lstBonds=null;
-		this.lstBlocDelocalized=null;
 	}
 	
 	/**
@@ -1299,77 +1127,6 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		this.delete(true);
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object  o) {
-		if (this == o)
-			return true;
-
-		if (!(o instanceof Molecule))
-			throw new ClassCastException();
-
-		Molecule m = (Molecule) o;
-
-		if (getNbElecCharge() != m.getNbElecCharge())
-			return false;
-		if (m.countAtoms() != countAtoms())
-			return false;
-		if (m.countBonds() != countBonds())
-			return false;
-		for (Atom a : getAtoms())
-			if (!a.equals(m.getAtomByIndex(a.getIndex())))
-				return false;
-		for (Bond b : getBonds())
-			if (!b.equals(m.getBondByIndex(b.getIndex())))
-				return false;
-
-
-		if (this.countBlocsDelocalized() != m.countBlocsDelocalized())
-			return false;
-
-
-		// cherche un bloc identique
-		for (BlocDelocalized bloc : this.getListBlocDelocalized()) {
-			boolean ok = false;
-			for (BlocDelocalized sbloc : m.getListBlocDelocalized())
-				if (bloc.equals(sbloc) ){
-					ok = true;
-					break;
-				}
-
-			if (!ok)
-				return false;
-		}
-
-		return true;
-	}
-
-	protected volatile int hashCode = 0;
-	private int[][] topology=null;
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode () {
-		final int multiplier = 23;
-		if (hashCode == 0) {
-			int code = 133;
-			code = multiplier * code +  this.getNbElecCharge();
-			if (this.lstAtoms != null)
-				code = multiplier * code +  this.lstAtoms.hashCode();
-			if (this.lstBonds != null)
-				code = multiplier * code +  this.lstBonds.hashCode();
-			if (this.lstBlocDelocalized != null)
-				code = multiplier * code +  this.lstBlocDelocalized.hashCode();
-			hashCode = code;
-		}
-		return hashCode;
-
-	}
-
 	@Deprecated
 	protected ArrayList<HuckelBond> FindPath(int atomDebut, int atomFin) {
 		ArrayList<HuckelBond> lstpath = new ArrayList<HuckelBond>();
@@ -1498,176 +1255,6 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		}
 		return lstpath;
 	}
-
-	/**
-	 * 
-	 * @param e
-	 */
-	protected void fireHuckelAtomHxChanged(HuckelAtomEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-
-			listener.huckelAtomHxChanged(e);
-		}	
-	}
-
-	protected void fireHuckelAtomSeqNumChanged(HuckelAtomEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		for (IMoleculeValueListener listener :  this.getValueListeners()) {
-
-			listener.huckelAtomSeqNumChanged(e);
-		}	
-	}
-
-	protected void fireAtomLocationChanged(GeometryEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		for (IMoleculeGeometryListener listener :  this.getGeometryListeners()) {
-
-			listener.atomLocationChanged(e);
-		}	
-	}
-
-	protected void fireHuckelAtomRadRChanged(HuckelAtomEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-
-		for (IMoleculeValueListener listener :  this.getValueListeners()) {
-
-			listener.huckelAtomRadRChanged(e);
-		}	
-	}
-
-	protected void fireHuckelBondHxyChanged(HuckelBondEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-		for (IMoleculeValueListener listener :this.getValueListeners()) {
-
-			listener.huckelBondHxyChanged(e);
-		}	
-	}
-
-
-	protected void fireHuckelBondBondTypeChanged(HuckelBondEvent e) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-
-			listener.huckelBondBondTypeChanged(e);
-		}	
-	}
-
-
-
-	protected void fireMoleculeMoved(Molecule source, 
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("FireMoleculeChanged : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		GeometryEvent event = null;
-
-		for (IMoleculeGeometryListener listener : this.getGeometryListeners()) {
-			if (event == null)
-				event = new GeometryEvent(source, oldValue, newValue);
-			listener.moleculeMoved(event);
-		}	
-	}
-
-	protected void fireMoleculeRotated(Molecule source, 
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		GeometryEvent event = null;
-
-		for (IMoleculeGeometryListener listener : this.getGeometryListeners()) {
-			if (event == null)
-				event = new GeometryEvent(source, oldValue, newValue);
-			listener.moleculeRotated(event);
-		}	
-	}
-
-
-	protected void fireMoleculeAtomRemoved(Molecule source, 
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeAtomRemoved(event);
-		}	
-	}
-
-	protected void fireMoleculeBondAdded(Molecule source,
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeBondAdded(event);
-		}	
-	}
-
-
-	protected void fireMoleculeDeleted(Molecule source, Object oldValue, Object newValue) {
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeDeleted(event);
-		}
-	}
-
 	/**
 	 * this function returns the atom at the specified sequence number in the
 	 * molecule
@@ -2382,31 +1969,8 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 	}
 
 	protected void do_removeBond (Bond b)  {
-		if (b instanceof IHuckelObject)
-			checkRemoveHuckelObjectInBloc((IHuckelObject) b);
-
 		this.lstBonds.remove(b);
 
-	}
-
-	public void removeListener(IMoleculeListener listener) {
-		if ( listener instanceof IMoleculeGeometryListener)
-			this.geometryListeners.remove((IMoleculeGeometryListener) listener);
-		if ( listener instanceof IMoleculeValueListener)
-			this.valueListeners.remove((IMoleculeValueListener) listener);
-	}
-
-	public void removeListener(IMoleculeValueListener listener) {
-		this.valueListeners.remove(listener);
-	}
-
-	public void removeListener(IMoleculeGeometryListener listener) {
-		this.geometryListeners.remove(listener);
-	}
-
-	public void removeAllListeners() {
-		this.valueListeners.clear();
-		this.geometryListeners.clear();
 	}
 
 	/**
@@ -2431,6 +1995,13 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		old = null;
 	} // replace atom
 
+	
+	/**
+	 * 
+	 */
+	protected void updateCharges() {
+		
+	}
 	/**
 	 * 
 	 * @param old
@@ -2679,10 +2250,7 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 
 	}
 
-	protected void updateCharges() {
-
-	}
-
+	
 	public OrbitaleAtomique[] getOAs() {
 		List<HuckelAtom> list = this.getHuckelAtoms();
 		Collections.sort(list, new SeqNumComparator());
@@ -2696,106 +2264,22 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		return OAs;
 	}
 
-	protected void fireMoleculeBondRemoved(Molecule source,
-			Object oldValue, Object newValue) {
 
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeBondRemoved(event);
-		}	
+	/**
+	 * 
+	 * @param listener
+	 */
+	public void addListener(IMoleculeValueListener listener) {
+		this.valueListeners.add((IMoleculeValueListener) listener);
 	}
+	
+	/**
+	 * 
+	 * @param listener
+	 */
+	public void addListener(IMoleculeGeometryListener listener) {
+		this.geometryListeners.add((IMoleculeGeometryListener) listener);
 
-	protected void fireMoleculeAtomReplaced(Molecule source,
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeAtomReplaced(event);
-		}	
-	}
-
-	protected void fireMoleculeChargeChanged(Molecule source, 
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-		ArrayList<IMoleculeValueListener> lst = this.getValueListeners();
-		for (IMoleculeValueListener listener : lst) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeChargeChanged(event);
-		}	
-	}
-
-	protected void fireMoleculeListHuckelAtomSeqNumAutoSetted(Molecule source, 
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeListHuckelAtomSeqNumAutoSetted(event);
-		}	
-	}
-
-	protected void fireMoleculeListHuckelAtomSeqNumReset(Molecule source, 
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeListHuckelAtomSeqNumReset(event);
-		}	
-	}
-
-	protected void fireMoleculeAtomAdded(Molecule source, 
-			Object oldValue, Object newValue) {
-
-		if (!isEnabledNotify()) {
-			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
-			return;
-		}
-
-		MoleculeEvent event = null;
-
-		for (IMoleculeValueListener listener : this.getValueListeners()) {
-			if (event == null)
-				event = new MoleculeEvent(source, oldValue, newValue);
-			listener.moleculeAtomAdded(event);
-		}	
 	}
 
 	//@Override
@@ -2827,6 +2311,10 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 
 	}
 
+
+
+
+
 	//@Override
 	public void huckelAtomSeqNumChanged(HuckelAtomEvent e) {
 		// TODO Auto-generated method stub
@@ -2847,5 +2335,309 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 
 	public ArrayList<IMoleculeGeometryListener> getGeometryListeners() {
 		return (ArrayList<IMoleculeGeometryListener> ) this.geometryListeners.clone();
+	}
+
+	/**
+	 * 
+	 * @param e
+	 */
+	protected void fireHuckelAtomHxChanged(HuckelAtomEvent e) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+	
+			listener.huckelAtomHxChanged(e);
+		}	
+	}
+	
+	protected void fireHuckelAtomSeqNumChanged(HuckelAtomEvent e) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		for (IMoleculeValueListener listener :  this.getValueListeners()) {
+	
+			listener.huckelAtomSeqNumChanged(e);
+		}	
+	}
+	
+	protected void fireAtomLocationChanged(GeometryEvent e) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		for (IMoleculeGeometryListener listener :  this.getGeometryListeners()) {
+	
+			listener.atomLocationChanged(e);
+		}	
+	}
+	
+	protected void fireHuckelAtomRadRChanged(HuckelAtomEvent e) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+	
+		for (IMoleculeValueListener listener :  this.getValueListeners()) {
+	
+			listener.huckelAtomRadRChanged(e);
+		}	
+	}
+	
+	protected void fireHuckelBondHxyChanged(HuckelBondEvent e) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+		for (IMoleculeValueListener listener :this.getValueListeners()) {
+	
+			listener.huckelBondHxyChanged(e);
+		}	
+	}
+	
+	
+	protected void fireHuckelBondBondTypeChanged(HuckelBondEvent e) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+	
+			listener.huckelBondBondTypeChanged(e);
+		}	
+	}
+	
+	
+	
+	protected void fireMoleculeMoved(Molecule source, 
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("FireMoleculeChanged : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		GeometryEvent event = null;
+	
+		for (IMoleculeGeometryListener listener : this.getGeometryListeners()) {
+			if (event == null)
+				event = new GeometryEvent(source, oldValue, newValue);
+			listener.moleculeMoved(event);
+		}	
+	}
+	
+	protected void fireMoleculeRotated(Molecule source, 
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		GeometryEvent event = null;
+	
+		for (IMoleculeGeometryListener listener : this.getGeometryListeners()) {
+			if (event == null)
+				event = new GeometryEvent(source, oldValue, newValue);
+			listener.moleculeRotated(event);
+		}	
+	}
+	
+	
+	protected void fireMoleculeAtomRemoved(Molecule source, 
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeAtomRemoved(event);
+		}	
+	}
+	
+	protected void fireMoleculeBondAdded(Molecule source,
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeBondAdded(event);
+		}	
+	}
+	
+	
+	protected void fireMoleculeDeleted(Molecule source, Object oldValue, Object newValue) {
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeDeleted(event);
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param listener
+	 */
+	public void addListener(IMoleculeListener listener) {
+		if ( listener instanceof IMoleculeGeometryListener)
+			this.geometryListeners.add((IMoleculeGeometryListener) listener);
+		if ( listener instanceof IMoleculeValueListener)
+			this.valueListeners.add((IMoleculeValueListener) listener);
+	}
+	
+	
+	public void removeListener(IMoleculeListener listener) {
+		if ( listener instanceof IMoleculeGeometryListener)
+			this.geometryListeners.remove((IMoleculeGeometryListener) listener);
+		if ( listener instanceof IMoleculeValueListener)
+			this.valueListeners.remove((IMoleculeValueListener) listener);
+	}
+	
+	public void removeListener(IMoleculeValueListener listener) {
+		this.valueListeners.remove(listener);
+	}
+	
+	public void removeListener(IMoleculeGeometryListener listener) {
+		this.geometryListeners.remove(listener);
+	}
+	
+	public void removeAllListeners() {
+		this.valueListeners.clear();
+		this.geometryListeners.clear();
+	}
+	
+	protected void fireMoleculeBondRemoved(Molecule source,
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeBondRemoved(event);
+		}	
+	}
+	
+	protected void fireMoleculeAtomReplaced(Molecule source,
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeAtomReplaced(event);
+		}	
+	}
+	
+	protected void fireMoleculeChargeChanged(Molecule source, 
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+		ArrayList<IMoleculeValueListener> lst = this.getValueListeners();
+		for (IMoleculeValueListener listener : lst) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeChargeChanged(event);
+		}	
+	}
+	
+	protected void fireMoleculeListHuckelAtomSeqNumAutoSetted(Molecule source, 
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeListHuckelAtomSeqNumAutoSetted(event);
+		}	
+	}
+	
+	protected void fireMoleculeListHuckelAtomSeqNumReset(Molecule source, 
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeListHuckelAtomSeqNumReset(event);
+		}	
+	}
+	
+	protected void fireMoleculeAtomAdded(Molecule source, 
+			Object oldValue, Object newValue) {
+	
+		if (!isEnabledNotify()) {
+			HuckelIO.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+	
+		MoleculeEvent event = null;
+	
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeAtomAdded(event);
+		}	
 	}
 }

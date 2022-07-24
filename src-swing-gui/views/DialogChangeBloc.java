@@ -15,12 +15,13 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.ctom.hulis.huckel.BlocDelocalized;
+import org.ctom.hulis.huckel.structures.StructureLocalized;
 
+import access.Rights;
+import controller.globalCommands.ActionEndBloc;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
-import access.Rights;
-import controller.globalCommands.ActionEndBloc;
 
 public class DialogChangeBloc extends MyJDialog implements ActionListener {
 	StructureView structureView;
@@ -87,16 +88,16 @@ public class DialogChangeBloc extends MyJDialog implements ActionListener {
 			// choix1 : modifier un bloc  
 			if (command.equals("kchoix1")){
 				SwingIO.log(this.getClass().getName(), "actionPerformed", "select a block to change it");
-				this.structureView.setSelectedBlocDelocalized(this.blocDelocalized);
+				StructureView.setSelectedBlocDelocalized(this.blocDelocalized);
 			}
 			//choix2 : supprimer un bloc
 			else if (command.equals("kchoix2")) {
 				SwingIO.log(this.getClass().getName(), "actionPerformed", "remove a block");
 				app.getStateManager().initNewState();
-				this.structureView.getStructure().removeBlocDelocalized(this.blocDelocalized);
+				((StructureLocalized) this.structureView.getStructure()).removeBlocDelocalized(this.blocDelocalized);
 				this.blocDelocalized.clear();
 				this.blocDelocalized = null;
-				this.structureView.setSelectedBlocDelocalized(null);
+				StructureView.setSelectedBlocDelocalized(null);
 				app.toolBarMesomery.btEndBloc.setSelected(false);
 				app.toolBarMesomery.btEndBloc.setVisible(false);
 				app.toolBarMesomery.btBloc.setVisible(true && Rights.ALLOW_BLOCKS);
@@ -108,8 +109,8 @@ public class DialogChangeBloc extends MyJDialog implements ActionListener {
 			// choix 3 : modifier le nombre d'electrons
 			else if (command.equals("kchoix3")) {
 				SwingIO.log(this.getClass().getName(), "actionPerformed", "change electron number");
-				this.structureView.setSelectedBlocDelocalized(this.blocDelocalized);
-				new ActionEndBloc(app).execute();
+				StructureView.setSelectedBlocDelocalized(this.blocDelocalized);
+				new ActionEndBloc(app, this.getRootPane()).execute();
 			}
 
 			this.dispose();

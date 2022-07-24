@@ -3,12 +3,14 @@ package org.ctom.hulis.huckel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.ctom.hulis.huckel.events.BlocDelocalizedEvent;
 import org.ctom.hulis.huckel.exception.BlocDelocalizedException;
 import org.ctom.hulis.huckel.listeners.IBlocDelocalizedListener;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
+import org.ctom.hulis.huckel.structures.StructureLocalized;
 
 
 /****
@@ -16,121 +18,191 @@ import org.ctom.hulis.huckel.structures.StructureDelocalized;
  * @author CTOM
  *
  */
-public class BlocDelocalized implements Serializable {
-	ArrayList<IHuckelObject> lstHuckelObject; // objects org.ctom.hulis.huckel in the bloc 
-	int nbElectrons; // number of electrons of the bloc
+public class BlocDelocalized extends HuckelBlock implements Serializable {
+	
+	private static final long serialVersionUID = 2866139443601131754L;
+	
 	Molecule moleculeParent; // structure wich owns the bloc
 	protected final List<IBlocDelocalizedListener> listeners;
-	
-	protected void do_addHuckelObject(IHuckelObject o){
-		lstHuckelObject.add(o);
-		o.setBlocDelocalizedParent(this);
 
-	}
-
-	
-	protected void do_removeHuckelObject(IHuckelObject o){
-		lstHuckelObject.remove(o);
-		o.setBlocDelocalizedParent(null);
-
-	}
-
-	
 	/**
 	 * Constructs a bloc
 	 */
 	public BlocDelocalized () {
-		this.lstHuckelObject = new ArrayList<IHuckelObject>();
-		this.nbElectrons = 0;
+		super();
+		this.moleculeParent=null;
 		listeners = new ArrayList<IBlocDelocalizedListener> ();
+
 	}
+	
+	/**
+	 * 
+	 * @param bloc
+	 * @param target
+	 */
+	private BlocDelocalized(BlocDelocalized bloc, StructureLocalized target) {
+		// TODO Ce n'est pas propre : on ne devrat pas accerder au membres de la classe parent ici
+		this.lstHuckelObject = new ArrayList<IHuckelObject>();
+		listeners = new ArrayList<IBlocDelocalizedListener> ();
+		this.moleculeParent = null;
+		for (IHuckelObject o : bloc.getListHuckelObject()) {
+			IHuckelObject otarget=target.getHuckelObjectByIndex(o.getClass(), o.getIndex());
+			this.lstHuckelObject.add(otarget);
+			otarget.setBlocDelocalizedParent(this);
+		}
+		this.nbElectrons=bloc.nbElectrons;	
+	}
+	
 
 
 	/**
-	 * Adds an org.ctom.hulis.huckel bond or atom in the bloc
+	 * @param target :
+	 * @return
+	 */
+	public BlocDelocalized getCopy(StructureLocalized target) {
+		return new BlocDelocalized(this, target);
+	}
+
+
+	
+	/**
+	 * Add a huckel bond or atom in the bloc
 	 * 
-	 * If a bond is added, the boh linked atom are added. If one of the two atoms
-	 * owns to the bond, an exception is thrown
+	 * If a bond is added in a block, the both linked atom are added too. If one of the two atoms
+	 * owns to the bloc, or the bond already owns to the bloc, then an exception is thrown
 	 * 
 	 * @param o
 	 * @throws BlocDelocalizedException 
 	 */
 	public void addHuckelObject(IHuckelObject o) throws BlocDelocalizedException {
-		Mesomery mesomery;
-		if ((this.getMoleculeParent() instanceof StructureDelocalized)
-			&& ( ( mesomery = ((StructureDelocalized) this.getMoleculeParent() ).getMesomeryParent())!= null)
-			&& mesomery.countLocalizedStructs()>0) 
-			throw new BlocDelocalizedException ("cannot add an object to the bloc because there are localized structures in the mesomery");
-
-		
-		if (o.getBlocDelocalizedParent() != null)
-			throw new BlocDelocalizedException ("this bond or this atom already own to a bloc");
-		
-		if (o.getNbRadR() > 0)
-			throw new BlocDelocalizedException ("Cannot add to a bloc : this bond or this atom has got electrons" );
-		
 		// si l'objet a ajoute est une liaison alors ajoute au bloc les atomes lies, exception si un des atomes appartient
 		// deja a une bloc
+		if (o.getBlocDelocalizedParent() != null)
+			throw new BlocDelocalizedException(o + " is already in a block");
+	
 		if (o instanceof HuckelBond) {
 			HuckelBond b = (HuckelBond) o;
+			if (b.getBondType()>1)
+				throw new BlocDelocalizedException("b " + b + " has more than 1 electron");
 			HuckelAtom a1 = (HuckelAtom) b.getAtom1();
 			HuckelAtom a2 = (HuckelAtom) b.getAtom2();
-			if  ( (a1.getBlocDelocalizedParent() != null && a1.getBlocDelocalizedParent() != this)||
-					(a2.getBlocDelocalizedParent() != null && a2.getBlocDelocalizedParent() != this) )
-				throw new BlocDelocalizedException ("Cannot add the bond " + b.toString() + " in the bloc because one of the two linked atoms owns to another bloc");
 			
-			if (a1.getBlocDelocalizedParent() == null) 
-				do_addHuckelObject(a1);
-				
-
-			if (a2.getBlocDelocalizedParent() == null)
-				do_addHuckelObject(a2);
+			if (a1.getNbElectrons() > 0) 
+				throw new BlocDelocalizedException("cannot create bloc on " + a1 + ". Nb electrons > 0");
+			else if (a1.countDBondAtom() > 0)
+				throw new BlocDelocalizedException("cannot create bloc on " + a1 + "  : double bonds detected");
+			else if (a1.getBlocDelocalizedParent() == null) {
+				lstHuckelObject.add(a1);
+				a1.setBlocDelocalizedParent(this);
+			}
+			else if (a1.getBlocDelocalizedParent() != this)
+				throw new BlocDelocalizedException("atom " + a1 + " is already in a block");
+			
+			if (a2.getNbElectrons() > 0) 
+				throw new BlocDelocalizedException("cannot create bloc on " + a2 + ". Nb electrons > 0");
+			else if (a2.countDBondAtom() > 0)
+				throw new BlocDelocalizedException("cannot create bloc on " + a2 + "  : double bonds detected");
+			if (a2.getBlocDelocalizedParent() == null) {
+				lstHuckelObject.add(a2);
+				a2.setBlocDelocalizedParent(this);
+			}
+			else if (a2.getBlocDelocalizedParent() != this)
+				throw new BlocDelocalizedException("atom " + a2 + " is already in a block");
 		
+					
+		}
+		else {
+			// si atome
+			if (o.getNbElectrons() > 0)
+				throw new BlocDelocalizedException("cannot create bloc on " + o + "  Nb electrons > 0");
+			else if (((Atom) o).countDBondAtom() > 0)
+				throw new BlocDelocalizedException("cannot create bloc on " + o + "  : double bonds detected");
 		}
 		
-		do_addHuckelObject(o);
+		lstHuckelObject.add(o);
+		o.setBlocDelocalizedParent(this);
+								
+		this.nbElectrons= this.getSumAtomsNbElecPi();	
+
 		
 		this.fireHuckelObjectAdded(this, null, o);
-
+	
 	}
 	
-	/**
-	 * 
-	 * @return number of objects of the bloc
-	 */
-	public int countHuckelObjects() {
-		return lstHuckelObject.size();
-	}
+	
 	
 	/**
 	 * Remove object of the bloc
 	 * @param o
 	 */
 	public void removeHuckelObject(IHuckelObject o) {
-		Mesomery mesomery;
-		if ((this.getMoleculeParent() instanceof StructureDelocalized)
-			&& ( ( mesomery = ((StructureDelocalized) this.getMoleculeParent() ).getMesomeryParent())!= null)
-			&& mesomery.countLocalizedStructs()>0) 
-			throw new RuntimeException ("cannot remove an object to the bloc because there are localized structures in the mesomery");
+		do_removeHuckelObject(o);
+		this.nbElectrons= this.getSumAtomsNbElecPi();	
+		this.fireHuckelObjectRemoved(this, o, null);
 
-		
+	}
+	
+	/**
+	 * 
+	 * @param o
+	 */
+	protected void do_removeHuckelObject(IHuckelObject o){
+		// si l'objet a supprimer est une liaison alors supprime du bloc les atomes lies, exception si un des atomes appartient
+		// deja a une bloc
 		// si on enleve un atome d'un bloc, il faut enlever du meme bloc les liaisons adjacentes
 		if (o instanceof Atom) {
 			Atom a = (Atom) o;
 			for (Bond b : a.getBonds()) {
 				if (b instanceof HuckelBond) {
 					HuckelBond hb = (HuckelBond) b;
-					if (hb.getBlocDelocalizedParent() == this)
-						do_removeHuckelObject(hb);
+					for (IHuckelObject huckelObject: this.getListHuckelObject() ) {
+						if (huckelObject == hb) {
+							lstHuckelObject.remove(hb);
+							hb.setBlocDelocalizedParent(null);
+						}
+					}
 				}
 			}
+		}		
+	    else if (o instanceof HuckelBond) {
+			HuckelBond b = (HuckelBond) o;
+			HuckelAtom a1 = (HuckelAtom) b.getAtom1();
+			HuckelAtom a2 = (HuckelAtom) b.getAtom2();
+			
+			// supprume les atomes afferents à la liaison du bloc s'ils ne sont pas liés a un auautre atome du bloc
+			List<HuckelBond> lstHuckelBonds=this.getListHuckelBond();
+			Iterator<HuckelBond> it = lstHuckelBonds.iterator();
+			boolean found=false;
+			while (it.hasNext() && !found) {
+				HuckelBond current= it.next();
+				if  ((current != b) && b.contains(a1)  )
+					found = true;
+				
+			}
+			if (!found) {
+				lstHuckelObject.remove(a1);
+				a1.setBlocDelocalizedParent(null);
+			}
+			
+			found = false;
+			while (it.hasNext() && !found) {
+				HuckelBond current= it.next();
+				if  ((current != b) && b.contains(a2)  )
+					found = true;
+				
+			}
+			if (!found) {
+				lstHuckelObject.remove(a2);
+				a2.setBlocDelocalizedParent(null);
+			}
+	
+
 		}
 		
-		do_removeHuckelObject(o);
-
-		this.fireHuckelObjectRemoved(this, o, null);
-
+		lstHuckelObject.remove(o);
+		o.setBlocDelocalizedParent(null);		
 	}
+		
 
 	
 	/**
@@ -148,31 +220,14 @@ public class BlocDelocalized implements Serializable {
 
 		int old = this.getNbElectron();
 		
-		this.nbElectrons = nbElectrons;
+		super.setNbElectron(nbElectrons);
 		
 		if (old != this.nbElectrons)
 			this.fireNbElectronsChanged(this, old, this.nbElectrons);
 
 	}
 
-	/**
-	 * number of electrons in the bloc
-	 * @return
-	 */
-	public int getNbElectron() {
-		return this.nbElectrons ;
-		
-	}
 	
-	/**
-	 * tests if the bloc contains the org.ctom.hulis.huckel object in parameter
-	 * @param o
-	 * @return
-	 */
-	public boolean containsHuckelObject(IHuckelObject o) {
-		return lstHuckelObject.contains(o);
-		
-	}
 	
 	/***
 	 * destroy bloc contents
@@ -188,11 +243,20 @@ public class BlocDelocalized implements Serializable {
 		for (IHuckelObject huckelObject : this.lstHuckelObject)
 			huckelObject.setBlocDelocalizedParent(null);
 		this.lstHuckelObject.clear();
-		this.moleculeParent = null;
-		this.lstHuckelObject = null;
-		
+		this.moleculeParent = null;		
 	}
-
+	
+	
+	/**
+	 * empties the list of object of the bloc
+	 * TODO a verifier
+	 */
+	public void empty () {
+		for (IHuckelObject huckelObject : this.lstHuckelObject)
+			huckelObject.setBlocDelocalizedParent(null);
+		this.lstHuckelObject.clear();		
+	}
+	
 	/**
 	 * getSumAtomNbElecPi : this function returns the sum of number of Pi
 	 * electrons of the atoms of the bloc
@@ -210,14 +274,6 @@ public class BlocDelocalized implements Serializable {
 		return nbElecPi;
 	}
 	
-	/**
-	 * empties the list of object of the bloc
-	 */
-	public void empty () {
-		for (IHuckelObject huckelObject : this.lstHuckelObject)
-			huckelObject.setBlocDelocalizedParent(null);
-		this.lstHuckelObject.clear();		
-	}
 	
 	/**
 	 * attach the bloc to a structure
@@ -237,6 +293,7 @@ public class BlocDelocalized implements Serializable {
 		
 	}
 	
+
 	protected void fireHuckelObjectAdded(BlocDelocalized source, Object oldValue, Object newValue) {
 		BlocDelocalizedEvent event = null;
 		for (IBlocDelocalizedListener listener : this.listeners) {
@@ -276,96 +333,7 @@ public class BlocDelocalized implements Serializable {
 		this.listeners.remove(listener);
 	}
 
-	public List<IHuckelObject> getListHuckelObject() {
-		return lstHuckelObject;
-	}
 	
-	public List<HuckelAtom> getListHuckelAtom() {
-		List<HuckelAtom> lstHuckelAtom = new ArrayList<HuckelAtom>(); 
-		for (IHuckelObject o : this.getListHuckelObject() )
-			if (o instanceof HuckelAtom)
-				lstHuckelAtom.add((HuckelAtom)o);
-			
-			return lstHuckelAtom;
-	}
-
-	public List<HuckelBond> getListHuckelBond() {
-		List<HuckelBond> lstHuckelBond = new ArrayList<HuckelBond>(); 
-		for (IHuckelObject o : this.getListHuckelObject() )
-			if (o instanceof HuckelBond)
-				lstHuckelBond.add((HuckelBond)o);
-			
-			return lstHuckelBond;
-	}
-
-	/**
-	 * Compare two blocs
-	 * @param bloc
-	 * @return
-	 */
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-
-		if (!(o instanceof BlocDelocalized))
-			throw new ClassCastException();
-		
-		BlocDelocalized bloc = (BlocDelocalized) o;
-		
-		// deux blocs sont egaux s'ils possedent  memes atomes
-		List<HuckelAtom>  lstHuckelAtom = getListHuckelAtom();
-		List<HuckelAtom>  lstHuckelAtomB = bloc.getListHuckelAtom();
-		
-		List<HuckelBond>  lstHuckelBond = getListHuckelBond();
-		List<HuckelBond>  lstHuckelBondB = bloc.getListHuckelBond();
-
-		if (lstHuckelAtom.size() != lstHuckelAtomB.size())
-				return false;
-		
-		if (lstHuckelBond.size() != lstHuckelBondB.size())
-			return false;
 	
-		for (HuckelAtom a : lstHuckelAtom ) {
-			boolean ok = false;
-			for (HuckelAtom a2 : lstHuckelAtomB )
-				if (a.equals(a2) ){
-					ok = true;
-					break;
-				}
-			if (!ok)
-				return false;
-		}
-
-		
-		for (HuckelBond b : lstHuckelBond ) {
-			boolean ok = false;
-			for (HuckelBond b2 : lstHuckelBondB )
-				if (b.equals(b2)) {
-					ok = true;
-					break;
-				}
-			if (!ok)
-				return false;
-		}
-
-		
-		return true;
-	} // equals
-	
-	private volatile int hashCode = 0;
-
-	@Override
-    public int hashCode () {
-        final int multiplier = 23;
-        if (hashCode == 0) {
-            int code = 133;
-            if (this.lstHuckelObject != null)
-            	code = multiplier * code +  this.lstHuckelObject.hashCode();
-    	   hashCode = code;
-        }
-        return hashCode;
-	
-	}
 
 }

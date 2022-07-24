@@ -90,17 +90,14 @@ public class Bond implements IMoleculeComponent, Cloneable, Serializable {
 	}
 
 
-	/**
-	 * This method clones the atom  object
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Object clone() {
-		try {
-			super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
 		return new Bond(this);
+
 	}
 
 	/**

@@ -15,7 +15,7 @@ import org.ctom.util.maths.Maths;
  * @author macbook
  *
  */
-public class MesomeryHLPOverlapStructuresSelector implements IStructuresSelector, Serializable {
+public class MesomeryHLPOverlapStructuresSelector implements IStructuresSelector, Cloneable, Serializable {
 
 	/**
 	 * 
@@ -46,6 +46,7 @@ public class MesomeryHLPOverlapStructuresSelector implements IStructuresSelector
 	 */
 	public Object clone() {
 		return new MesomeryHLPOverlapStructuresSelector(this);
+
 	}
 
 	/* (non-Javadoc)

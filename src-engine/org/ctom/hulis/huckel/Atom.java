@@ -222,18 +222,12 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 			this.connect = new ArrayList<Integer>();
 	}
 
-	/**
-	 * This function clones an atom
-	 * @return a copy of this atom
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Object clone() {
-		try {
-			super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
-
 		return new Atom(this);
 	}
 

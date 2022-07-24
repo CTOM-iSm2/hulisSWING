@@ -3,32 +3,38 @@ package org.ctom.hulis.huckel.structures;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.ctom.hulis.huckel.Atom;
 import org.ctom.hulis.huckel.BlocDelocalized;
 import org.ctom.hulis.huckel.Bond;
 import org.ctom.hulis.huckel.CoupleLocal;
-import org.ctom.hulis.huckel.Energy;
 import org.ctom.hulis.huckel.HuckelAtom;
+import org.ctom.hulis.huckel.HuckelBlock;
 import org.ctom.hulis.huckel.HuckelBond;
 import org.ctom.hulis.huckel.IHuckelObject;
 import org.ctom.hulis.huckel.Mesomery;
 import org.ctom.hulis.huckel.Molecule;
+import org.ctom.hulis.huckel.MonoBlock;
 import org.ctom.hulis.huckel.MonoExcitation;
 import org.ctom.hulis.huckel.OrbitaleMoleculaire;
 import org.ctom.hulis.huckel.Spin;
 import org.ctom.hulis.huckel.SpinOrbitaleMoleculaire;
+import org.ctom.hulis.huckel.events.BlocDelocalizedEvent;
 import org.ctom.hulis.huckel.events.HuckelAtomEvent;
+import org.ctom.hulis.huckel.events.MoleculeEvent;
 import org.ctom.hulis.huckel.events.MonoExcitationEvent;
 import org.ctom.hulis.huckel.events.StructureLocalizedEvent;
+import org.ctom.hulis.huckel.exception.BlocDelocalizedException;
 import org.ctom.hulis.huckel.exception.BondException;
 import org.ctom.hulis.huckel.exception.CoupleException;
 import org.ctom.hulis.huckel.exception.HuckelBondException;
+import org.ctom.hulis.huckel.exception.HulisException;
 import org.ctom.hulis.huckel.exception.MoleculeAtomNullException;
 import org.ctom.hulis.huckel.exception.MoleculeBondExistsException;
 import org.ctom.hulis.huckel.exception.MoleculeCoherenceException;
@@ -38,9 +44,9 @@ import org.ctom.hulis.huckel.exception.NoSOMAvailableException;
 import org.ctom.hulis.huckel.exception.OrbitaleMoleculaireException;
 import org.ctom.hulis.huckel.exception.StructureLocalizedException;
 import org.ctom.hulis.huckel.exception.UnavailableSOMException;
+import org.ctom.hulis.huckel.listeners.IBlocDelocalizedListener;
 import org.ctom.hulis.huckel.listeners.IMoleculeValueListener;
 import org.ctom.hulis.huckel.listeners.IStructureLocalizedListener;
-import org.ctom.hulis.huckel.structures.StructureLocalized.CoupleOMs;
 import org.ctom.hulis.util.io.HuckelIO;
 import org.ctom.util.maths.Maths;
 import org.ctom.util.maths.Rotation;
@@ -52,9 +58,8 @@ import Jama.Matrix;
  * @author macbook
  *
  */
-public class StructureLocalized extends Structure implements Serializable 
+public class StructureLocalized extends Structure implements IBlocDelocalizedListener, Cloneable, Serializable 
  {
-
 
 	/**
 	 * 
@@ -75,7 +80,8 @@ public class StructureLocalized extends Structure implements Serializable
 	
 	private ArrayList<CoupleOMs> lstCouplesOMs;
 
-	
+	private ArrayList<BlocDelocalized> lstBlocDelocalized; // 
+
 	
 	class CoupleOMs{
 		int om1;
@@ -89,10 +95,111 @@ public class StructureLocalized extends Structure implements Serializable
 	public StructureLocalized() {
 		super();
 		this.lstCouplesOMs = new ArrayList<CoupleOMs>();
+		this.lstBlocDelocalized = new ArrayList<BlocDelocalized>();
 		this.weights = new HashMap<String, Double>();
 			
 	}
 
+	
+	/**
+	 * @param structure
+	 */
+	public StructureLocalized(StructureLocalized structure)  {
+		this(structure, structure.isCloneResultsCacheWhenCloneStructure()) ;
+	}
+	
+	/**
+	 * TODO A SUPPRIMER OU A RENOMMER : ce n'est pas la fonction clone standard
+	 * @param cloneResults
+	 * @return
+	 */
+	public Object clone(boolean cloneResults){
+		return new StructureLocalized (this, cloneResults);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Molecule#clone()
+	 */
+	@Override
+	public Object clone() {
+		return new StructureLocalized(this);
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Structure#hashCode()
+	 */
+	@Override
+    public int hashCode () {
+        final int multiplier = 23;
+        if (hashCode == 0) {
+            int code = 133;
+            if (this.getCouple() != null)
+            	code = multiplier * code + this.getCouple().hashCode();
+			if (this.lstBlocDelocalized != null)
+				code = multiplier * code +  this.lstBlocDelocalized.hashCode();
+           	code = multiplier * code +  super.hashCode();
+            hashCode = code;
+        }
+        return hashCode;
+	
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Structure#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (! super.equals(o))
+			return false;
+			
+		if (!(o instanceof StructureLocalized))
+			return false;
+			
+		return true;
+
+	}
+
+	
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Molecule#geometryEquals(org.ctom.hulis.huckel.Molecule)
+	 */
+	@Override
+	public boolean geometryEquals(Molecule molecule){
+		if (!(molecule instanceof StructureLocalized))
+			return false;
+		
+		StructureLocalized s = (StructureLocalized) molecule;
+		
+		if (((s.getCouple() != null) && (this.getCouple() == null))
+				|| ((s.getCouple() == null) && (this.getCouple() != null)))
+			return false;
+		else if ((s.getCouple() != null) && (this.getCouple() != null) && !s.getCouple().equals(this.getCouple()) )
+			return false;
+		
+
+		if (this.countBlocsDelocalized() != s.countBlocsDelocalized())
+			return false;
+
+
+		// cherche un bloc identique
+		if (this.countBlocsDelocalized() != s.countBlocsDelocalized())
+			return false;
+		for (BlocDelocalized bloc : this.getListBlocDelocalized()) {
+			boolean ok = false;
+			for (BlocDelocalized sbloc : s.getListBlocDelocalized())
+				if (bloc.equals(sbloc) ){
+					ok = true;
+					break;
+				}
+
+			if (!ok)
+				return false;
+		}
+		return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.ctom.hulis.huckel.Molecule#addAtom(org.ctom.hulis.huckel.Atom)
 	 */
@@ -100,7 +207,6 @@ public class StructureLocalized extends Structure implements Serializable
 	public void addAtom(Atom a) throws HuckelBondException, BondException, MoleculeTooManyNeighboursException, MoleculeCoherenceException, MoleculeBondExistsException {
 		throw new MoleculeCoherenceException ("Cannot add an atom in a localized structure. It must have the same configuration as the delocalized structure");
 	}
-	
 	
 	/* (non-Javadoc)
 	 * @see org.ctom.hulis.huckel.Molecule#addBond(org.ctom.hulis.huckel.Bond)
@@ -147,11 +253,6 @@ public class StructureLocalized extends Structure implements Serializable
 	}
 	
 	
-	@Override
-	public void monoExcitationTriggered(MonoExcitationEvent e) {
-		throw new RuntimeException("Cannot trigger a monoexcitation in a localized structure. It must have the same configuration as the delocalized structure");
-	}
-
 	/* (non-Javadoc)
 	 * @see org.ctom.hulis.huckel.Molecule#rotate(org.ctom.util.maths.Rotation)
 	 */
@@ -228,6 +329,7 @@ public class StructureLocalized extends Structure implements Serializable
 	 */
 	public StructureLocalized(StructureDelocalized structure) {
 		super(structure);
+		this.lstBlocDelocalized = new ArrayList<BlocDelocalized>();
 		this.weights = new HashMap<String, Double>();
 		this.methodCreation = StructureLocalized.CreationMethod.CREATED_MANUALLY;
 		this.error = StructureLocalized.Error.NOT_ERROR;
@@ -238,21 +340,12 @@ public class StructureLocalized extends Structure implements Serializable
 			calculate();
 	}
 
-	
-	/**
-	 * @param structure
-	 * @throws CoupleException
-	 */
-	public StructureLocalized(StructureLocalized structure) throws CoupleException {
-		this(structure, structure.isCloneResultsCacheWhenCloneStructure()) ;
-	}
-	
+
 	/**
 	 * @param structure
 	 * @param cloneStructureResults
-	 * @throws CoupleException
 	 */
-	public StructureLocalized(StructureLocalized structure, boolean cloneStructureResults) throws CoupleException {
+	public StructureLocalized(StructureLocalized structure, boolean cloneStructureResults) {
 		super(structure);
 		this.weights = new HashMap<String, Double>();
 		for (Map.Entry<String, Double> entry : structure.weights.entrySet())
@@ -262,19 +355,67 @@ public class StructureLocalized extends Structure implements Serializable
 			this.copyArrays(structure);
 		this.methodCreation = StructureLocalized.CreationMethod.CREATED_MANUALLY;
 		this.error = structure.error;
-		if (structure.couple != null) {
-			this.couple = new CoupleLocal(
-						(HuckelAtom) getAtomByIndex(structure.couple
-								.getHuckelAtom1().getIndex()),
-								(HuckelAtom) getAtomByIndex(structure.couple
-										.getHuckelAtom2().getIndex()));
-			
-		}
+		
+		if (structure.couple != null)
+			this.couple = structure.couple.getCopy(this);
+		else
+			this.couple=null;
+		
 		this.lstCouplesOMs = new ArrayList<CoupleOMs>();
-
+		// copier blocs
+		this.lstBlocDelocalized = new ArrayList<BlocDelocalized>();
+		BlocDelocalized blocClone;
+		for (BlocDelocalized bloc : structure.getListBlocDelocalized()){
+			blocClone = bloc.getCopy(this); 
+			blocClone.setMoleculeParent(this);
+			blocClone.addListener(this);
+			this.lstBlocDelocalized.add(blocClone);
+		}
 		// updateCharges();
 	}
+	
+	protected void checkRemoveHuckelObjectInBloc (IHuckelObject o){
+		BlocDelocalized bloc;
+		for (int i = this.lstBlocDelocalized.size() - 1; i>=0; i-- ){
+			bloc = this.lstBlocDelocalized.get(i);
+			if (o.getBlocDelocalizedParent() == bloc){
+				bloc.removeHuckelObject(o);
+				if (bloc.countHuckelObjects() == 0) {
+					bloc.clear();
+					do_removeBlocDelocalized(bloc);
+					bloc = null;
+				}	
 
+			}
+		}
+	}
+	
+	@Override
+	public void do_removeAtom(Atom a) throws HuckelBondException, BondException, MoleculeTooManyNeighboursException, MoleculeCoherenceException, MoleculeBondExistsException {
+		super.do_removeAtom(a);
+		if (a instanceof HuckelAtom)
+			checkRemoveHuckelObjectInBloc ((IHuckelObject) a);
+	}
+	
+	@Override
+	protected void do_removeBond (Bond b)  {
+		super.do_removeBond(b);
+		if (b instanceof IHuckelObject)
+			checkRemoveHuckelObjectInBloc((IHuckelObject) b);
+	}
+
+	@Override
+	protected  void do_replaceAtom(Atom old, Atom newAtom) throws HuckelBondException, BondException, MoleculeAtomNullException, MoleculeTooManyNeighboursException, MoleculeCoherenceException, MoleculeBondExistsException{
+		super.do_replaceAtom(old, newAtom);
+		// trop tot		resetSOM();
+		if(old instanceof HuckelAtom)
+			checkRemoveHuckelObjectInBloc ((IHuckelObject) old);
+	}
+
+
+	public ArrayList<BlocDelocalized> getListBlocDelocalized() {
+		return (ArrayList<BlocDelocalized>) this.lstBlocDelocalized.clone();
+	}
 	/* (non-Javadoc)
 	 * @see org.ctom.hulis.huckel.Structure#appliqueCouplage()
 	 */
@@ -283,6 +424,53 @@ public class StructureLocalized extends Structure implements Serializable
 	UnavailableSOMException, OrbitaleMoleculaireException {
 		int i = getCouplage()[0];
 		this.getSpinOM(i).switchSpin();
+	}
+
+	public void addBlocDelocalized(BlocDelocalized blocDelocalized) {
+		this.lstBlocDelocalized.add(blocDelocalized);
+		blocDelocalized.setMoleculeParent(this);
+		blocDelocalized.addListener(this);
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		fireBlocDelocalizedAdded(this, null, blocDelocalized);
+
+	}
+		
+	
+	public void removeBlocDelocalized(BlocDelocalized blocDelocalized) {
+		do_removeBlocDelocalized(blocDelocalized);
+		if (this.isEnabledFlyCalculate())
+			calculate();		
+		fireBlocDelocalizedRemoved(this, blocDelocalized, 0);
+	}
+	
+	protected void do_removeBlocDelocalized(BlocDelocalized blocDelocalized) {
+		this.lstBlocDelocalized.remove(blocDelocalized);
+		blocDelocalized.setMoleculeParent(null);
+		blocDelocalized.removeListener(this);
+	}
+	
+	/**
+	 * 
+	 * @return the number of delocalized blocs
+	 */
+	public int countBlocsDelocalized() {
+		if (this.lstBlocDelocalized == null)
+			return 0;
+		return this.lstBlocDelocalized.size();
+	}
+
+	
+	public void clear() {
+		for (BlocDelocalized bl : lstBlocDelocalized){
+			bl.clear();
+			bl.removeListener(this);
+			bl = null;
+		}
+		this.lstBlocDelocalized.clear();
+		super.clear();
+				
+
 	}
 
 	/**
@@ -315,9 +503,6 @@ public class StructureLocalized extends Structure implements Serializable
 	}
 
 	
-	
-	
-	
 
 	/**
 	 * This function returns the number of Pi electrons in the molecule
@@ -341,215 +526,6 @@ public class StructureLocalized extends Structure implements Serializable
 	
 	
 	
-	/* (non-Javadoc)
-	 * @see org.ctom.hulis.huckel.Structure#calcDistributionElecArray()
-	 */
-	@Override
-	protected int[] calcDistributionElecArray() {
-		
-		lstCouplesOMs.clear();
-		int[] repartitionElec = new int[countHuckelAtoms()];
-		// IMoleculeComponent[] locations = new
-		// IMoleculeComponent[countHuckelAtoms()];
-	
-		double[][] orbitales = getOrbitalsCoeffArray();
-		// intitialize the number that we must put on radical R and double bonds
-		int nbElecADistribuer = getNbElecCharge() + getSumAtomsNbElecPi();
-	
-		boolean trouve;
-		int a1SeqNum=0;
-		int a2SeqNum=0;
-		double valRetenue;
-		double valTmp;
-		int idxRetenu = 0;
-		int i;
-		int j;
-	
-		// intialize table of repartition of elec pi
-		for (i = 0; i < repartitionElec.length; i++)
-			repartitionElec[i] = 0;
-	
-		
-		//>>>>>> BLOCS : on commencer par repartir les electrons des blocs
-		
-		// association bloc a une orbitale, la liste est triee selon le niveau d'energie. Le tableau d'object prend 
-		// trois valeurs : l'orbitale, l'énergie de celle-ci et le le bloc auquel elle appartient
-		// cela permet de faire un comparateur par energie
-		ArrayList<Object[]> blocOrbitals = new ArrayList <Object[]>();
-		
-		
-		
-		double threshold = 0.0;
-	
-		
-		/* pour chaque orbitale on regarde si un atome est dans le bloc (vrai si le coeff > seuil). si c'est le cas, l'orbitale appartient au bloc de l'atome
-		et donc on lui met un electron
-		*/ 
-		for (j = 0; j < orbitales.length; j++) {
-			
-			// parcourir les orbitales  associe un bloc a une orbitale
-			for (HuckelAtom atom : this.getHuckelAtoms()) {
-				a1SeqNum= atom.getSeqNum() - 1	;
-				double coeff = orbitales[a1SeqNum][j];
-				BlocDelocalized bloc = atom.getBlocDelocalizedParent();
-				if ((bloc != null) && Math.abs(Maths.round(coeff, StructureDelocalized.PRECISION)) >  threshold) {
-					Object[]  value = new Object[] {j, energiesArray[j], atom.getBlocDelocalizedParent()};
-					blocOrbitals.add(value);
-					System.out.println("orbitale " + j +  " de coeff " +  orbitales[a1SeqNum][j] + " contient l'atome " + atom + " donc elle appartient au bloc de " + bloc.getNbElectron() + " electrons" );
-					System.out.println("size =  " + blocOrbitals.size()); 
-					break;
-				}
-				
-			} // fin for HuckelAtoms
-	
-		} // fin j orbitales
-	
-		
-		// on trie le tableau des orbitales de bloc par energie 
-		Collections.sort(blocOrbitals, new Comparator(){
-			public int compare(Object o1, Object o2) {
-				double e1 = (Double) ((Object[]) o1)[1];
-				double e2 = (Double) ((Object[]) o2)[1];
-				return -((Double) e1).compareTo((Double) (e2)); // signe - car beta est negatif, donc on trie dans l'ordre inverse
-			}
-		});
-	
-		System.out.println("Les blocs occupent  " +  blocOrbitals.size() + " orbitales");		
-		
-		// pour chaque bloc on va repartir les electrons sur chacune des orbitales lui appartenant
-		for (BlocDelocalized bloc : this.getListBlocDelocalized()) {
-			int blocElectrons =  bloc.getNbElectron();
-			// on recupere le numero orbiales du bloc courant qu'on met dans une liste
-			ArrayList<Integer> orbitalesIndices = new ArrayList<Integer>();
-			for (Object[] blocOrbital : blocOrbitals) {
-				if (bloc == blocOrbital[2]) {
-					int orbitaleIndice = (int) blocOrbital[0];
-					orbitalesIndices.add(orbitaleIndice); 
-				}		
-			}
-			// on parcourt chaque orbitale du bloc et on repartit les electrons
-			int deb = 0;
-			int fin = 0;
-			double[] energies = getOrbitalsEnergies();
-			System.out.println("on doit repartir " + blocElectrons + " electrons sur " + orbitalesIndices.size() + " orbitales " );
-			// on parcourt les orbitales tant qu'il y a des electrons a distribuer avec deux curseurs (deb et end)
-			while ((deb < orbitalesIndices.size()) && (blocElectrons > 0)) {
-				fin = deb;
-	
-				// on deplace le curseur de fin sur la derniere om de meme energie que le curseur de debut
-				while ((fin < orbitalesIndices.size()) && (Maths.round(energies[orbitalesIndices.get(deb)],
-						StructureDelocalized.PRECISION) == Maths.round(
-								energies[orbitalesIndices.get(fin)], StructureDelocalized.PRECISION))) {
-					fin++;
-				}
-	
-				// on repartit equitablemeent deux electrons sur chaque om entre les curseurs de debut et de fin 
-				for (int nb = 0; nb < 2; nb++) {
-					i = deb;
-					while ((i < fin) && (blocElectrons > 0)) {
-						repartitionElec[orbitalesIndices.get(i)]++;
-						System.out.println("on place 1 electron sur l'orbitale numero " +  orbitalesIndices.get(i) );
-						blocElectrons--;
-						nbElecADistribuer --;
-						i++;
-					}
-				}
-			/*Si fin = (deb+1) alors
-				CoupleOMs[0]=orbitalesIndices.get(deb);
-				CoupleOMs[1]=orbitalesIndices.get(fin);
-	
-			>>	Si fin > deb+1 alors probleme : plus que 2 electrons celibataires.
-				*/
-				// deb+2 car fin est toujours un indice au dessus de deb
-				if ((fin <= orbitalesIndices.size()) && (orbitalesIndices.get(fin-1) == (orbitalesIndices.get(deb) + 1))) {
-					System.out.println ("OUI !!");
-					CoupleOMs coupleOMs = new CoupleOMs();
-					coupleOMs.om1=orbitalesIndices.get(deb);
-					coupleOMs.om2=orbitalesIndices.get(fin-1);
-					lstCouplesOMs.add(coupleOMs);
-				}
-	
-				
-				deb = fin;
-	
-			} // fin while
-	
-		} // fin parcours bloc
-	
-		
-		
-		//>>>>>> Parcourir les atomes Huckel et les liaisons Huckel hors block
-		// >>>>>> distribuer les electrons sur les orbitales correspondantes
-		for (IHuckelObject o : this.getHuckelObjects()) {
-	
-			
-			if (o.getNbElectrons() > 0 && o.getBlocDelocalizedParent() == null) {
-				if (o instanceof HuckelBond) {
-					a1SeqNum = ((HuckelBond) o).getAtom1().getSeqNum() - 1;
-					a2SeqNum = ((HuckelBond) o).getAtom2().getSeqNum() - 1;
-				}
-				else if (o instanceof HuckelAtom){
-					a1SeqNum = ((HuckelAtom) o).getSeqNum() - 1;
-					a2SeqNum = a1SeqNum;
-					
-				}
-				
-				trouve = false;
-				valRetenue =orbitales[a1SeqNum][0]
-					                             * orbitales[a2SeqNum][0];
-				// prend l'energie la plus basse qui soit libre 
-				for (j = 0; j < orbitales.length; j++) {
-					valTmp = orbitales[a1SeqNum][j]
-					                             * orbitales[a2SeqNum][j];
-					if ((valTmp >= valRetenue) && (repartitionElec[j] == 0)) {
-						valRetenue = valTmp;
-						idxRetenu = j;
-						trouve = true;
-					}
-				}
-	
-				if (trouve) {
-					repartitionElec[idxRetenu] =o.getNbElectrons();
-					nbElecADistribuer -= o.getNbElectrons();
-				}// if trouve
-	
-			} // if
-			
-		} // for
-	
-	
-	
-		return repartitionElec;
-	}
-
-
-	/**
-	 * @param cloneResults
-	 * @return
-	 * @throws CoupleException 
-	 */
-	public Object clone(boolean cloneResults){
-		try {
-			return new StructureLocalized (this, cloneResults);
-		} catch (CoupleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.ctom.hulis.huckel.Molecule#clone()
-	 */
-	@Override
-	public Object clone() {
-		try {
-			return new StructureLocalized(this);
-		} catch (CoupleException e) {
-			return null;
-		}
-	}
-
 	/**
 	 * @param iAtom
 	 * @return
@@ -600,48 +576,8 @@ public class StructureLocalized extends Structure implements Serializable
 	@Override
 	public void delete(boolean notify) {
 		this.couple = null;
+		this.lstBlocDelocalized=null;
 		super.delete(notify);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.ctom.hulis.huckel.Structure#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-	
-		if (!(o instanceof StructureLocalized))
-			return false;
-		
-		StructureLocalized s = (StructureLocalized) o;
-		
-
-		if (((s.getCouple() != null) && (this.getCouple() == null))
-				|| ((s.getCouple() == null) && (this.getCouple() != null)))
-			return false;
-		if ((s.getCouple() == null) && (getCouple() == null))
-			return super.equals(s);
-		else
-			return super.equals(s) && s.getCouple().equals(getCouple());
-	}
-
-
-	/* (non-Javadoc)
-	 * @see org.ctom.hulis.huckel.Structure#hashCode()
-	 */
-	@Override
-    public int hashCode () {
-        final int multiplier = 23;
-        if (hashCode == 0) {
-            int code = 133;
-            if (this.getCouple() != null)
-            	code = multiplier * code + this.getCouple().hashCode();
-           	code = multiplier * code +  super.hashCode();
-            hashCode = code;
-        }
-        return hashCode;
-	
 	}
 	
 	/**
@@ -658,24 +594,6 @@ public class StructureLocalized extends Structure implements Serializable
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.ctom.hulis.huckel.Structure#fireHuckelAtomRadRChanged(org.ctom.hulis.huckel.events.HuckelAtomEvent)
-	 */
-	@Override
-	protected void fireHuckelAtomRadRChanged(HuckelAtomEvent e) {
-		autoRemovecouple();
-		super.fireHuckelAtomRadRChanged(e);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.ctom.hulis.huckel.Structure#fireMoleculeAtomRemoved(org.ctom.hulis.huckel.Molecule, java.lang.Object, java.lang.Object)
-	 */
-	@Override
-	protected void fireMoleculeAtomRemoved(Molecule source, Object oldValue,
-			Object newValue) {
-		autoRemovecouple();
-		super.fireMoleculeAtomRemoved(source, oldValue, newValue);
-	}
 
 	/* (non-Javadoc)
 	 * @see org.ctom.hulis.huckel.Structure#getCouplage()
@@ -719,46 +637,206 @@ public class StructureLocalized extends Structure implements Serializable
 	public StructureLocalized getIdenticalStruct() {
 		return this.identicalStruct;
 	}
+	
+	
+	
+	/**
+	 * @return tous les blocks de huckels calculables
+	 * il s'agit des blocs délocalizés non vides et des blocs individuels formés par les doubles liaisons, les atomes à 0, 1, ou 2 electrons
+	 * les resultats de huckel de la structure sont consolidations des resultats individuels
+	 */
+	public List<HuckelBlock> getHuckelBlocks() {
+		List<HuckelBlock> list = new ArrayList<HuckelBlock> ();
+		
+		for (BlocDelocalized b :  this.getListBlocDelocalized()) {
+			if (!b.isEmpty())
+				list.add(b);
+		}
+				
+		for (IHuckelObject huckelObject : this.getHuckelObjects()) {
+			if ( (huckelObject.getBlocDelocalizedParent()==null) && ((huckelObject instanceof Atom) ||
+				(huckelObject instanceof HuckelBond) && (huckelObject.getNbElectrons() > 1)) ) {
+					try {
+						list.add(new MonoBlock (huckelObject ) );
+					} catch (HulisException e) {
+						e.printStackTrace();
+					}
+					System.out.println ("add mono block " + huckelObject);
+			}
+				
+		}
+		return list;
+	}
 
-	@Override
-	protected Matrix getMatrixHamiltonian() {
+	/**
+	 * @return
+	 */
+	protected Matrix calcMatrixHamiltonian() {
 		int x;
 		int y;
-		double hxy;
 		int nbAtomes = countHuckelAtoms();
 
 		if (nbAtomes == 0)
 			return null;
 
 		Matrix hamiltonien = new Matrix(nbAtomes, nbAtomes);
-
-		for (HuckelAtom a : this.getHuckelAtoms()) {
-			if (a.getSeqNum() == 0)
-				return null;
-
-			if (a.getSeqNum() > 0)
-				hamiltonien.set(a.getSeqNum() - 1, a.getSeqNum() - 1, a
-						.getHx());
-		}
-		for (HuckelBond l : this.getHuckelBonds()) {
-			x = l.getAtom1().getSeqNum() - 1;
-			y = l.getAtom2().getSeqNum() - 1;
-			hxy = l.getHxy();
-			if ((x >= 0) && (y >= 0)) {
-				if (l.getBondType() > 1
-						|| (l.getBlocDelocalizedParent() != null)) {
-					hamiltonien.set(x, y, hxy);
-					hamiltonien.set(y, x, hxy);
-				} else {
-					hamiltonien.set(x, y, 0.0);
-					hamiltonien.set(y, x, 0.0);
-				}
+		
+		// on parcourt les petits blocs et on transpose  les resultats de huckels de ceux-ci dans la grande matrice de la structure
+		List<HuckelBlock> lstBlocks=this.getHuckelBlocks();
+		for (HuckelBlock bloc :  lstBlocks) {
+			Matrix matrixBloc = bloc.calcMatrixHamiltonian();
+			Map<Integer, HuckelAtom> tableCorrespondance =  bloc.generateTableCorrespondanceMatrixIndexToAtom();
+			for (int i=0; i< matrixBloc.getColumnDimension(); i++) {
+				for (int j=0; j< matrixBloc.getRowDimension(); j++) {
+					x =tableCorrespondance.get(i).getSeqNum() -1 ;
+					y = tableCorrespondance.get(j).getSeqNum()-1;
+					double huckelParam = matrixBloc.get(i, j);
+					if ((x >= 0) && (y >= 0) && (x<hamiltonien.getColumnDimension()) && (y<hamiltonien.getRowDimension()) ) {
+						hamiltonien.set(x, y, huckelParam);
+					}
+				}	
 			}
 		}
-
+		
 		return hamiltonien;
 	}
 
+	
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calcOrbitalsCoefficients()
+	 */
+	protected double[][] calcOrbitalsCoefficients() {
+		
+		int countHuckelAtoms=this.countHuckelAtoms();
+		double [][] orbitalsCoeffs=new double[countHuckelAtoms][countHuckelAtoms];
+		
+		List<HuckelBlock> lstBlocks=this.getHuckelBlocks();
+		for (HuckelBlock bloc :  lstBlocks) {
+			double [][] orbitalsCoeffsBlock = bloc.calcOrbitalsCoeffArray();
+			Map<Integer, HuckelAtom> tableCorrespondance =  bloc.generateTableCorrespondanceMatrixIndexToAtom();
+			for (int i=0; i< orbitalsCoeffsBlock.length; i++) {
+				for (int j=0; j< orbitalsCoeffsBlock[0].length; j++) {
+					int x =tableCorrespondance.get(i).getSeqNum() -1 ;
+					int y = tableCorrespondance.get(j).getSeqNum()-1;
+					double coeff = orbitalsCoeffsBlock[i][j];
+					if ((x >= 0) && (y >= 0) && (x<orbitalsCoeffs.length) && (y<orbitalsCoeffs[0].length)) {
+						orbitalsCoeffs[x][y] =coeff;
+					}
+				}	
+			}
+		}
+		
+	
+		return orbitalsCoeffs;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calcOrbitalsEnergies()
+	 */
+	@Override
+	protected  double[] calcOrbitalsEnergies() {
+		double[] orbitalEnergies = new double[countHuckelAtoms()];
+		
+		List<HuckelBlock> lstBlocks=this.getHuckelBlocks();
+		for (HuckelBlock bloc :  lstBlocks) {
+			Map<Integer, HuckelAtom> tableCorrespondance =  bloc.generateTableCorrespondanceMatrixIndexToAtom();
+			double[] orbitalEnergiesBlock= bloc.calcOrbitalsEnergies();
+			for (int i=0; i< orbitalEnergiesBlock.length; i++) {
+				int index =tableCorrespondance.get(i).getSeqNum()-1;
+				if ((index>=0) && (index < orbitalEnergies.length))
+					orbitalEnergies[index]=orbitalEnergiesBlock[i];
+			}
+		}
+		
+		return orbitalEnergies;
+		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#getMatrixHamiltonian()
+	 */
+	@Override
+	protected Matrix getMatrixHamiltonian() {
+		return this.calcMatrixHamiltonian();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calcDistributionElecArray()
+	 */
+	@Override
+	protected double[] calcDistributionElecArray() {
+		double[] repartitionElec = new double[countHuckelAtoms()];
+			
+		List<HuckelBlock> lstBlocks=this.getHuckelBlocks();
+		for (HuckelBlock bloc :  lstBlocks) {
+			Map<Integer, HuckelAtom> tableCorrespondance =  bloc.generateTableCorrespondanceMatrixIndexToAtom();
+			double[] repartitionElecBlock= bloc.calcDistributionElecArray();
+			for (int i=0; i< repartitionElecBlock.length; i++) {
+				int index =tableCorrespondance.get(i).getSeqNum()-1;
+				if ((index>=0) && (index < repartitionElec.length))
+					repartitionElec[index]=repartitionElecBlock[i];
+			}
+		}
+			
+		
+		return repartitionElec;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calcOrbitalsCoefficients()
+	 */
+	protected double[][] calcBondOrdersArray() {
+		
+		int countHuckelAtoms=this.countHuckelAtoms();
+		double [][] ordresLiaison=new double[countHuckelAtoms][countHuckelAtoms];
+		
+		List<HuckelBlock> lstBlocks=this.getHuckelBlocks();
+		for (HuckelBlock bloc :  lstBlocks) {
+			double [][] ordresLiaisonBlock = bloc.calcBondOrdersArray();
+			Map<Integer, HuckelAtom> tableCorrespondance =  bloc.generateTableCorrespondanceMatrixIndexToAtom();
+			for (int i=0; i< ordresLiaisonBlock.length; i++) {
+				for (int j=0; j< ordresLiaisonBlock[0].length; j++) {
+					int x =tableCorrespondance.get(i).getSeqNum() -1 ;
+					int y = tableCorrespondance.get(j).getSeqNum()-1;
+					double bondOrder = ordresLiaisonBlock[i][j];
+					if ((x >= 0) && (y >= 0) && (x<ordresLiaison.length) && (y<ordresLiaison[0].length)) {
+						ordresLiaison[x][y] =bondOrder;
+					}
+				}	
+			}
+		}	
+		return ordresLiaison;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calcChargeDensitiesArray()
+	 */
+	@Override
+	protected double[] calcChargeDensitiesArray() {
+		double[] chargesDensityArray = new double[countHuckelAtoms()];
+		
+		List<HuckelBlock> lstBlocks=this.getHuckelBlocks();
+		for (HuckelBlock bloc :  lstBlocks) {
+			Map<Integer, HuckelAtom> tableCorrespondance =  bloc.generateTableCorrespondanceMatrixIndexToAtom();
+			double[] orbitalEnergiesBlock= bloc.calcChargeDensitiesArray();
+			for (int i=0; i< orbitalEnergiesBlock.length; i++) {
+				int index =tableCorrespondance.get(i).getSeqNum()-1;
+				if ((index>=0) && (index < chargesDensityArray.length))
+					chargesDensityArray[index]=orbitalEnergiesBlock[i];
+			}
+		}
+		
+		return chargesDensityArray;
+		
+	}
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public CreationMethod getMethodCreation() {
 		return this.methodCreation;
 	}
@@ -910,6 +988,436 @@ public class StructureLocalized extends Structure implements Serializable
 	}
 
 	/**
+	 * calculate and check if has too much electrons
+	 * @return
+	 */
+	public boolean hasTooManyElectrons() {
+		return (this.countSingleElectronsOnAtoms()>2);
+	}
+	
+	/**
+	 * calculate and check if the number of pi electrons is correct. if mesomery is null then return true
+	 * @return
+	 */
+	public boolean hasCorrectNbPiElec() {
+		Mesomery mesomery = this.getMesomeryParent();
+		if (mesomery == null)
+			return true;
+		
+		
+		int correctNbPiElec = mesomery.getDelocalizedStructure().getSumOfPiElec();
+		return (this.getSumOfPiElec() == correctNbPiElec);
+		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#calculateOverlapHLP()
+	 */
+	@Override
+	public void calculateOverlapHLP() {
+		if (this.hasCorrectNbPiElec() && !this.hasTooManyElectrons())
+			super.calculateOverlapHLP();
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.structures.Structure#generateSpinOM()
+	 */
+	@Override 
+	protected void generateSpinOM() throws NoElectronException, NoSOMAvailableException, UnavailableSOMException {
+		super.generateSpinOM();
+		System.out.println("GENERATE SPIN OM @Override");
+		for (int i = 0; i < this.countSpinOM() ; i++){
+			SpinOrbitaleMoleculaire som = this.getSpinOM(i);
+			System.out.println(i + " " + som.getSpin() + " " + som.getPartner().getSpin());
+			
+		}
+		System.out.println("FIN GENERATE SPIN OM @Override"  + lstCouplesOMs.size());
+		
+		for (CoupleOMs coupleOM : lstCouplesOMs) {
+			try {
+				SpinOrbitaleMoleculaire spinOM1 = this.getSpinOM(2 * coupleOM.om1);
+				SpinOrbitaleMoleculaire spinOM2 = this.getSpinOM(2 * coupleOM.om2);
+				System.out.println(coupleOM.om1);
+				System.out.println(coupleOM.om2);
+				System.out.println(spinOM1.getSpin());
+				System.out.println(spinOM1.getPartner().getSpin());
+				System.out.println(spinOM2.getSpin());
+				System.out.println(spinOM2.getPartner().getSpin());
+				if (((spinOM1.getSpin() == Spin.ALPHA) && (spinOM1.getPartner().getSpin() == Spin.NOSPIN_BETA))
+					&& ((spinOM2.getSpin() == Spin.ALPHA) && (spinOM2.getPartner().getSpin() == Spin.NOSPIN_BETA)))
+					spinOM2.switchSpin();
+			} catch (OrbitaleMoleculaireException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Structure#calcDistributionElecArray()
+	 */
+	protected int[] calcDistributionElecArrayOLD() {
+		
+		lstCouplesOMs.clear();
+		int[] repartitionElec = new int[countHuckelAtoms()];
+		// IMoleculeComponent[] locations = new
+		// IMoleculeComponent[countHuckelAtoms()];
+	
+		double[][] orbitales = getOrbitalsCoeffArray();
+		// intitialize the number that we must put on radical R and double bonds
+	//	int nbElecADistribuer = getNbElecCharge() + getSumAtomsNbElecPi();
+	
+		boolean trouve;
+		int indexOrbitale1=0;
+		int indexOrbitale2=0;
+		double valRetenue;
+		double valTmp;
+		int idxRetenu = 0;
+		int i;
+		int j;
+	
+		// intialize table of repartition of elec pi
+		for (i = 0; i < repartitionElec.length; i++)
+			repartitionElec[i] = 0;
+	
+		
+		//>>>>>> BLOCS : on commencer par repartir les electrons des blocs
+		
+		// association bloc a une orbitale, la liste est triee selon le niveau d'energie. Le tableau d'object prend 
+		// trois valeurs : l'orbitale, l'énergie de celle-ci et le le bloc auquel elle appartient
+		// cela permet de faire un comparateur par energie
+		ArrayList<Object[]> blocOrbitals = new ArrayList <Object[]>();
+		
+		
+		
+		double threshold = 0.0;
+	
+		
+		/* pour chaque orbitale on regarde si un atome est dans le bloc (vrai si le coeff > seuil). si c'est le cas, l'orbitale appartient au bloc de l'atome
+		et donc on lui met un electron
+		*/ 
+		for (j = 0; j < orbitales.length; j++) {
+			
+			// parcourir les orbitales  associe un bloc a une orbitale
+			for (HuckelAtom atom : this.getHuckelAtoms()) {
+				indexOrbitale1 = atom.getSeqNum() - 1	;
+				double coeff = orbitales[indexOrbitale1][j];
+				BlocDelocalized bloc = atom.getBlocDelocalizedParent();
+				if ((bloc != null) && Math.abs(Maths.round(coeff, StructureDelocalized.PRECISION)) >  threshold) {
+					Object[]  value = new Object[] {j, energiesArray[j], atom.getBlocDelocalizedParent()};
+					blocOrbitals.add(value);
+					System.out.println("orbitale " + j +  " de coeff " +  orbitales[indexOrbitale1][j] + " contient l'atome " + atom + " donc elle appartient au bloc de " + bloc.getNbElectron() + " electrons" );
+					System.out.println("size =  " + blocOrbitals.size()); 
+					break;
+				}
+				
+			} // fin for HuckelAtoms
+	
+		} // fin j orbitales
+	
+		
+		// on trie le tableau des orbitales de bloc par energie 
+		Collections.sort(blocOrbitals, new Comparator(){
+			public int compare(Object o1, Object o2) {
+				double e1 = (Double) ((Object[]) o1)[1];
+				double e2 = (Double) ((Object[]) o2)[1];
+				return -((Double) e1).compareTo((Double) (e2)); // signe - car beta est negatif, donc on trie dans l'ordre inverse
+			}
+		});
+	
+		System.out.println("Les blocs occupent  " +  blocOrbitals.size() + " orbitales");		
+		
+		// pour chaque bloc on va repartir les electrons sur chacune des orbitales lui appartenant
+		for (BlocDelocalized bloc : this.getListBlocDelocalized()) {
+			int blocElectrons =  bloc.getNbElectron();
+			// on recupere le numero orbiales du bloc courant qu'on met dans une liste
+			ArrayList<Integer> orbitalesIndices = new ArrayList<Integer>();
+			for (Object[] blocOrbital : blocOrbitals) {
+				if (bloc == blocOrbital[2]) {
+					int orbitaleIndice = (int) blocOrbital[0];
+					orbitalesIndices.add(orbitaleIndice); 
+				}		
+			}
+			// on parcourt chaque orbitale du bloc et on repartit les electrons
+			int deb = 0;
+			int fin = 0;
+			double[] energies = getOrbitalsEnergies();
+			System.out.println("on doit repartir " + blocElectrons + " electrons sur " + orbitalesIndices.size() + " orbitales " );
+			// on parcourt les orbitales tant qu'il y a des electrons a distribuer avec deux curseurs (deb et end)
+			while ((deb < orbitalesIndices.size()) && (blocElectrons > 0)) {
+				fin = deb;
+	
+				// on deplace le curseur de fin sur la derniere om de meme energie que le curseur de debut
+				while ((fin < orbitalesIndices.size()) && (Maths.round(energies[orbitalesIndices.get(deb)],
+						StructureDelocalized.PRECISION) == Maths.round(
+								energies[orbitalesIndices.get(fin)], StructureDelocalized.PRECISION))) {
+					fin++;
+				}
+	
+				// on repartit equitablemeent deux electrons sur chaque om entre les curseurs de debut et de fin 
+				for (int nb = 0; nb < 2; nb++) {
+					i = deb;
+					while ((i < fin) && (blocElectrons > 0)) {
+						repartitionElec[orbitalesIndices.get(i)]++;
+						System.out.println("on place 1 electron sur l'orbitale numero " +  orbitalesIndices.get(i) );
+						blocElectrons--;
+					//	nbElecADistribuer --;
+						i++;
+					}
+				}
+			/*Si fin = (deb+1) alors
+				CoupleOMs[0]=orbitalesIndices.get(deb);
+				CoupleOMs[1]=orbitalesIndices.get(fin);
+	
+			>>	Si fin > deb+1 alors probleme : plus que 2 electrons celibataires.
+				*/
+				// deb+2 car fin est toujours un indice au dessus de deb
+				if ((fin <= orbitalesIndices.size()) && (orbitalesIndices.get(fin-1) == (orbitalesIndices.get(deb) + 1))) {
+					System.out.println ("OUI !!");
+					CoupleOMs coupleOMs = new CoupleOMs();
+					coupleOMs.om1=orbitalesIndices.get(deb);
+					coupleOMs.om2=orbitalesIndices.get(fin-1);
+					lstCouplesOMs.add(coupleOMs);
+				}
+	
+				
+				deb = fin;
+	
+			} // fin while
+	
+		} // fin parcours bloc
+	
+		
+		
+		//>>>>>> Parcourir les atomes Huckel et les liaisons Huckel hors block
+		// >>>>>> distribuer les electrons sur les orbitales correspondantes
+		for (IHuckelObject o : this.getHuckelObjects()) {
+	
+			
+			if (o.getNbElectrons() > 0 && o.getBlocDelocalizedParent() == null) {
+				if (o instanceof HuckelBond) {
+					indexOrbitale1 = ((HuckelBond) o).getAtom1().getSeqNum() - 1;
+					indexOrbitale2 = ((HuckelBond) o).getAtom2().getSeqNum() - 1;
+				}
+				else if (o instanceof HuckelAtom){
+					indexOrbitale1 = ((HuckelAtom) o).getSeqNum() - 1;
+					indexOrbitale2 = indexOrbitale1;
+					
+				}
+				
+				trouve = false;
+				valRetenue =(orbitales[indexOrbitale1][0]
+					                             * orbitales[indexOrbitale2][0]);
+				// prend l'energie la plus basse qui soit libre 
+				for (j = 0; j < orbitales.length; j++) {
+					valTmp = (orbitales[indexOrbitale1][j]
+					                             * orbitales[indexOrbitale2][j]);
+					if ((valTmp >= valRetenue) && (repartitionElec[j] == 0)) {
+						valRetenue = valTmp;
+						idxRetenu = j;
+						trouve = true;
+					}
+				}
+	
+				if (trouve) {
+					repartitionElec[idxRetenu] =o.getNbElectrons();
+		//			nbElecADistribuer -= o.getNbElectrons();
+				}// if trouve
+	
+			} // if
+			
+		} // for
+	
+		int nbElecADistribuer = getNbElecCharge() + getSumAtomsNbElecPi();
+		int tot=0;
+		for (int nbelec  :  repartitionElec)
+			tot+=nbelec;
+		
+		System.out.println(nbElecADistribuer + " <==> "   + tot);
+		System.out.println(Arrays.toString(repartitionElec));
+		
+		
+		return repartitionElec;
+	}
+	
+
+	//@Override
+	public void blocDelocalizedHuckelObjectAdded(BlocDelocalizedEvent e) {
+		this.fireBlocDelocalizedHuckelObjectAdded(e);
+
+	}
+
+	//@Override
+	public void blocDelocalizedHuckelObjectRemoved(BlocDelocalizedEvent e) {
+		this.fireBlocDelocalizedHuckelObjectRemoved(e);
+
+	}
+
+	//@Override
+	public void blocDelocalizedNbElectronsChanged(BlocDelocalizedEvent e) {
+
+		this.fireBlocDelocalizedNbElectronsChanged(e);
+
+	}
+	
+	/**
+	 * @param listener
+	 */
+	public void addListener(IStructureLocalizedListener listener) {
+		super.addListener(listener);
+	}
+
+	/**
+	 * @param listener
+	 */
+	public void removeListener(IStructureLocalizedListener listener) {
+		super.removeListener(listener);
+	}
+
+	@Override
+	public void monoExcitationTriggered(MonoExcitationEvent e) {
+		throw new RuntimeException("Cannot trigger a monoexcitation in a localized structure. It must have the same configuration as the delocalized structure");
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Structure#fireHuckelAtomRadRChanged(org.ctom.hulis.huckel.events.HuckelAtomEvent)
+	 */
+	@Override
+	protected void fireHuckelAtomRadRChanged(HuckelAtomEvent e) {
+		autoRemovecouple();
+		super.fireHuckelAtomRadRChanged(e);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.ctom.hulis.huckel.Structure#fireMoleculeAtomRemoved(org.ctom.hulis.huckel.Molecule, java.lang.Object, java.lang.Object)
+	 */
+	@Override
+	protected void fireMoleculeAtomRemoved(Molecule source, Object oldValue,
+			Object newValue) {
+		autoRemovecouple();
+		super.fireMoleculeAtomRemoved(source, oldValue, newValue);
+	}
+
+	/**
+	 * 
+	 * @param source
+	 * @param oldValue
+	 * @param newValue
+	 */
+	protected void fireBlocDelocalizedAdded(Molecule source, Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		if (!isEnabledNotify()) {
+			HuckelIO
+			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+
+		MoleculeEvent event = null;
+
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeBlocDelocalizedAdded(event);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param e
+	 */
+	protected void fireBlocDelocalizedHuckelObjectAdded(BlocDelocalizedEvent e) {
+		if (e.getSource().getNbElectron() >0 && this.isEnabledFlyCalculate())
+			calculate();
+
+		if (!isEnabledNotify()) {
+			HuckelIO
+			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+
+			((IMoleculeValueListener) listener)
+			.blocDelocalizedHuckelObjectAdded(e);
+		}
+	}
+
+	/**
+	 * 
+	 * @param e
+	 */
+	protected void fireBlocDelocalizedHuckelObjectRemoved(BlocDelocalizedEvent e) {
+		if (e.getSource().getNbElectron() >0 && this.isEnabledFlyCalculate())
+			calculate();
+	
+		if (!isEnabledNotify()) {
+			HuckelIO
+			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+
+			((IMoleculeValueListener) listener)
+			.blocDelocalizedHuckelObjectRemoved(e);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param e
+	 */
+	protected void fireBlocDelocalizedNbElectronsChanged(BlocDelocalizedEvent e) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		
+		if (!isEnabledNotify()) {
+			HuckelIO
+			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+
+		for (IMoleculeValueListener listener :this.getValueListeners()) {
+
+			((IMoleculeValueListener) listener)
+			.blocDelocalizedNbElectronsChanged(e);
+		}
+	}
+
+	
+
+	/**
+	 * 
+	 * @param source
+	 * @param oldValue
+	 * @param newValue
+	 */
+	protected void fireBlocDelocalizedRemoved(Molecule source,
+			Object oldValue, Object newValue) {
+		if (this.isEnabledFlyCalculate())
+			calculate();
+		
+		if (!isEnabledNotify()) {
+			HuckelIO
+			.PrintIf("Fire : Warning for developpers : molecule notify change = false.\n");
+			return;
+		}
+
+		MoleculeEvent event = null;
+
+		for (IMoleculeValueListener listener : this.getValueListeners()) {
+			if (event == null)
+				event = new MoleculeEvent(source, oldValue, newValue);
+			listener.moleculeBlocDelocalizedRemoved(event);
+		}
+	}
+
+
+	/**
 	 * @param source
 	 * @param oldValue
 	 * @param newValue
@@ -977,86 +1485,4 @@ public class StructureLocalized extends Structure implements Serializable
 			.structureLocalizedCoupleChanged(event);
 		}
 	}
-
-	/**
-	 * @param listener
-	 */
-	public void addListener(IStructureLocalizedListener listener) {
-		super.addListener(listener);
-	}
-
-	/**
-	 * @param listener
-	 */
-	public void removeListener(IStructureLocalizedListener listener) {
-		super.removeListener(listener);
-	}
-
-	/**
-	 * calculate and check if has too much electrons
-	 * @return
-	 */
-	public boolean hasTooManyElectrons() {
-		return (this.countSingleElectronsOnAtoms()>2);
-	}
-	
-	/**
-	 * calculate and check if the number of pi electrons is correct. if mesomery is null then return true
-	 * @return
-	 */
-	public boolean hasCorrectNbPiElec() {
-		Mesomery mesomery = this.getMesomeryParent();
-		if (mesomery == null)
-			return true;
-		
-		
-		int correctNbPiElec = mesomery.getDelocalizedStructure().getSumOfPiElec();
-		return (this.getSumOfPiElec() == correctNbPiElec);
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.ctom.hulis.huckel.structures.Structure#calculateOverlapHLP()
-	 */
-	@Override
-	public void calculateOverlapHLP() {
-		if (this.hasCorrectNbPiElec() && !this.hasTooManyElectrons())
-			super.calculateOverlapHLP();
-	}
-
-
-
-	/* (non-Javadoc)
-	 * @see org.ctom.hulis.huckel.structures.Structure#generateSpinOM()
-	 */
-	@Override 
-	protected void generateSpinOM() throws NoElectronException, NoSOMAvailableException, UnavailableSOMException {
-		super.generateSpinOM();
-		System.out.println("GENERATE SPIN OM @Override");
-		for (int i = 0; i < this.countSpinOM() ; i++){
-			SpinOrbitaleMoleculaire som = this.getSpinOM(i);
-			System.out.println(i + " " + som.getSpin() + " " + som.getPartner().getSpin());
-			
-		}
-		System.out.println("FIN GENERATE SPIN OM @Override"  + lstCouplesOMs.size());
-		
-		for (CoupleOMs coupleOM : lstCouplesOMs) {
-			try {
-				SpinOrbitaleMoleculaire spinOM1 = this.getSpinOM(2 * coupleOM.om1);
-				SpinOrbitaleMoleculaire spinOM2 = this.getSpinOM(2 * coupleOM.om2);
-				System.out.println(coupleOM.om1);
-				System.out.println(coupleOM.om2);
-				System.out.println(spinOM1.getSpin());
-				System.out.println(spinOM1.getPartner().getSpin());
-				System.out.println(spinOM2.getSpin());
-				System.out.println(spinOM2.getPartner().getSpin());
-				if (((spinOM1.getSpin() == Spin.ALPHA) && (spinOM1.getPartner().getSpin() == Spin.NOSPIN_BETA))
-					&& ((spinOM2.getSpin() == Spin.ALPHA) && (spinOM2.getPartner().getSpin() == Spin.NOSPIN_BETA)))
-					spinOM2.switchSpin();
-			} catch (OrbitaleMoleculaireException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-}
+ }

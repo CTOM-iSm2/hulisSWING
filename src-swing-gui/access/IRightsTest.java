@@ -6,7 +6,7 @@ public interface IRightsTest {
 	
 	public boolean STOP_DATABASE_CONNECTION =false;
 
-	public boolean CONSOLE_VERBOSE = true;
+	public final boolean CONSOLE_VERBOSE = false;
 	public boolean ALLOW_EXCITATIONS = true;
 	public boolean ALLOW_POLYNOMES = true;
 	public boolean ALLOW_BLOCKS = true;

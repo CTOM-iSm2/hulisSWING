@@ -1,6 +1,6 @@
 package org.ctom.hulis.huckel.exception;
 
-public class BlocDelocalizedException extends Exception {
+public class BlocDelocalizedException extends HulisException {
 	public BlocDelocalizedException(String mess) {
 		super(mess); 
 	}

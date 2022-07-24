@@ -434,6 +434,20 @@ IMesomeryReference, IMesomeryListener {
 		insertTXT(this.bundle2.getString("resmes10") + "\n", size, align1);
 		insertTXT(this.bundle2.getString("resmes11") + "\n", size, align1);
 
+		// Cas de demi electrons
+		List<Structure> lstStructuresHaveDemiElectrons=this.mesomery.getStructuresHaveDemiElectrons();
+		if ((getMesomery().getMethod("HLP") != null) && (lstStructuresHaveDemiElectrons.size()>0)) {		
+			String comma="";
+			String structuresNames="";
+			for (Structure s: lstStructuresHaveDemiElectrons) {
+				structuresNames+=(comma + MesomeryView.PSI + s.getName()) ;
+				comma=", ";
+			}
+			Object args[] = {structuresNames};
+			insertTXT(MessageFormat.format(bundle2.getString("kdemielectrons"), args) + "\n", size,align1) ;
+		}
+
+		
 		// titles : name of methods
 		insertTXT(this.bundle2.getString("methods")+"\t", size2, align2);
 		for (IMethod method : mmethods)

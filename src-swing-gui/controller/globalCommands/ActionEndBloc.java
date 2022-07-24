@@ -3,12 +3,15 @@ package controller.globalCommands;
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 
+import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.ctom.hulis.huckel.BlocDelocalized;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureLocalized;
 
+import access.Rights;
 import util.MyJOptionPane;
 import util.MyResourceBundle;
 import util.io.SwingIO;
@@ -16,7 +19,6 @@ import util.languages.LanguageManager;
 import views.FrameApp;
 import views.MesomeryView;
 import views.StructureView;
-import access.Rights;
 
 /**
  * This class describes the action when the user terminates a bloc
@@ -26,14 +28,23 @@ import access.Rights;
 public class ActionEndBloc extends ActionCommand implements  ICommand,
 IGlobalCommands  {
 	FrameApp app;
+	private JComponent parent;
 
 	public ActionEndBloc(FrameApp app) {
 		super(IGlobalCommands.END_BLOC);
 		updateLanguage();
 		this.app = app;
+		this.parent=app.getCurrentMesomeryView();
 
 	}
 	
+	public ActionEndBloc(FrameApp app, JComponent parent) {
+		super(IGlobalCommands.END_BLOC);
+		updateLanguage();
+		this.app = app;
+		this.parent=parent;
+	}
+
 	@Override
 	public synchronized void actionPerformed(ActionEvent e) {
 		this.execute();
@@ -52,7 +63,7 @@ IGlobalCommands  {
 		StructureView sv =  app.getCurrentMesomeryView().getFirstStructureWithSelectedBloc();
 		Structure s ;
 		// si une autre structure que la structure courante a un bloc selectionne -> message
-		if ( (sv != null) && (sv.getSelectedBlocDelocalized() != null)  && ((s =sv.getStructure()) != app.getCurrentMesomeryView().getCurrentStructure())) {
+		if ( (sv != null) && (StructureView.getSelectedBlocDelocalized() != null)  && ((s =sv.getStructure()) != app.getCurrentMesomeryView().getCurrentStructure())) {
 			Object args[] = {MesomeryView.PSI + s.getName() };
 			msgboxMess = MessageFormat.format(bundle.getString("kMessAnotherBloc"), args);
 			JOptionPane.showMessageDialog(app, msgboxMess, msgboxTitle, JOptionPane.INFORMATION_MESSAGE);
@@ -74,12 +85,12 @@ IGlobalCommands  {
 		String msgboxMess;
 
 		StructureView currentStructureView = app.getCurrentMesomeryView().getCurrentStructureView();
-		Structure currentStructure = currentStructureView.getStructure();
+		StructureLocalized currentStructure = (StructureLocalized) currentStructureView.getStructure();
 	
 		
 		// si la structure courante n'a pas de bloc selectionne, c'est que l'utilisateur a clique sur endbloc juste apres
 		// avoir clique sur le bouton bloc : on envoie un message disant qu'aucune modification n'a ete faite
-		BlocDelocalized currentSelectedBloc = currentStructureView.getSelectedBlocDelocalized();
+		BlocDelocalized currentSelectedBloc = StructureView.getSelectedBlocDelocalized();
 		this.app.getStateManager().initNewState();
 
 		if (currentSelectedBloc == null ) {
@@ -89,7 +100,7 @@ IGlobalCommands  {
 				return;
 			else {
 				msgboxMess = bundle.getString("kMessNoModificationBloc");
-				JOptionPane.showMessageDialog(app, msgboxMess, msgboxTitle, JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(parent, msgboxMess, msgboxTitle, JOptionPane.INFORMATION_MESSAGE);
 			}
 	
 		} 
@@ -102,7 +113,7 @@ IGlobalCommands  {
 			
 			msgboxMess = bundle.getString("kMessAutoDeleteBloc");
 			
-			JOptionPane.showMessageDialog(app, msgboxMess, msgboxTitle, JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(parent, msgboxMess, msgboxTitle, JOptionPane.INFORMATION_MESSAGE);
 			
 	
 		} 
@@ -115,7 +126,7 @@ IGlobalCommands  {
 			// saisie du nombre d'electron dans le bloc jusqu'a ce que ce soit effectivement un nombre
 			while((sNbElec == null)) {
 				try {
-					sNbElec = (String) MyJOptionPane.showInputDialog(app, msgboxMess, msgboxTitle, JOptionPane.QUESTION_MESSAGE, null, null, currentSelectedBloc.getNbElectron());
+					sNbElec = (String) MyJOptionPane.showInputDialog(parent, msgboxMess, msgboxTitle, JOptionPane.QUESTION_MESSAGE, null, null, currentSelectedBloc.getNbElectron());
 					nbElec = Integer.valueOf(sNbElec);
 				} catch(NumberFormatException e) {
 					sNbElec = null;
@@ -130,14 +141,22 @@ IGlobalCommands  {
 		//deselectionne le bloc (fin de modif)
 		// et rafraichir les bouton de menus
 		unselectCurrentBloc();
+
+		//TODO : On ne devrait pas calcl
+	/*	currentStructure.calculate();
+		try {
+			currentStructure.getMesomeryParent().calculate();
+		} catch (IncorrectNumberPiElectronsException | IMethodException | MesomeryNoStructureLocalizedException
+				| CoupleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 		this.app.getStateManager().saveState();
 	
 	} // execute
 
 	public void unselectCurrentBloc(){
-		StructureView currentStructureview = app.getCurrentMesomeryView().getCurrentStructureView();
-
-		currentStructureview.setSelectedBlocDelocalized(null);
+		StructureView.setSelectedBlocDelocalized(null);
 	
 		app.toolBarMesomery.btEndBloc.setVisible(false);
 		app.toolBarMesomery.btBloc.setVisible(true && Rights.ALLOW_BLOCKS);

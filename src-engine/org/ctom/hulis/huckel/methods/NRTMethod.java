@@ -227,18 +227,12 @@ public class NRTMethod implements Cloneable, IMethod, Serializable {
 		return null;
 	}
 
-	/**
-	 * This method returns a copy of the NRT method
-	 * 
-	 * @return NRT method
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Object clone() {
-		try {
-			super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
 		return new NRTMethod(this);
 	}
 

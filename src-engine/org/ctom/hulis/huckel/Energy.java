@@ -79,6 +79,7 @@ public class Energy implements Comparable, Cloneable, Serializable {
 	public static  EnergyFormater DEFAULT_ENERGY_FORMATER= new DefaultEnergyFormater();
 	public static final String ALPHA = "\u03B1"; // alpha letter constant used in the string representation of the energy
 	public static final String BETA = "\u03B2";  // letter letter constant used in the string representation of the energy
+	public static final String EPSILON_SYMBOL = "\u025B"; // energy symbol constant
 	
 	private double alpha; //  alpha value of the energy
 	private double beta; //   beta value of the energy
@@ -217,17 +218,12 @@ public class Energy implements Comparable, Cloneable, Serializable {
 		this.beta += e.getBeta();
 	}
 
-	/**
-	 * This function returns a copy of this energy
-	 * @return energy
-	 **/
+	
+    /* (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
     @Override
 	public Object clone() {
-		try {
-			super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
 		return new Energy(this);
 	}
 
@@ -441,6 +437,21 @@ public class Energy implements Comparable, Cloneable, Serializable {
 	public static Energy MAX(Orbitale orb) {
 		Energy e=new Energy(orb.getEnergy().getAlpha(),-Integer.MAX_VALUE);
 		return e;
+	}
+
+	/**
+	 * 
+	 * @param energy
+	 * @param precision
+	 * @return
+	 */
+	public boolean isGreaterThan(Energy energy, int precision) {
+		if (energy.getAlpha() != getAlpha())
+			return false;
+
+		return org.ctom.util.maths.Maths.round(-this.beta, precision) > - org.ctom.util.maths.Maths.round(energy.getBeta(), precision);
+
+
 	}
 
 }

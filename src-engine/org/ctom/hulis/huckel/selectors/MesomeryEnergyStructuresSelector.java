@@ -15,7 +15,7 @@ import org.ctom.util.maths.Maths;
  * @author macbook
  *
  */
-public class MesomeryEnergyStructuresSelector implements IStructuresSelector, Serializable{
+public class MesomeryEnergyStructuresSelector implements IStructuresSelector, Cloneable, Serializable{
 
 	/**
 	 * 
@@ -46,6 +46,7 @@ public class MesomeryEnergyStructuresSelector implements IStructuresSelector, Se
 	 */
 	public Object clone() {
 		return new MesomeryEnergyStructuresSelector(this);
+
 	}
 
 	/* (non-Javadoc)

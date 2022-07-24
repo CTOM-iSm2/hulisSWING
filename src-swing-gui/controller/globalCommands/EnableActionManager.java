@@ -204,7 +204,7 @@ public class EnableActionManager  {
 		actionCommandRegistry.get(IGlobalCommands.DUPLICATE).setEnabled(true);
 		actionCommandRegistry.get(IGlobalCommands.CHANGE_ELECTRON).setEnabled(false);
 		actionCommandRegistry.get(IGlobalCommands.COUPLE).setEnabled(false);
-		actionCommandRegistry.get(IGlobalCommands.BLOC).setEnabled(true);
+		actionCommandRegistry.get(IGlobalCommands.BLOC).setEnabled(false);
 		actionCommandRegistry.get(IGlobalCommands.END_BLOC).setEnabled(true);
 		actionCommandRegistry.get(IGlobalCommands.SHOW_RESULTS_MESOMERY).setEnabled(true);
 		app.toolBarMesomery.slider.setEnabled(false);

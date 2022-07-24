@@ -99,6 +99,8 @@ public class SaveFile {
 			else if (type.equals("hulis")) {
 			    	FileOutputStream fs = new FileOutputStream(file);
 			         ObjectOutputStream os = new ObjectOutputStream(fs);
+			         //TODO la serialization doit etre independante de clone()
+			         // On ne doit pas serialiser les listeners faisaint partie de l'UI
 			         os.writeObject(app.getCurrentMesomery().clone()); 
 			         os.close();
 			} else if (type.equals("xml")) {

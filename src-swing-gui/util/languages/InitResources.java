@@ -388,6 +388,7 @@ public class InitResources implements IResource {
 				"waitweights2",
 				"Calculating weights of structures... please wait...");
 		bundle.add("methoderror",	"Cannot compute {0} : {1}");
+		bundle.add( "kdemielectrons", "cannot compute HLP, half-electrons have been detected in structures : {0}");
 		bundle.add("methods",	"Method");
 		bundle.add("tau",	"Trust factor\t");
 		bundle.add("methoderrorRedundance",	"Cannot compute HLP : Redundance detected in the structures");
@@ -1104,6 +1105,7 @@ public class InitResources implements IResource {
 		bundle.add("waitweights", "Lewis structures automatic generation is running... please wait...");
 		bundle.add(	"waitweights2",	"The compute of weights of Lewis structures is running... please wait...");
 		bundle.add("methoderror","Cannot compute {0} : {1}");
+		bundle.add( "kdemielectrons", "cannot compute HLP, half-electrons have been detected in structures : {0}");
 		bundle.add("methods",	"Method");
 		bundle.add("tau",	"Trust factor\t");
 		bundle.add("methoderrorRedundance",	"Cannot compute : Redundance detected in the structures");
@@ -1673,6 +1675,7 @@ public class InitResources implements IResource {
 		bundle.add("waitweights","L'autog\u00E9n\u00E9ration des structures de Lewis est en cours...");
 		bundle.add(	"waitweights2",	"Le calcul des poids des structures de Lewis est en cours...");
 		bundle.add("methoderror","Impossible de calculer {0} : {1}");
+		bundle.add( "kdemielectrons", "impossible de calculer HLP, des demi-electrons ont \u00E9tect\u00E9 d\u00E9tect\u00E9s dans les structures : {0}");
 		bundle.add("methods",	"M\u00E9thode");
 		bundle.add("tau",	"Taux de confiance");
 		bundle.add("methoderrorRedundance",	"Impossible de calculer HLP : Redondance d\u00E9tect\u00E9e dans les structures");
@@ -2227,6 +2230,7 @@ public class InitResources implements IResource {
 		bundle.add("kdeloc", "struttura delocalizzata");
 		bundle.add("kloc", "struttura localizzata");
 		bundle.add("methoderror","Cannot compute {0} method : {1}");
+		bundle.add( "kdemielectrons", "cannot compute HLP, half-electrons have been detected in structures : {0}");
 		bundle.add("methoderrorRedundance",	"Cannot compute HLP : Redundance detected in the structures");
 		MyResourceBundle.addBundle("FrameResultStruct_it", bundle);
 
@@ -2275,6 +2279,7 @@ public class InitResources implements IResource {
 						"L'autogenerazione delle strutture di Lewis è in corso...");
 		bundle.add(	"waitweights2",	"The compute of weights of Lewis structures is running... please wait...");
 		bundle.add("methoderror","Cannot compute {0} method : {1}");
+		bundle.add( "kdemielectrons", "cannot compute HLP, half-electrons have been detected in structures : {0}");
 		bundle.add("methods",	"Method");
 		bundle.add("tau",	"Trust factor\t");
 		bundle.add("methoderrorRedundance",	"HLP method cannot be computed : Redundance detected in the structures");

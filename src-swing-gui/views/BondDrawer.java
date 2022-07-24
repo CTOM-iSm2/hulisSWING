@@ -37,7 +37,7 @@ public class BondDrawer {
 
 	public static final Color BOND_INFOS_COLOR2 = new Color(150, 75, 0);
 	public static final float BOND_LINE_STROKE = 3.0f;
-	public static final int BOND_MOUSE_SENSIBILITY = 10;
+	public static final int BOND_MOUSE_SENSIBILITY = 16;
 	public static final String  FONT_FAMILY = "Helvetica";
 	public static final int  FONT_STYLE = Font.PLAIN;
 	public static final int  FONT_SIZE_INFOS = 14;
@@ -85,8 +85,8 @@ public class BondDrawer {
 
 		if (bond instanceof HuckelBond  ){
 			HuckelBond huckelBond =  (HuckelBond) bond;
-			if ((huckelBond.getBlocDelocalizedParent() == this.structureView.getSelectedBlocDelocalized())
-					&& (this.structureView.getSelectedBlocDelocalized()!=null)	)
+			if ((huckelBond.getBlocDelocalizedParent() == StructureView.getSelectedBlocDelocalized())
+					&& (StructureView.getSelectedBlocDelocalized()!=null)	)
 				g2d.setColor(StructureView.SELECTED_BLOC_DELOCALIZED_COLOR);
 			else if ( (huckelBond.getBlocDelocalizedParent() == this.structureView.getOverflightBlocDelocalized())
 					&& (this.structureView.getOverflightBlocDelocalized() != null))

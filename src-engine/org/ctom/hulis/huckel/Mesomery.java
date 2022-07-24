@@ -127,21 +127,93 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 	/**
 	 * Constructor by copy
 	 * @param mesomery
-	 * @throws MesomeryCopyException 
-	 * @throws MesomeryDelocalizedStructureExistsException 
-	 * @throws MesomeryNoStructureLocalizedException 
-	 * @throws IMethodException 
-	 * @throws CoupleException 
 	 */
-	public Mesomery(Mesomery mesomery) throws CoupleException, IMethodException, MesomeryNoStructureLocalizedException, MesomeryDelocalizedStructureExistsException, MesomeryCopyException  {
+	public Mesomery(Mesomery mesomery) {
 		this.isCloneResultsCacheWhenCloneMesomery = mesomery.isCloneResultsCacheWhenCloneMesomery();
 		this.isEnabledFlyCalculate = mesomery.isEnabledFlyCalculate();
 		this.lstSelectedStructs = new ArrayList<Structure>();
 		this.lstStructs = new ArrayList<Structure>();
 		this.listeners = new ArrayList<IMesomeryListener>();
-		copy(mesomery);
+		if (this.myconfig != null)
+			this.myconfig.erase();
+		this.lstMethods = new HashMap<String, IMethod>();
+		for (Map.Entry<String, IMethod> entry : mesomery.lstMethods.entrySet()) {
+			IMethod methodClone = null;
+			if (mesomery.isCloneResultsCacheWhenCloneMesomery())
+				methodClone = (IMethod) entry.getValue().clone();
+			else
+				try {
+					methodClone = (entry.getValue()).getClass().newInstance();
+				} catch (InstantiationException | IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+			methodClone.setMesomery(this);
+			this.lstMethods.put(entry.getKey(), methodClone);
+		}
+		try {
+			deleteAllStructures();
+		} catch (CoupleException | IMethodException | MesomeryNoStructureLocalizedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (mesomery.getDelocalizedStructure() != null)
+			try {
+				do_addDelocalizedStruct((StructureDelocalized) mesomery.getDelocalizedStructure().clone() );
+			} catch (MesomeryDelocalizedStructureExistsException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+
+		for (StructureLocalized s : mesomery.getLocalizedStructures()) {
+			do_addLocalizedStruct((StructureLocalized)s.clone());
+		}
+	
+		try {
+			this.do_afterAddLocalizedStructures();
+		} catch (CoupleException | IMethodException | MesomeryNoStructureLocalizedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (mesomery.structuresSelector != null) {
+			this.structuresSelector = (IStructuresSelector) mesomery.structuresSelector.clone();
+			this.structuresSelector.setMesomery(this);
+		}
+		else
+			HuckelIO.warning(this.getClass().getName(), "copy", "Mesomery copied without structure selector !");
+		this.precision = mesomery.precision;
+
+		this.updateSelectedStructs();
+		
 	}
 
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() {	
+		return new Mesomery(this);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<Structure> getStructuresHaveDemiElectrons() {
+		List<Structure> lstStructureHaveDemiElectrons = new ArrayList<Structure>();
+		for (Structure s : this.getAllStructures()) {
+			if (s.hasDemiElectrons())
+				lstStructureHaveDemiElectrons.add(s);
+				
+		}
+		return lstStructureHaveDemiElectrons;
+	}
 
 	/**
 	 * 
@@ -166,15 +238,9 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 	/**
 	 * Constructs a mesomery by reading a gaussian file
 	 * @param readGaussian
-	 * @throws MesomeryCopyException 
-	 * @throws MesomeryDelocalizedStructureExistsException 
-	 * @throws MesomeryNoStructureLocalizedException 
-	 * @throws IMethodException 
-	 * @throws CoupleException 
-	 * @throws MesomeryCopyException 
 	 * @throws ReadGaussianException 
 	 */
-	public Mesomery(ReadGaussian readGaussian) throws CoupleException, IMethodException, MesomeryNoStructureLocalizedException, MesomeryDelocalizedStructureExistsException, MesomeryCopyException, ReadGaussianException  {
+	public Mesomery(ReadGaussian readGaussian) throws ReadGaussianException   {
 		this();
 		readGaussian.readAll(this);	
 	}
@@ -287,6 +353,7 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 			Map<String, IMethod> sortedMap = getSortedMethodsByPriority();
 			for (Map.Entry<String, IMethod> entry : sortedMap.entrySet()) {
 				IMethod method = entry.getValue();
+				
 				if (method instanceof IMethodHasOptimizableMatrix)
 					((IMethodHasOptimizableMatrix) method).extendOptimizableMatrix();
 			}
@@ -568,12 +635,6 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 					if (method instanceof IMethodHasOptimizableMatrix)
 						((IMethodHasOptimizableMatrix) method).computeAllOptimizableMatrix();
 				}
-
-
-				
-
-
-
 				try {
 					do_calculate();
 
@@ -678,6 +739,13 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 	public void calculate() throws IncorrectNumberPiElectronsException, IMethodException, MesomeryNoStructureLocalizedException, CoupleException  {
 		checkMesomery();
 		if (countSelectedLocalizedStructs() > 0) {
+			Map<String, IMethod> sortedMap = getSortedMethodsByPriority();
+			for (Map.Entry<String, IMethod> entry : sortedMap.entrySet()) {
+				IMethod method = entry.getValue();
+				if (method instanceof IMethodHasOptimizableMatrix)
+					((IMethodHasOptimizableMatrix) method).computeAllOptimizableMatrix();
+			}
+
 			do_calculate();
 			fireListWeightCalculated(this, null, null);
 
@@ -712,6 +780,8 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 	 */
 	private void do_calculateWeights(IMethod method)  {
 		try {
+			if (method instanceof IMethodHasOptimizableMatrix)
+				((IMethodHasOptimizableMatrix) method).computeAllOptimizableMatrix();
 			method.calculate();
 		} catch (IMethodException e) {
 			this.fireExceptionOccured(this, null, null, e);
@@ -817,86 +887,6 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 					throw method.getError();
 			}
 		}
-
-	}
-
-	/**
-	 * @return a copy of the mesomery and a copy of the structures that are included in it.
-	 */
-	@Override
-	public Object clone() {
-
-		try {
-			return new Mesomery(this);
-		} catch (CoupleException e) {
-			return null;
-		} catch (IMethodException e) {
-			return null;
-		} catch (MesomeryNoStructureLocalizedException e) {
-			return null;
-		} catch (MesomeryDelocalizedStructureExistsException e) {
-			return null;
-		} catch (MesomeryCopyException e) {
-			return null;
-		}
-
-
-	}
-
-	/**
-	 * This method erase the current mesomery and copy the mesomery specified in parameter in this mesomery.
-	 * The structures are copied too.
-	 * @param mesomery
-	 * @throws MesomeryNoStructureLocalizedException 
-	 * @throws IMethodException 
-	 * @throws CoupleException 
-	 * @throws MesomeryDelocalizedStructureExistsException 
-	 * @throws MesomeryCopyException 
-	 */
-	private void copy(Mesomery mesomery) throws CoupleException, IMethodException, MesomeryNoStructureLocalizedException, MesomeryDelocalizedStructureExistsException, MesomeryCopyException {
-		if (this.myconfig != null)
-			this.myconfig.erase();
-		this.lstMethods = new HashMap<String, IMethod>();
-		for (Map.Entry<String, IMethod> entry : mesomery.lstMethods.entrySet()) {
-			IMethod methodClone = null;
-			if (mesomery.isCloneResultsCacheWhenCloneMesomery())
-				methodClone = (IMethod) entry.getValue().clone();
-			else
-				try {
-					methodClone = (entry.getValue()).getClass().newInstance();
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-					throw new IMethodException(e.getMessage());
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-					throw new IMethodException(e.getMessage());
-				}
-				
-			methodClone.setMesomery(this);
-			this.lstMethods.put(entry.getKey(), methodClone);
-		}
-		deleteAllStructures();
-
-		if (mesomery.getDelocalizedStructure() != null)
-			do_addDelocalizedStruct((StructureDelocalized) mesomery.getDelocalizedStructure().clone() );
-
-
-		for (StructureLocalized s : mesomery.getLocalizedStructures()) {
-			do_addLocalizedStruct((StructureLocalized)s.clone());
-		}
-	
-		this.do_afterAddLocalizedStructures();
-
-		if (mesomery.structuresSelector != null) {
-			this.structuresSelector = (IStructuresSelector) mesomery.structuresSelector.clone();
-			this.structuresSelector.setMesomery(this);
-		}
-		else
-			HuckelIO.warning(this.getClass().getName(), "copy", "Mesomery copied without structure selector !");
-		this.precision = mesomery.precision;
-
-		this.updateSelectedStructs();
-		
 
 	}
 
