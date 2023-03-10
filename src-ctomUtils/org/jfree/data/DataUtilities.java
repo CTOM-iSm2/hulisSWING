@@ -48,6 +48,7 @@
 package org.jfree.data;
 
 import java.util.Arrays;
+
 import org.jfree.data.general.DatasetUtilities;
 
 /**

@@ -15,13 +15,13 @@ import org.ctom.hulis.huckel.exception.MonoExcitationException;
 import org.ctom.hulis.prefs.Preferences;
 import org.ctom.hulis.prefs.Preferences.DISPLAY_ORBITAL_TYPE;
 
+import access.Rights;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
 import views.EnergyControl;
 import views.GraphOM;
 import views.OrbitalControl;
-import access.Rights;
 
 public class GraphOMController implements MouseListener, MouseMotionListener {
 	public final static boolean ALLOW_EXCITATIONS = Rights.ALLOW_EXCITATIONS ; // Activer / Desactiver les excitations

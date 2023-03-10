@@ -43,12 +43,13 @@
 
 package org.jfree.date.junit;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jfree.date.MonthConstants;
 import org.jfree.date.SerialDate;
 import org.jfree.date.SerialDateUtilities;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Some tests for the SerialDateUtilities class.

@@ -8,10 +8,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 
+import access.Rights;
 import util.Version;
 import util.io.SwingIO;
 import views.FrameApp;
-import access.Rights;
 
 public class ConnectSQL {
 

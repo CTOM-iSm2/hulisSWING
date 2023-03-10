@@ -40,7 +40,6 @@
 
 package org.jfree.chart.plot;
 
-import java.awt.geom.Rectangle2D;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 

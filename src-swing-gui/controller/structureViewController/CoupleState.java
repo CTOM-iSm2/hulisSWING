@@ -10,11 +10,11 @@ import org.ctom.hulis.huckel.exception.CoupleException;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureLocalized;
 
+import controller.globalCommands.ActionStopConsumingProcess;
 import util.io.SwingIO;
 import views.FrameApp;
 import views.Selection;
 import views.StructureView;
-import controller.globalCommands.ActionStopConsumingProcess;
 /***
  * this class describes the mouse events in the molecule panel if the couple button is selected
  * 

@@ -4,7 +4,6 @@
 package org.ctom.view;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 
 /**
  * @author yannick
@@ -16,15 +15,15 @@ public enum StdLineType {
 	TYPE_BOLD(new BasicStroke(2.0f)),
 	TYPE_SELECTED(new BasicStroke(2.0F, BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0F, new float[] {10.0F, 3.0F, 3.0F, 3.0F}, 0.F));
 
-	/** L'attribut qui contient la valeur associŽ ˆ l'enum */
+	/** L'attribut qui contient la valeur associï¿½ ï¿½ l'enum */
 	private final BasicStroke stroke;
 
-	/** Le constructeur qui associe une valeur ˆ l'enum */
+	/** Le constructeur qui associe une valeur ï¿½ l'enum */
 	private StdLineType(BasicStroke stroke) {
 		this.stroke = stroke;
 	}
 
-	/** La mŽthode accesseur qui renvoit la valeur de l'enum */
+	/** La mï¿½thode accesseur qui renvoit la valeur de l'enum */
 	public BasicStroke getStroke() {
 		return this.stroke;
 	}

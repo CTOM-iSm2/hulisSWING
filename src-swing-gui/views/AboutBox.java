@@ -16,7 +16,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import util.ComponentsTools;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;

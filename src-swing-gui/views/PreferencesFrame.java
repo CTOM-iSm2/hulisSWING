@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -30,7 +29,6 @@ import javax.swing.event.ChangeListener;
 
 import org.ctom.hulis.prefs.Preferences;
 
-import util.ComponentsTools;
 import util.FollowLink;
 import util.IntegerSpinner;
 import util.MyDecimalFormat;

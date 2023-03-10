@@ -44,6 +44,7 @@
 package org.jfree.ui;
 
 import java.awt.LayoutManager;
+
 import javax.swing.JPanel;
 
 /**

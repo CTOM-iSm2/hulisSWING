@@ -12,7 +12,6 @@ import util.MyLocale;
 import util.io.SwingIO;
 import views.FrameApp;
 import views.prefs.PreferencesGUI;
-import access.Rights;
 
 public class RegisterNewUSer extends Thread {
 

@@ -44,14 +44,14 @@ import org.ctom.hulis.huckel.structures.StructureDelocalized;
 import org.ctom.hulis.huckel.structures.StructureLocalized;
 import org.ctom.util.maths.Maths;
 
+import controller.globalCommands.ActionStopConsumingProcess;
+import controller.globalCommands.IGlobalCommands;
 import util.DoubleJSlider;
 import util.MyResourceBundle;
 import util.SwingNumberFormater;
 import util.ThreadUtils;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
-import controller.globalCommands.ActionStopConsumingProcess;
-import controller.globalCommands.IGlobalCommands;
 
 @SuppressWarnings("serial")
 public class ToolBarMesomery extends JPanel implements IMesomeryListener,

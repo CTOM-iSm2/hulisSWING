@@ -46,10 +46,11 @@ import java.awt.Color;
 import java.awt.font.TextAttribute;
 import java.text.AttributedString;
 
+import org.jfree.util.AttributedStringUtilities;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.util.AttributedStringUtilities;
 
 /**
  * Some tests for the {@link AttributedStringUtilities} class.

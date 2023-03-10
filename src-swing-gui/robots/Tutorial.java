@@ -12,13 +12,13 @@ import java.awt.event.InputEvent;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
+import access.Rights;
 import multimedia.Multimedia;
 import multimedia.SousTitres;
 import sun.awt.SunToolkit;
 import views.DialogChangeAtom;
 import views.DialogChangeHuckelBond;
 import views.FrameApp;
-import access.Rights;
 
 public abstract class Tutorial extends Robot implements ActionListener, Runnable {
 	

@@ -51,13 +51,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jfree.text.TextBlock;
 import org.jfree.text.TextBox;
 import org.jfree.text.TextLine;
 import org.jfree.ui.RectangleInsets;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Tests for the {@link TextBox} class.

@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -18,11 +17,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
-import util.ComponentsTools;
+import controller.globalCommands.PopUp;
 import util.FollowLink;
 import util.MyResourceBundle;
 import util.languages.LanguageManager;
-import controller.globalCommands.PopUp;
 
 @SuppressWarnings("serial")
 public class ErrorReport extends JDialog {

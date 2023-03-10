@@ -31,10 +31,10 @@ import org.ctom.hulis.huckel.listeners.IMesomeryListener;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
 
+import controller.globalCommands.IGlobalCommands;
 import util.MyResourceBundle;
 import util.ThreadUtils;
 import util.languages.LanguageManager;
-import controller.globalCommands.IGlobalCommands;
 
 /**
  * ToolBarHuckel : This class describes the .view for the toolbar of the applet

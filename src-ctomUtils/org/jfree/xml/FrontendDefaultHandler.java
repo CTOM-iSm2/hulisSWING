@@ -43,8 +43,8 @@ package org.jfree.xml;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Enumeration;
+import java.util.Iterator;
 
 import org.jfree.util.Configuration;
 import org.jfree.util.DefaultConfiguration;

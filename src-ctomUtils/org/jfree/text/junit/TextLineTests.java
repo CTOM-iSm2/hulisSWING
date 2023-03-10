@@ -49,10 +49,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+import org.jfree.text.TextLine;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.text.TextLine;
 
 /**
  * Tests for the {@link TextLine} class.

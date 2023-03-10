@@ -1,11 +1,8 @@
 package controller.globalCommands;
 
-import java.awt.Window;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Hashtable;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.undo.StateEdit;
 import javax.swing.undo.StateEditable;
@@ -38,9 +35,6 @@ import util.gaussian.IOWriteGaussian;
 import util.io.SwingIO;
 import util.xyz.PrintWriterAdapter;
 import views.FrameApp;
-import views.FrameResultMesomery;
-import views.IMesomeryReference;
-import views.IStructureReference;
 
 /***
  * This class describes the state to save in the UndoRedoManager

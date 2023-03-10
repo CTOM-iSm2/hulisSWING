@@ -47,14 +47,15 @@
 
 package org.jfree.junit;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jfree.date.junit.DatePackageTests;
 import org.jfree.io.junit.IOPackageTests;
 import org.jfree.text.junit.TextPackageTests;
 import org.jfree.ui.junit.UIPackageTests;
 import org.jfree.util.junit.UtilPackageTests;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * A test suite for the JCommon class library that can be run using JUnit (http://www.junit.org).

@@ -43,6 +43,7 @@
 package org.jfree.ui.tabbedui;
 
 import java.beans.PropertyChangeListener;
+
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 

@@ -66,13 +66,13 @@ import java.text.AttributedString;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import org.jfree.io.SerialUtilities;
 import org.jfree.util.AttributedStringUtilities;
 import org.jfree.util.ShapeUtilities;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Tests for the {@link SerialUtilities} class.

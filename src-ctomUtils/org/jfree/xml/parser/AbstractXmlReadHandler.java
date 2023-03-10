@@ -41,9 +41,9 @@
  */
 package org.jfree.xml.parser;
 
+import org.jfree.util.Log;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.jfree.util.Log;
 
 /**
  * A base class for implementing an {@link XmlReadHandler}.

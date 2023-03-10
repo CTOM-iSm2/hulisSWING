@@ -45,8 +45,9 @@ package org.jfree.ui.junit;
 import java.awt.Font;
 import java.awt.Frame;
 
-import junit.framework.TestCase;
 import org.jfree.ui.FontChooserDialog;
+
+import junit.framework.TestCase;
 
 /**
  * A test for the {@link FontChooserDialog} class.

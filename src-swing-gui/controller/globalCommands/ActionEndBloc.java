@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.ctom.hulis.huckel.BlocDelocalized;

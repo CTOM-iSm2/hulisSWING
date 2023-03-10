@@ -2,10 +2,10 @@ package util.io;
 
 import org.ctom.hulis.util.io.HuckelIO;
 
-import views.ErrorReport;
-import views.FrameApp;
 import access.Rights;
 import controller.globalCommands.ActionQuit;
+import views.ErrorReport;
+import views.FrameApp;
 
 public class SwingIO extends 	HuckelIO {
 	

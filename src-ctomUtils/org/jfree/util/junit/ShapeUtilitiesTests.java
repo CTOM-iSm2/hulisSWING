@@ -55,10 +55,11 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
+import org.jfree.util.ShapeUtilities;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.util.ShapeUtilities;
 
 /**
  * Tests for the {@link ShapeUtilities} class.

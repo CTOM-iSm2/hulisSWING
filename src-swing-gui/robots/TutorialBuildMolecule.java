@@ -5,11 +5,10 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-import multimedia.SousTitres;
-
 import org.ctom.hulis.huckel.PeriodicTable;
 import org.ctom.hulis.huckel.structures.Structure;
 
+import multimedia.SousTitres;
 import util.ComponentsTools;
 import views.FrameApp;
 import views.GraphOM;

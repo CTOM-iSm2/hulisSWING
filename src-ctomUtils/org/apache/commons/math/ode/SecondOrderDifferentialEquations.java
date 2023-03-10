@@ -17,8 +17,6 @@
 
 package org.apache.commons.math.ode;
 
-import org.apache.commons.math.ode.DerivativeException;
-
 /** This interface represents a second order differential equations set.
 
  * <p>This interface should be implemented by all real second order

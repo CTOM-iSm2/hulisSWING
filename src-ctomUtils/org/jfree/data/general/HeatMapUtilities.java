@@ -43,6 +43,7 @@ package org.jfree.data.general;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.image.BufferedImage;
+
 import org.jfree.chart.renderer.PaintScale;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;

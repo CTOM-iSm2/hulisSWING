@@ -47,8 +47,8 @@ package org.jfree.xml.factory.objects;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.jfree.util.Configuration;
 import org.jfree.util.ClassComparator;
+import org.jfree.util.Configuration;
 /**
  * An abstract class that implements the {@link ClassFactory} interface.
  *

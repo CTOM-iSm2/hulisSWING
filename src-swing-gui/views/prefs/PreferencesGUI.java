@@ -5,8 +5,6 @@ import java.util.Locale;
 import util.IPreferences;
 import util.MyLocale;
 import util.PreferencesMap;
-import util.languages.InitResources;
-import util.languages.Language;
 
 /**
  * 

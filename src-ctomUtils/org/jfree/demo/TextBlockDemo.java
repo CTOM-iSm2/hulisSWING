@@ -43,6 +43,7 @@
 package org.jfree.demo;
 
 import java.awt.Font;
+
 import javax.swing.JPanel;
 
 import org.jfree.ui.ApplicationFrame;

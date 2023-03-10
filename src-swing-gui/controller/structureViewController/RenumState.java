@@ -5,9 +5,9 @@ import java.awt.geom.Point2D;
 import org.ctom.hulis.huckel.Atom;
 import org.ctom.hulis.huckel.HuckelAtom;
 
+import controller.globalCommands.EnableActionManager;
 import util.io.SwingIO;
 import views.StructureView;
-import controller.globalCommands.EnableActionManager;
 
 /***
  * this class describes the mouse events in the molecule panel if the renum button is selected

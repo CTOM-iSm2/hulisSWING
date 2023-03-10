@@ -1,6 +1,5 @@
 package org.ctom.hulis.huckel;
 
-import org.ctom.hulis.huckel.exception.BlocDelocalizedException;
 import org.ctom.hulis.huckel.exception.HulisException;
 
 /**

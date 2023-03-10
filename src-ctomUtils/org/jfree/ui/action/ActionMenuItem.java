@@ -47,6 +47,7 @@ package org.jfree.ui.action;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JMenuItem;

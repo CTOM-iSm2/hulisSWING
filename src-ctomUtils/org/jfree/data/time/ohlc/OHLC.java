@@ -42,6 +42,7 @@
 package org.jfree.data.time.ohlc;
 
 import java.io.Serializable;
+
 import org.jfree.chart.HashUtilities;
 
 /**

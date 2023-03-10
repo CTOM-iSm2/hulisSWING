@@ -49,10 +49,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+import org.jfree.ui.Size2D;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.ui.Size2D;
 
 /**
  * Tests for the {@link Size2D} class.

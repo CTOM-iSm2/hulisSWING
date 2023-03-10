@@ -17,6 +17,8 @@ import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureLocalized;
 import org.ctom.util.maths.Point3D;
 
+import controller.globalCommands.EnableActionManager;
+import controller.globalCommands.ReplaceAtom;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
@@ -24,8 +26,6 @@ import views.BondDrawer;
 import views.FrameApp;
 import views.Selection;
 import views.StructureView;
-import controller.globalCommands.EnableActionManager;
-import controller.globalCommands.ReplaceAtom;
 
 /***
  * this class describes the mouse events in the molecule panel if the Add button is selected

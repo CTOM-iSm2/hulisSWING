@@ -59,9 +59,9 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.jfree.util.ObjectUtilities;
+import org.jfree.xml.ElementDefinitionException;
 import org.jfree.xml.FrontendDefaultHandler;
 import org.jfree.xml.ParseException;
-import org.jfree.xml.ElementDefinitionException;
 import org.jfree.xml.parser.coretypes.BasicStrokeReadHandler;
 import org.jfree.xml.parser.coretypes.ColorReadHandler;
 import org.jfree.xml.parser.coretypes.FontReadHandler;

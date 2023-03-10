@@ -2,10 +2,10 @@ package controller.globalCommands;
 
 import java.awt.event.ActionEvent;
 
+import access.Rights;
 import util.io.SwingIO;
 import views.FrameApp;
 import views.StructureView;
-import access.Rights;
 
 /**
  * This command is called when the user enter in "bloc" mode.

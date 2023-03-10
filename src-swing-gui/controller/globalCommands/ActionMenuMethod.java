@@ -16,10 +16,8 @@ import org.ctom.hulis.huckel.methods.IMethod;
 import org.ctom.hulis.huckel.selectors.MesomeryEnergyStructuresSelector;
 import org.ctom.hulis.huckel.selectors.MesomeryHLPOverlapStructuresSelector;
 
-import sqlbridge.ConnectSQL;
 import util.io.SwingIO;
 import views.FrameApp;
-import views.prefs.PreferencesGUI;
 
 /***
  * This command is called when the user select an item method calculation in the menu bar.

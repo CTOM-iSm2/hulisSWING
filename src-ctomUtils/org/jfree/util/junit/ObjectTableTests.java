@@ -44,10 +44,11 @@ package org.jfree.util.junit;
 
 import java.awt.Color;
 
+import org.jfree.util.ObjectTable;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.util.ObjectTable;
 
 /**
  * Tests for the {@link ObjectTable} class.

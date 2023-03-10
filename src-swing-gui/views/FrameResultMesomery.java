@@ -43,8 +43,7 @@ import org.ctom.hulis.huckel.methods.IMethod;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
 import org.ctom.hulis.huckel.structures.StructureLocalized;
-import org.ctom.hulis.huckel.warning.IMethodWarning;
-import org.ctom.hulis.huckel.warning.IMethodWarning.HulisWarningType;
+
 import util.MyResourceBundle;
 import util.SwingNumberFormater;
 import util.ThreadUtils;

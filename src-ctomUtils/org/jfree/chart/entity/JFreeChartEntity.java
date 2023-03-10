@@ -45,8 +45,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.HashUtilities;
+import org.jfree.chart.JFreeChart;
 import org.jfree.io.SerialUtilities;
 import org.jfree.util.ObjectUtilities;
 

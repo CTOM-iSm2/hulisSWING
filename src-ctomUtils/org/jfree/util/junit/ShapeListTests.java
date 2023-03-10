@@ -51,11 +51,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+import org.jfree.util.ShapeList;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.jfree.util.ShapeList;
 
 /**
  * Some tests for the {@link ShapeList} class.

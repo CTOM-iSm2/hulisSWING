@@ -43,6 +43,7 @@ package org.jfree.ui.action;
 
 import java.awt.Component;
 import java.io.File;
+
 import javax.swing.JFileChooser;
 
 import org.jfree.ui.ExtensionFileFilter;

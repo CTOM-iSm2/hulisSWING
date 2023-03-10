@@ -45,10 +45,11 @@ package org.jfree.io.junit;
 import java.io.IOException;
 import java.net.URL;
 
+import org.jfree.io.IOUtils;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.io.IOUtils;
 
 /**
  * Creates a new test case.

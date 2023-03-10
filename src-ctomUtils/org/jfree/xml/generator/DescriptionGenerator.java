@@ -54,8 +54,8 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import org.jfree.util.Log;
-import org.jfree.util.PrintStreamLogTarget;
 import org.jfree.util.ObjectUtilities;
+import org.jfree.util.PrintStreamLogTarget;
 import org.jfree.xml.generator.model.DescriptionModel;
 
 /**

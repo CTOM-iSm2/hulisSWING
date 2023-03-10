@@ -1,6 +1,5 @@
 package util.io;
 
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -13,7 +12,6 @@ import java.security.AccessControlException;
 import java.util.List;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.ctom.hulis.huckel.Mesomery;
@@ -23,13 +21,11 @@ import org.ctom.hulis.huckel.exception.IncorrectNumberPiElectronsException;
 import org.ctom.hulis.huckel.exception.MesomeryNoStructureLocalizedException;
 import org.ctom.hulis.huckel.methods.IMethod;
 import org.ctom.hulis.huckel.structures.Structure;
-import org.ctom.hulis.huckel.structures.StructureDelocalized;
 import org.ctom.hulis.util.io.HuckelIO;
 
 import access.Rights;
 import controller.globalCommands.ActionStopConsumingProcess;
 import controller.globalCommands.Center;
-import controller.globalCommands.EnableActionManager;
 import controller.globalCommands.IGlobalCommands;
 import controller.globalCommands.ReadGaussianCommand;
 import controller.globalCommands.ReadXMLCommand;
@@ -42,8 +38,6 @@ import util.test.IOReadGaussianTest;
 import util.xml.IOReadXML;
 import util.xyz.IOReadxyz;
 import views.FrameApp;
-import views.IMesomeryReference;
-import views.IStructureReference;
 import views.prefs.PreferencesGUI;
 
 public class IOFichier implements ActionListener {

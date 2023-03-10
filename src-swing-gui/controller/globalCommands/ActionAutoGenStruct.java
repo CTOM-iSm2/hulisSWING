@@ -6,13 +6,11 @@ import javax.swing.JOptionPane;
 
 import org.ctom.hulis.huckel.Mesomery;
 
-import sqlbridge.ConnectSQL;
 import util.MyJOptionPane;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
 import views.FrameApp;
-import views.prefs.PreferencesGUI;
 
 /**
  * This command is called when the user invoke Lewis structures autogeneration 

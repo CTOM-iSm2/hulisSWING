@@ -46,6 +46,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.Serializable;
+
 import org.jfree.chart.HashUtilities;
 
 /**

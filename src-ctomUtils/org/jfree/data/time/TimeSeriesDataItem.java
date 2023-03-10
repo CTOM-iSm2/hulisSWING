@@ -48,6 +48,7 @@
 package org.jfree.data.time;
 
 import java.io.Serializable;
+
 import org.jfree.util.ObjectUtilities;
 
 /**

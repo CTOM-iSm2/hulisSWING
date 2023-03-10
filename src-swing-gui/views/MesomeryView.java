@@ -28,8 +28,8 @@ import org.ctom.hulis.huckel.listeners.IMesomeryListener;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureLocalized;
 
-import util.io.SwingIO;
 import controller.globalCommands.EnableActionManager;
+import util.io.SwingIO;
 
 @SuppressWarnings("serial")
 public class MesomeryView extends JTabbedPane implements IMesomeryReference,

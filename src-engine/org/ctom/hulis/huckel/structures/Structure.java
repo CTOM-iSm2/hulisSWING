@@ -12,7 +12,6 @@ import org.ctom.hulis.huckel.MonoExcitation;
 import org.ctom.hulis.huckel.NatOrbitaleMoleculaire;
 import org.ctom.hulis.huckel.Spin;
 import org.ctom.hulis.huckel.SpinOrbitaleMoleculaire;
-import org.ctom.hulis.huckel.events.BlocDelocalizedEvent;
 import org.ctom.hulis.huckel.events.HuckelAtomEvent;
 import org.ctom.hulis.huckel.events.HuckelBondEvent;
 import org.ctom.hulis.huckel.events.MonoExcitationEvent;

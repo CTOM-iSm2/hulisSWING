@@ -11,12 +11,12 @@ import org.ctom.hulis.huckel.exception.MoleculeBondExistsException;
 import org.ctom.hulis.huckel.exception.MoleculeCoherenceException;
 import org.ctom.hulis.huckel.exception.MoleculeTooManyNeighboursException;
 
+import controller.globalCommands.EnableActionManager;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
 import views.FrameApp;
 import views.StructureView;
-import controller.globalCommands.EnableActionManager;
 /***
  * this class describes the mouse events in the molecule panel if the remove button is selected
  * 

@@ -37,6 +37,20 @@ public class BlocDelocalized extends HuckelBlock implements Serializable {
 	
 	/**
 	 * 
+	 * @param huckelObjects
+	 * @param nElectrons
+	 * @throws BlocDelocalizedException
+	 */
+	public BlocDelocalized(List<IHuckelObject> huckelObjects, int nElectrons) throws BlocDelocalizedException {
+		this();
+		for (IHuckelObject o : huckelObjects) {
+			this.addHuckelObject(o);
+		}
+		this.setNbElectron(nElectrons);
+	}
+	
+	/**
+	 * 
 	 * @param bloc
 	 * @param target
 	 */
@@ -77,6 +91,8 @@ public class BlocDelocalized extends HuckelBlock implements Serializable {
 	public void addHuckelObject(IHuckelObject o) throws BlocDelocalizedException {
 		// si l'objet a ajoute est une liaison alors ajoute au bloc les atomes lies, exception si un des atomes appartient
 		// deja a une bloc
+		if (o==null)
+			throw new BlocDelocalizedException("cannot add a null object in a block");
 		if (o.getBlocDelocalizedParent() != null)
 			throw new BlocDelocalizedException(o + " is already in a block");
 	

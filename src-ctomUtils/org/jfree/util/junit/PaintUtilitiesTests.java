@@ -46,10 +46,11 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Paint;
 
+import org.jfree.util.PaintUtilities;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.util.PaintUtilities;
 
 /**
  * Some tests for the {@link PaintUtilities} class.

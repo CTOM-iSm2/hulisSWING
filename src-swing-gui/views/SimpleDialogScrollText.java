@@ -18,11 +18,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
-import util.ComponentsTools;
+import controller.globalCommands.PopUp;
 import util.FollowLink;
 import util.MyResourceBundle;
 import util.languages.LanguageManager;
-import controller.globalCommands.PopUp;
 
 
 public class SimpleDialogScrollText extends MyJDialog {

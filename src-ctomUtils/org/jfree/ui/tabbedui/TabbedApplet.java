@@ -45,6 +45,7 @@ package org.jfree.ui.tabbedui;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import javax.swing.JApplet;
 import javax.swing.JPanel;
 

@@ -13,12 +13,12 @@ import org.ctom.hulis.huckel.exception.HuckelBondException;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureLocalized;
 
+import controller.globalCommands.ActionStopConsumingProcess;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
 import views.FrameApp;
 import views.StructureView;
-import controller.globalCommands.ActionStopConsumingProcess;
 /***
  * this class describes the mouse events in the molecule panel if the Change bond /electrons button is selected
  * 

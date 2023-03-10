@@ -41,6 +41,7 @@
 package org.jfree.data.general;
 
 import java.io.Serializable;
+
 import org.jfree.data.DataUtilities;
 import org.jfree.util.PublicCloneable;
 

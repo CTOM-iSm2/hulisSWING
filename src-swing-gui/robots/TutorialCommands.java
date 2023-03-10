@@ -21,7 +21,6 @@ import views.DialogChangeAtom;
 import views.DialogChangeHuckelBond;
 import views.FrameApp;
 import views.StructureView;
-import controller.globalCommands.ChooseMenuExp;
 
 public abstract  class TutorialCommands extends Tutorial {
 

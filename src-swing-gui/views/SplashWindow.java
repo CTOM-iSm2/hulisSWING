@@ -5,13 +5,11 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 
 import javax.swing.JFrame;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 
-import util.ComponentsTools;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;

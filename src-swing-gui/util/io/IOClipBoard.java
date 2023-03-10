@@ -12,6 +12,10 @@ import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
+import controller.globalCommands.ICommand;
+import controller.globalCommands.ReadGaussianCommand;
+import controller.globalCommands.ReadNRTSTRCommand;
+import controller.globalCommands.ReadXYZCommand;
 import util.gamess.IOGamessReadXYZ;
 import util.gaussian.IOGaussian03ReadXYZ;
 import util.gaussian.IOReadGaussian;
@@ -19,10 +23,6 @@ import util.gaussian.IOReadNRTSTR;
 import util.xyz.IOReadCoordinatesxyz;
 import util.xyz.IOReadxyz;
 import views.FrameApp;
-import controller.globalCommands.ICommand;
-import controller.globalCommands.ReadGaussianCommand;
-import controller.globalCommands.ReadNRTSTRCommand;
-import controller.globalCommands.ReadXYZCommand;
 
 public class IOClipBoard implements ActionListener, ClipboardOwner {
 	FrameApp app;

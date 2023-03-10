@@ -43,6 +43,7 @@ package org.jfree.chart.labels;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+
 import org.jfree.chart.plot.Crosshair;
 
 /**

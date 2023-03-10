@@ -46,6 +46,7 @@ package org.jfree.ui.about.resources;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ListResourceBundle;
+
 import javax.swing.KeyStroke;
 
 /**

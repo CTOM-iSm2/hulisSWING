@@ -1,13 +1,14 @@
 package views;
 
 
-import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -41,21 +42,6 @@ import org.ctom.hulis.huckel.selectors.MesomeryHLPOverlapStructuresSelector;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
 
-import robots.TutorialBuildMolecule;
-import sqlbridge.ConnectSQL;
-import util.CookieManager;
-import util.MyResourceBundle;
-import util.PreferencesCookies;
-import util.PreferencesStd;
-import util.ThreadUtils;
-import util.Version;
-import util.io.IOClipBoard;
-import util.io.IOFichier;
-import util.io.SwingIO;
-import util.languages.InitResources;
-import util.languages.LanguageManager;
-import util.polyCalculator.PolyCalculator;
-import views.prefs.PreferencesGUI;
 import access.Rights;
 import controller.globalCommands.ActionAtomsRenum;
 import controller.globalCommands.ActionAutoGenStruct;
@@ -111,6 +97,21 @@ import controller.structureViewController.MoveState;
 import controller.structureViewController.RemoveState;
 import controller.structureViewController.RenumState;
 import controller.structureViewController.RotateState;
+import sqlbridge.ConnectSQL;
+import util.CookieManager;
+import util.MessageWithLink;
+import util.MyResourceBundle;
+import util.PreferencesCookies;
+import util.PreferencesStd;
+import util.ThreadUtils;
+import util.Version;
+import util.io.IOClipBoard;
+import util.io.IOFichier;
+import util.io.SwingIO;
+import util.languages.InitResources;
+import util.languages.LanguageManager;
+import util.polyCalculator.PolyCalculator;
+import views.prefs.PreferencesGUI;
 
 /**
  * FrameApp : This class is the principal frame view
@@ -172,7 +173,7 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	 */
 
 
-	final Version version = new Version(3, 4, 0, "dev 6"); // VERSION OF HULIS
+	final Version version = new Version(3, 4, 0, "dev 7"); // VERSION OF HULIS
 
 
 	static {
@@ -909,16 +910,12 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 				menuBar.menuSave.addActionListener(new IOFichier(this));
 				menuBar.menuOpen.addActionListener(new IOFichier(this));
 				menuBar.menuPrintCurrentView.addActionListener(new IOFichier(this));
-				try {
-					menuBar.menuTutorial0
-					.addActionListener(new TutorialBuildMolecule(this));
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-				catch (SecurityException e){
-					e.printStackTrace();
-
-				}
+				menuBar.menuTutorial0.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							JOptionPane.showMessageDialog(null, new MessageWithLink("Look the tutorial and follow HuLiS on Youtube : <a href=\"http://youtube.com/@hulis.univ-amu\">http://youtube.com/@hulis.univ-amu</a>"));
+								
+						}
+					});
 			}
 			
 			PreferencesGUI.getInstance().setTotalUse(PreferencesGUI.getInstance().getTotalUse() + 1);

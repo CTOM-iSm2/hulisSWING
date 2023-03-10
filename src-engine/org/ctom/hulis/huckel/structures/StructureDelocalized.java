@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import org.ctom.hulis.files.xyz.GeometryReader;
 import org.ctom.hulis.files.xyz.ReadxyzException;
 import org.ctom.hulis.huckel.Atom;
-import org.ctom.hulis.huckel.BlocDelocalized;
 import org.ctom.hulis.huckel.Bond;
 import org.ctom.hulis.huckel.HuckelAtom;
 import org.ctom.hulis.huckel.HuckelBond;

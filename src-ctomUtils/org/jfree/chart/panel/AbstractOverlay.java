@@ -41,6 +41,7 @@
 package org.jfree.chart.panel;
 
 import javax.swing.event.EventListenerList;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.event.OverlayChangeEvent;

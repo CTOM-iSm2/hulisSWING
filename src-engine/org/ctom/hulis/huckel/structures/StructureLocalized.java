@@ -30,7 +30,6 @@ import org.ctom.hulis.huckel.events.HuckelAtomEvent;
 import org.ctom.hulis.huckel.events.MoleculeEvent;
 import org.ctom.hulis.huckel.events.MonoExcitationEvent;
 import org.ctom.hulis.huckel.events.StructureLocalizedEvent;
-import org.ctom.hulis.huckel.exception.BlocDelocalizedException;
 import org.ctom.hulis.huckel.exception.BondException;
 import org.ctom.hulis.huckel.exception.CoupleException;
 import org.ctom.hulis.huckel.exception.HuckelBondException;

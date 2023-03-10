@@ -18,7 +18,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Random;
 
 import org.ctom.hulis.huckel.Atom;
 import org.ctom.hulis.huckel.HuckelAtom;

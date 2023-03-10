@@ -3,15 +3,13 @@ package views;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import util.ComponentsTools;
-import util.CookieManager;
 import controller.globalCommands.ActionQuit;
+import util.CookieManager;
 
 public class AppletToFrame {
 	

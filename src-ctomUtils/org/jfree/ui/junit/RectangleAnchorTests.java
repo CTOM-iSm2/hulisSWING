@@ -49,10 +49,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+import org.jfree.ui.RectangleAnchor;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.ui.RectangleAnchor;
 
 /**
  * Tests for the {@link RectangleAnchor} class.

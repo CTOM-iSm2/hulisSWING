@@ -6,12 +6,9 @@ import java.util.List;
 import javax.swing.JFrame;
 
 import org.ctom.hulis.files.gaussian.NRTSTRreader;
-import org.ctom.hulis.files.gaussian.ReadGaussianException;
 import org.ctom.hulis.huckel.Mesomery;
 import org.ctom.hulis.huckel.exception.CoupleException;
 import org.ctom.hulis.huckel.exception.IMethodException;
-import org.ctom.hulis.huckel.exception.MesomeryCopyException;
-import org.ctom.hulis.huckel.exception.MesomeryDelocalizedStructureExistsException;
 import org.ctom.hulis.huckel.exception.MesomeryNoStructureLocalizedException;
 import org.ctom.hulis.huckel.exception.SelectionException;
 import org.ctom.hulis.huckel.methods.IMethod;

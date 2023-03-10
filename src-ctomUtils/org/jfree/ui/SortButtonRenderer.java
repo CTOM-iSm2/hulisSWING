@@ -47,6 +47,7 @@ package org.jfree.ui;
 
 import java.awt.Component;
 import java.awt.Insets;
+
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;

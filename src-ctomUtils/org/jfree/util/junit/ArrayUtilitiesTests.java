@@ -43,10 +43,11 @@
 
 package org.jfree.util.junit;
 
+import org.jfree.util.ArrayUtilities;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.util.ArrayUtilities;
 
 /**
  * Tests for the {@link ArrayUtilities} class.

@@ -27,16 +27,15 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
-import javax.swing.text.html.HTMLEditorKit;
 
 import org.ctom.hulis.huckel.Energy.EnergyFormater;
 
+import controller.globalCommands.PopUp;
 import util.MyDecimalFormat;
 import util.MyResourceBundle;
 import util.ThreadUtils;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
-import controller.globalCommands.PopUp;
 
 public abstract class FrameResult extends JFrame implements 
 ActionListener {

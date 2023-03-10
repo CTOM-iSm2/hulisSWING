@@ -42,10 +42,11 @@
 
 package org.jfree.util.junit;
 
-import junit.framework.TestCase;
 import org.jfree.util.Log;
 import org.jfree.util.LogContext;
 import org.jfree.util.LogTarget;
+
+import junit.framework.TestCase;
 
 /**
  * A test for...

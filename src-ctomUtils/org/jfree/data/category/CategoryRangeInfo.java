@@ -41,6 +41,7 @@
 package org.jfree.data.category;
 
 import java.util.List;
+
 import org.jfree.data.Range;
 
 /**

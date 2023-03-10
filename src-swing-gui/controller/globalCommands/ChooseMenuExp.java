@@ -3,9 +3,9 @@ package controller.globalCommands;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import access.Rights;
 import util.io.SwingIO;
 import views.FrameApp;
-import access.Rights;
 
 /**
  * This command is called when the user choose expert mode.

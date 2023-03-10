@@ -16,8 +16,6 @@ import java.io.InputStream;
 
 import javax.swing.JFrame;
 
-import views.FrameApp;
-
 /**
  * ComponentsTools : This class contains tools to display unicode characters
  * (greek)

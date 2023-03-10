@@ -1,7 +1,5 @@
 package util;
 
-import java.applet.Applet;
-
 /**
  * Manage preferences with cookies
  * 

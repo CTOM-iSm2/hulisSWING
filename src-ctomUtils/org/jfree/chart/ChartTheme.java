@@ -40,8 +40,6 @@
 
 package org.jfree.chart;
 
-import org.jfree.chart.JFreeChart;
-
 /**
  * A {@link ChartTheme} a class that can apply a style or 'theme' to a chart.
  * It can be implemented in an arbitrary manner, with the styling applied to

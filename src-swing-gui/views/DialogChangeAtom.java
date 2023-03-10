@@ -33,11 +33,11 @@ import org.ctom.hulis.huckel.exception.MoleculeTooManyNeighboursException;
 import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.util.common.Convert;
 
+import controller.globalCommands.ReplaceAtom;
 import util.MyJOptionPane;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
-import controller.globalCommands.ReplaceAtom;
 
 /**
  * DialogChangeAtom : Frame Atom Type : this class describes the dialog box for

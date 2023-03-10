@@ -43,6 +43,7 @@ package org.jfree.data.function;
 
 import java.io.Serializable;
 import java.util.Arrays;
+
 import org.jfree.chart.HashUtilities;
 
 /**

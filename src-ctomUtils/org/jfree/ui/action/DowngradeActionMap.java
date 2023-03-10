@@ -45,6 +45,7 @@ package org.jfree.ui.action;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import javax.swing.Action;
 
 /**

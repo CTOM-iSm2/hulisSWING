@@ -44,6 +44,7 @@ package org.jfree.ui;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+
 import javax.swing.text.JTextComponent;
 
 /**

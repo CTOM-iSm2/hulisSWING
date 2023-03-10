@@ -14,7 +14,6 @@ import java.util.Comparator;
 
 import javax.swing.JPanel;
 
-import org.apache.batik.apps.svgbrowser.TransformHistory;
 import org.ctom.hulis.huckel.NatOrbitaleMoleculaire;
 import org.ctom.hulis.huckel.OrbitaleMoleculaire;
 import org.ctom.hulis.huckel.Spin;

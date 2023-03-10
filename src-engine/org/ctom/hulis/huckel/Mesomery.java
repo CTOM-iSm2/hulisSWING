@@ -1,6 +1,5 @@
 package org.ctom.hulis.huckel;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +29,6 @@ import org.ctom.hulis.huckel.exception.DressStructureLocalizedException;
 import org.ctom.hulis.huckel.exception.HulisException;
 import org.ctom.hulis.huckel.exception.IMethodException;
 import org.ctom.hulis.huckel.exception.IncorrectNumberPiElectronsException;
-import org.ctom.hulis.huckel.exception.MesomeryCopyException;
 import org.ctom.hulis.huckel.exception.MesomeryDelocalizedStructureExistsException;
 import org.ctom.hulis.huckel.exception.MesomeryDelocalizedStructureNotExistsException;
 import org.ctom.hulis.huckel.exception.MesomeryLocalizedStructureExistsException;

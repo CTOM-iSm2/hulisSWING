@@ -6,11 +6,11 @@ import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
 import org.ctom.hulis.huckel.structures.StructureLocalized;
 
+import access.Rights;
 import util.MyResourceBundle;
 import util.io.SwingIO;
 import util.languages.LanguageManager;
 import views.FrameApp;
-import access.Rights;
 
 /**
  * This class enables/disables options menu according to user selections 

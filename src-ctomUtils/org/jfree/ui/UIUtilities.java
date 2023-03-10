@@ -42,6 +42,7 @@
 package org.jfree.ui;
 
 import java.awt.Color;
+
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;

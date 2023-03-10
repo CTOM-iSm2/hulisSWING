@@ -46,17 +46,17 @@
 
 package org.jfree.xml.factory.objects;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
-import java.util.HashMap;
-import java.beans.Introspector;
-import java.beans.IntrospectionException;
-import java.beans.BeanInfo;
-import java.beans.PropertyDescriptor;
-import java.io.ObjectInputStream;
-import java.io.IOException;
 
 import org.jfree.util.Log;
 

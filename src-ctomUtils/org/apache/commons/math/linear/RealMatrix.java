@@ -17,9 +17,6 @@
 
 package org.apache.commons.math.linear;
 
-import org.apache.commons.math.linear.MatrixVisitorException;
-
-
 /**
  * Interface defining a real-valued matrix with basic algebraic operations.
  * <p>

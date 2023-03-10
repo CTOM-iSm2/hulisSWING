@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Window;
-import java.text.SimpleDateFormat;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -13,12 +12,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.border.LineBorder;
 
-import sqlbridge.ConnectSQL;
 import util.FollowLink;
 import util.MyResourceBundle;
-import util.Version;
 import util.languages.LanguageManager;
-import access.Rights;
 
 public class AboutPanel extends JPanel {
 	protected JTextPane aboutLabel;
