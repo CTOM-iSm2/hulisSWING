@@ -9,7 +9,7 @@ public class HuckelIO {
 
 	private static MyLogger logger = new MyLogger();
 
-	private static final boolean verbose = true;
+	private static final boolean verbose = false;
 
 	public static MyLogger getLooger() {
 		return HuckelIO.logger;

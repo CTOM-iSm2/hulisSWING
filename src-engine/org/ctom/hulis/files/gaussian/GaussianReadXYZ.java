@@ -1,6 +1,7 @@
 package org.ctom.hulis.files.gaussian;
 
-import org.ctom.hulis.files.Tokenizable;
+import java.io.StreamTokenizer;
+
 import org.ctom.hulis.files.xyz.Readxyz;
 import org.ctom.hulis.files.xyz.ReadxyzException;
 
@@ -11,9 +12,8 @@ public class GaussianReadXYZ extends Readxyz implements IGaussianConstants {
 	
 	/**
 	 * @param donnees
-	 * @throws ReadxyzException
 	 */
-	public GaussianReadXYZ(Tokenizable donnees)  {
+	public GaussianReadXYZ(StreamTokenizer donnees)  {
 		super(donnees);
 		this.strictNumberAtoms(false);
 		// TODO Auto-generated constructor stub
@@ -21,7 +21,7 @@ public class GaussianReadXYZ extends Readxyz implements IGaussianConstants {
 
 
 	@Override
-	protected void readHeader(Tokenizable donnees) {
+	protected void readHeader(StreamTokenizer donnees) {
 		// pas de header
 	}
 }

@@ -12,4 +12,8 @@ public interface IGaussianConstants {
 	final static public String KEYWORD_BLW = "$blw";
 	final static public String KEYWORD_BLW_DAT="$blwdat"; 
 	final static public String KEYWORD_BLW_END = "$end";
+    // specifique TCOM
+	final static public String KEYWORD_HX = "hx";
+	final static public String KEYWORD_HXY = "hxy";
+
 }

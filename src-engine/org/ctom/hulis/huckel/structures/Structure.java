@@ -35,6 +35,7 @@ import org.ctom.hulis.huckel.methods.HLPMethod;
 import org.ctom.hulis.huckel.spectrum.DensityOfStates;
 import org.ctom.hulis.huckel.structures.symmetry.Symmetry;
 import org.ctom.hulis.polynomes.CharacteristicPolynomial;
+import org.ctom.hulis.prefs.Preferences;
 import org.ctom.hulis.util.VectorssHuckel;
 import org.ctom.hulis.util.io.HuckelIO;
 import org.ctom.util.common.Arrays;
@@ -1376,7 +1377,7 @@ IMonoExcitationListener{
 		 * couplage : appel normal _avec couplage : deux appels, puis
 		 * combinaison
 		 */
-
+		System.out.println ("TYPE DE COUPLAGE = "  + Preferences.COUPLAGE_TYPE_DEFAULT);
 		boolean phi1AUnCouplage = Phi1.aUnCouplage();
 		boolean phi2AUnCouplage = Phi2.aUnCouplage();
 
@@ -1428,6 +1429,7 @@ IMonoExcitationListener{
 			Matrix ovlMat_11_22 = new Matrix(size, size);
 			iSOM = Phi2.getCouplage()[0];
 			jSOM = Phi2.getCouplage()[1];
+			System.out.println("phi1&2AUnCouplage psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
 			Phi2.switchSpinOM(iSOM, jSOM);
 			Phi1.printSOMs();
 			Phi2.printSOMs();
@@ -1459,9 +1461,11 @@ IMonoExcitationListener{
 			Matrix ovlMat_12_21 = new Matrix(size, size);
 			iSOM = Phi2.getCouplage()[0];
 			jSOM = Phi2.getCouplage()[1];
+			System.out.println("phi1&2AUnCouplage ovlMat_12_21 psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
 			Phi2.switchSpinOM(iSOM, jSOM);
 			iSOM = Phi1.getCouplage()[0];
 			jSOM = Phi1.getCouplage()[1];
+			System.out.println("phi1&2AUnCouplage ovlMat_12_21 psi1switch iSOM= " + iSOM + "jSOM=" + jSOM );
 			Phi1.switchSpinOM(iSOM, jSOM);
 			// switch spins of a and b and c and d
 			// state a B | C d
@@ -1490,6 +1494,7 @@ IMonoExcitationListener{
 			Matrix ovlMat_12_22 = new Matrix(size, size);
 			iSOM = Phi2.getCouplage()[0];
 			jSOM = Phi2.getCouplage()[1];
+			System.out.println("phi1&2AUnCouplage ovlMat_12_22 psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
 			Phi2.switchSpinOM(iSOM, jSOM);
 			/*if (HuckelIO.isverbose()) {
 					// switch spins of c and d
@@ -1550,6 +1555,8 @@ IMonoExcitationListener{
 			Matrix ovlMat_12 = new Matrix(size, size);
 			iSOM = Phi1.getCouplage()[0];
 			jSOM = Phi1.getCouplage()[1];
+			
+			System.out.println("phi1AUnCouplage iSOM= " + iSOM + "jSOM=" + jSOM );
 			Phi1.switchSpinOM(iSOM, jSOM);
 			/*if (HuckelIO.isverbose()) {
 					System.out.printf("%s\n", "Phi1 modified");
@@ -1606,6 +1613,7 @@ IMonoExcitationListener{
 			Matrix ovlMat_22 = new Matrix(size, size);
 			iSOM = Phi2.getCouplage()[0];
 			jSOM = Phi2.getCouplage()[1];
+			System.out.println("ph2AUnCouplage Phi2.switchSpinOM iSOM= " + iSOM + "jSOM=" + jSOM );
 			Phi2.switchSpinOM(iSOM, jSOM);
 			if (HuckelIO.isverbose()) {
 				//		System.out.printf("%s\n", "Phi2 modified");

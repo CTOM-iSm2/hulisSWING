@@ -387,7 +387,7 @@ ChangeListener, IMesomeryListener {
 	}
 
 	/**
-	 * This function returns the current structure displayed
+	 * selected the tab of the current structure
 	 * 
 	 * @return structure
 	 */
@@ -396,7 +396,11 @@ ChangeListener, IMesomeryListener {
 		//ThreadUtils.invokeAsSoonAsPossible(new Runnable(){
 
 		//public void run() {
-		Child component  = indexedTabsMap.get(structure);			
+		if (structure==null)
+			return;
+		Child component  = indexedTabsMap.get(structure);	
+		if (component==null)
+			return; 
 		setSelectedComponent(component);
 
 		//	}} );

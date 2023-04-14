@@ -3,6 +3,7 @@ package org.ctom.hulis.huckel.structures;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ctom.hulis.files.xyz.GeometryReader;
 import org.ctom.hulis.files.xyz.ReadxyzException;
@@ -16,6 +17,7 @@ import org.ctom.hulis.huckel.SpinOrbitaleMoleculaire;
 import org.ctom.hulis.huckel.events.MonoExcitationEvent;
 import org.ctom.hulis.huckel.events.StructureDelocalizedEvent;
 import org.ctom.hulis.huckel.exception.BondException;
+import org.ctom.hulis.huckel.exception.GeometryException;
 import org.ctom.hulis.huckel.exception.HuckelBondException;
 import org.ctom.hulis.huckel.exception.HulisException;
 import org.ctom.hulis.huckel.exception.MoleculeAtomNullException;
@@ -601,6 +603,45 @@ public class StructureDelocalized extends Structure implements Cloneable, Serial
 		return VectorssHuckel.sort(eigenvalueDecomposition.getV().getArray());
 		
 	}
+	
+	/**
+	 * la lecture d'un fichier intialise une geometrie
+	 * la creation d'atom,  n'ayant donc pas été lus dans le fichier entraine des coordonnes geom3D nulles 
+	 * ce qui permet de savoir si la geometrie a change
+	 * TODO : il vaudrait mieux faire autrement
+	 */
+	public boolean isGeometryChanged() {
+		try {
+			Geometry geom3D = this.getGeometry();
+			for (Atom a : geom3D.getAtoms())
+				if (a.getLocationGeom3D()==null)
+					return true;
+			return false;
+		} catch (GeometryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		
+	}
+	
+	/**
+	 * @return la list d'une copie des liaisons qui ne respectent la longues de covalence
+	 */
+	public List<HuckelBond> checkBondsCovalentRaii() {
+		List<HuckelBond> bonds=new ArrayList<HuckelBond>();
+		for (HuckelBond b : this.getHuckelBonds()) {
+			double distOptimaleAB =(b.getAtom1().getCovalentRadius()+b.getAtom2().getCovalentRadius())* Geometry.SCALE;
+			double distance = b.getAtom1().getLocation().getDistance(b.getAtom2().getLocation());
+			if (Maths.round(distance, 2) > Maths.round(distOptimaleAB, 2) ) {
+				System.out.println( b + " : DISTANCE = " + distance + " > " + distOptimaleAB + " !!!!!");
+				bonds.add((HuckelBond) b.clone());
+			}
+		}
+		return bonds;
+	}
+
 
 	@Override
 	public void monoExcitationTriggered(MonoExcitationEvent e) {

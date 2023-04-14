@@ -46,6 +46,8 @@ import org.ctom.hulis.huckel.exception.UnavailableSOMException;
 import org.ctom.hulis.huckel.listeners.IBlocDelocalizedListener;
 import org.ctom.hulis.huckel.listeners.IMoleculeValueListener;
 import org.ctom.hulis.huckel.listeners.IStructureLocalizedListener;
+import org.ctom.hulis.prefs.Preferences;
+import org.ctom.hulis.prefs.Preferences.COUPLAGE_TYPE;
 import org.ctom.hulis.util.io.HuckelIO;
 import org.ctom.util.maths.Maths;
 import org.ctom.util.maths.Rotation;
@@ -81,13 +83,15 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 
 	private ArrayList<BlocDelocalized> lstBlocDelocalized; // 
 
+	private int[] block_Couple_OMs;
+
 	
 	class CoupleOMs{
 		int om1;
 		int om2;
 	}
 
-
+	
 	/**
 	 * 
 	 */
@@ -135,6 +139,10 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
             int code = 133;
             if (this.getCouple() != null)
             	code = multiplier * code + this.getCouple().hashCode();
+            
+            if (this.block_Couple_OMs != null)
+            	code = multiplier * code + this.block_Couple_OMs.hashCode();
+            
 			if (this.lstBlocDelocalized != null)
 				code = multiplier * code +  this.lstBlocDelocalized.hashCode();
            	code = multiplier * code +  super.hashCode();
@@ -171,12 +179,13 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 		
 		StructureLocalized s = (StructureLocalized) molecule;
 		
-		if (((s.getCouple() != null) && (this.getCouple() == null))
-				|| ((s.getCouple() == null) && (this.getCouple() != null)))
-			return false;
-		else if ((s.getCouple() != null) && (this.getCouple() != null) && !s.getCouple().equals(this.getCouple()) )
-			return false;
-		
+		if (Preferences.COUPLAGE_TYPE_DEFAULT.equals(COUPLAGE_TYPE.ATOMS)) {
+			if (((s.getCouple() != null) && (this.getCouple() == null))
+					|| ((s.getCouple() == null) && (this.getCouple() != null)))
+				return false;
+			else if ((s.getCouple() != null) && (this.getCouple() != null) && !s.getCouple().equals(this.getCouple()) )
+				return false;
+		}
 
 		if (this.countBlocsDelocalized() != s.countBlocsDelocalized())
 			return false;
@@ -333,6 +342,7 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 		this.methodCreation = StructureLocalized.CreationMethod.CREATED_MANUALLY;
 		this.error = StructureLocalized.Error.NOT_ERROR;
 		this.couple = null;
+		this.block_Couple_OMs=null;
 		this.lstCouplesOMs = new ArrayList<CoupleOMs>();
 		updateCharges();
 		if (this.isEnabledFlyCalculate())
@@ -359,6 +369,10 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 			this.couple = structure.couple.getCopy(this);
 		else
 			this.couple=null;
+		
+		if (structure.block_Couple_OMs != null) {
+			this.block_Couple_OMs=structure.block_Couple_OMs.clone();
+		}
 		
 		this.lstCouplesOMs = new ArrayList<CoupleOMs>();
 		// copier blocs
@@ -467,6 +481,8 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 			bl = null;
 		}
 		this.lstBlocDelocalized.clear();
+		this.setCouple(null);
+		this.block_Couple_OMs=null;
 		super.clear();
 				
 
@@ -489,7 +505,15 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 	 */
 	@Override
 	public boolean aUnCouplage() {
-		return (getCouple() != null);
+		switch (Preferences.COUPLAGE_TYPE_DEFAULT) {
+		case ORBITALS : 
+			return (this.block_Couple_OMs != null);
+	
+		case ATOMS :
+			return (getCouple() != null);
+		default :
+			return false;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -566,6 +590,7 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 	@Override
 	public void clear(boolean notify) {
 		this.couple = null;
+		this.block_Couple_OMs=null;
 		super.clear(notify);
 	}
 	
@@ -575,6 +600,7 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 	@Override
 	public void delete(boolean notify) {
 		this.couple = null;
+		this.block_Couple_OMs=null;
 		this.lstBlocDelocalized=null;
 		super.delete(notify);
 	}
@@ -583,14 +609,23 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 	 * 
 	 */
 	protected void autoRemovecouple() {
-		if (this.couple != null) {
-			if ((this.couple.getHuckelAtom1() == null)
-					|| (this.couple.getHuckelAtom2() == null))
-				removeCouple();
-			else if ((this.couple.getHuckelAtom1().getNbRadR() != 1)
-					|| (this.couple.getHuckelAtom2().getNbRadR() != 1))
-				removeCouple();
+		switch (Preferences.COUPLAGE_TYPE_DEFAULT) {
+		case ORBITALS : 
+			this.block_Couple_OMs=null;
+		case ATOMS : 
+			if (this.couple != null) {
+				if ((this.couple.getHuckelAtom1() == null)
+						|| (this.couple.getHuckelAtom2() == null))
+					removeCouple();
+				else if ((this.couple.getHuckelAtom1().getNbRadR() != 1)
+						|| (this.couple.getHuckelAtom2().getNbRadR() != 1))
+					removeCouple();
+			}
+			break;
+		default : 
+			break;
 		}
+		
 	}
 
 
@@ -599,20 +634,35 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 	 */
 	@Override
 	protected int[] getCouplage() {
-		int[] couple_atoms = new int[2];
-		int[] couple_OMs = new int[2];
-		// get which atoms were coupled
-		couple_atoms[0] = getCouple().getHuckelAtom1().getSeqNum() - 1;
-		couple_atoms[1] = getCouple().getHuckelAtom2().getSeqNum() - 1;
-		// transforms into orbitals
-		try {
-			couple_OMs[0] = convertSeqnumSpinOM(couple_atoms[0]);
-			couple_OMs[1] = convertSeqnumSpinOM(couple_atoms[1]);
-		} catch (StructureLocalizedException e) {
-			HuckelIO.warning(this.getClass().getName(), "getCouplage", e
-					.getMessage(), e);
+		switch (Preferences.COUPLAGE_TYPE_DEFAULT) {
+		case ORBITALS : 
+			if (this.block_Couple_OMs != null) {
+				return this.block_Couple_OMs;
+			}
+			else
+				return new int[2];
+		
+		case ATOMS :
+		
+			int[] couple_atoms = new int[2];
+			int[] couple_OMs = new int[2];
+				
+			// get which atoms were coupled
+			couple_atoms[0] = getCouple().getHuckelAtom1().getSeqNum() - 1;
+			couple_atoms[1] = getCouple().getHuckelAtom2().getSeqNum() - 1;
+			// transforms into orbitals
+			try {
+				couple_OMs[0] = convertSeqnumSpinOM(couple_atoms[0]);
+				couple_OMs[1] = convertSeqnumSpinOM(couple_atoms[1]);
+			} catch (StructureLocalizedException e) {
+				HuckelIO.warning(this.getClass().getName(), "getCouplage", e
+						.getMessage(), e);
+			}
+			return couple_OMs;	
+		default :
+			return new int[2];
 		}
-		return couple_OMs;
+		
 	}
 
 	/**
@@ -869,6 +919,7 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 		if (this.couple == null)
 			return;
 		String old = this.couple.toString();
+		this.block_Couple_OMs=null;
 		this.couple = null;
 		fireStructureLocalizedCoupleRemoved(this, old, null);
 
@@ -879,9 +930,8 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 	 * @param couple
 	 */
 	public void setCouple(CoupleLocal couple) {
-		if (this.couple != null)
-			if (couple.equals(this.couple))
-				return;
+		if ((this.couple != null) && (couple.equals(this.couple)))
+			return;
 
 		String old;
 		if (this.couple != null)
@@ -889,7 +939,18 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 		else
 			old = null;
 		this.couple = couple;
+		
+		if (Preferences.COUPLAGE_TYPE_DEFAULT.equals(Preferences.COUPLAGE_TYPE.ORBITALS)) {
+			this.block_Couple_OMs=new int[2];
+			try {
+				this.block_Couple_OMs[0] = convertSeqnumSpinOM(couple.getHuckelAtom1().getSeqNum()-1);
+				this.block_Couple_OMs[1] = convertSeqnumSpinOM(couple.getHuckelAtom2().getSeqNum()-1);		
+			} catch (StructureLocalizedException e) {
+				e.printStackTrace();
+			}
+		}
 
+		
 		if (old != this.couple.toString())
 			fireStructureLocalizedCoupleChanged(this, old, couple);
 
@@ -964,11 +1025,12 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 
 	}
 
+	
 	/**
-	 * @throws CoupleException
+	 * 
 	 */
-	public void autoCouplage() throws CoupleException {
-		if (this.countSingleElectronsOnAtoms() > 1 && (this.couple == null)) {
+	public HuckelAtom[] guessCouple() {
+		if (super.countSingleElectronsOnAtoms() > 1 ) {
 			// on prend 2 radicaux
 			int i = 0;
 			HuckelAtom[] tab = new HuckelAtom[2];
@@ -978,13 +1040,69 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 				if (i > 1)
 					break; // on a remplit le tableau
 			}
-			// on les couple
+			return tab;
+		}
+		return null;
+							
+	}
+	
+	/**
+	 * @throws CoupleException
+	 */
+	public void autoCouplage() throws CoupleException {
+		HuckelAtom[] tab;
+		if ((this.couple == null) && ((tab= this.guessCouple()) != null) ) {
 			
-		
 			// assertion : tab ne peut pas etre null
 			this.couple = new CoupleLocal(tab[0], tab[1]);
 		}
 	}
+	
+	
+	/**
+	 * NG
+	 * couplage entre SOM
+	 */
+	public void autoCouplageSOM() {
+		
+		this.block_Couple_OMs=null;
+
+
+		double[]ni=this.distributionElecPiArray;
+		boolean trouve=false;
+				
+		for (int i=0; i < ni.length; i++) {
+
+			if (ni[i]==1 && !trouve) {
+				trouve=true;
+				this.block_Couple_OMs=new int[2];
+				try {
+					block_Couple_OMs[0] = this.getSpinOM(2 * i).getIndex();
+				} catch (NoSOMAvailableException | UnavailableSOMException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+			else if (ni[i]==1 && trouve) {
+				try {
+					SpinOrbitaleMoleculaire spinOM = this.getSpinOM(2 * i);
+					if ((spinOM.getSpin() == Spin.ALPHA) && (spinOM.getPartner().getSpin() == Spin.NOSPIN_BETA)) {
+						spinOM.switchSpin();
+						block_Couple_OMs[1] =spinOM.getIndex();
+
+					}
+				} catch (OrbitaleMoleculaireException | NoSOMAvailableException | UnavailableSOMException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+			
+			
+		}
+	}
+	
 
 	/**
 	 * calculate and check if has too much electrons

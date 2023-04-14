@@ -222,6 +222,14 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 			this.connect = new ArrayList<Integer>();
 	}
 
+	/**
+	 * clear connexions list
+	 * goudard
+	 */
+	public void clearConnect() {
+		if (this.connect != null)
+			this.connect.clear();
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()
@@ -720,10 +728,10 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 	  * 
 	  * @param p
 	  */
-	 protected void setLocationNotNotify(Point3D p) {
+	 public void setLocationNotNotify(Point3D p) {
 	
 		 this.p2D = p;
-		 this.pGeom3D = (Point3D) this.p2D.clone();
+		 //this.pGeom3D = (Point3D) this.p2D.clone();
 	 }
 	 
 	 /**
@@ -746,7 +754,7 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 	  * 
 	  * @return
 	  */
-	 public Point3D getLocationGeom(){
+	 public Point3D getLocationGeom3D(){
 		 return this.pGeom3D;
 	 }
 
@@ -826,8 +834,8 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 	  * This method sets the coordinate x 
 	  * @param x
 	  */
-	 public void setX(double x) {
-		if ((this.p2D != null) && (this.moleculeParentContainer instanceof StructureLocalized)) 
+	 public void setXAndXGeom3D(double x) {
+		if (this.moleculeParentContainer instanceof StructureLocalized) 
 			try {
 				throw new AtomException("Cannot change x on a localized structure");
 		
@@ -840,34 +848,32 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 		 if  ( (this.moleculeParentContainer instanceof Structure) && ( ((Structure) this.moleculeParentContainer).getMesomeryParent() != null) && (((Structure) this.moleculeParentContainer).getMesomeryParent() .countLocalizedStructs() >0))
 				throw new RuntimeException("Cannot move the atom. There are localized structures in the mesomery");
 	
-		 Point3D old = null;
+		
+		Point3D old = null;
 		 if (this.p2D != null)
 			 old = (Point3D) this.p2D.clone();
-		 this.setXNotNotify(x);
+		 else
+			 this.p2D=new Point3D();
+		 
+		this.p2D.setX(x);
+		
+		if (this.pGeom3D==null)
+			 this.pGeom3D=new Point3D();
+		this.pGeom3D.setX(x);
+
 		 if (!p2D.equals(old))
 			 this.fireAtomLocationChanged(this, old, p2D);
 
 	 }
 
-	 public void setXNotNotify(double x) {
-		 if (this.p2D == null) 
-			 this.p2D = new Point3D(x, 0.0, 0.0);
-		
-		 this.p2D.setX(x);
-		 
-		 if (this.pGeom3D == null) 
-			 this.pGeom3D = new Point3D(x, 0.0, 0.0);
-		
-		 this.pGeom3D.setX(x);
-	 }
-
+	
 	 /**
 	  * This method sets the coordinate y
 	  * @param y
 	  * 
 	  */
-	 public void setY(double y) {
-		if ((this.p2D != null) && (this.moleculeParentContainer instanceof StructureLocalized)) 
+	 public void setYAndYGeom3D(double y) {
+		if (this.moleculeParentContainer instanceof StructureLocalized)
 			try {
 				throw new AtomException("Cannot change y on a localized structure");
 		
@@ -882,29 +888,29 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 		 Point3D old = null;
 		 if (this.p2D != null)
 			 old = (Point3D) this.p2D.clone();
-		 this.setYNotNotify(y);
+		 else
+			 this.p2D=new Point3D();
+		 
+		 this.p2D.setY(y);
+		 
+		 if (this.pGeom3D==null)
+			 this.pGeom3D=new Point3D();
+		this.pGeom3D.setY(y);
+
 		 if (!p2D.equals(old))
 			 this.fireAtomLocationChanged(this, old, p2D);
 
 	 }
 
-	 public void setYNotNotify(double y) {
-		 if (this.p2D == null)
-			 this.p2D = new Point3D(0.0, y, 0.0);
-		 this.p2D.setY(y);
-		 
-		 if (this.pGeom3D == null)
-			 this.pGeom3D = new Point3D(0.0, y, 0.0);
-		 this.pGeom3D.setY(y);
-	 }
 
+	
 	 /**
 	  * This method sets the coordinate z
 	  * @param z
 	  * 
 	  */
-	 public void setZ(double z) {
-		 if ((this.p2D != null) && (this.moleculeParentContainer instanceof StructureLocalized)) 
+	 public void setZAndZGeom3D(double z) {
+		 if (this.moleculeParentContainer instanceof StructureLocalized)
 				try {
 					throw new AtomException("Cannot change z on a localized structure");
 			
@@ -919,21 +925,18 @@ public class Atom implements IMoleculeComponent, Cloneable, Serializable {
 		 Point3D old = null;
 		 if (this.p2D != null)
 			 old = (Point3D) this.p2D.clone();
-		 this.setZNotNotify(z);
+		 else
+			 this.p2D=new Point3D();
+		 
+		 this.p2D.setZ(z);
+
+		 if (this.pGeom3D==null)
+			 this.pGeom3D=new Point3D();
+		 this.pGeom3D.setZ(z);	
+
 		 if (!p2D.equals(old))
 			 this.fireAtomLocationChanged(this, old, p2D);
 
-	 }
-
-	 protected void setZNotNotify(double z) {
-		 if (this.p2D == null)
-			 this.p2D = new Point3D(0.0, 0.0, z);
-		 this.p2D.setZ(z);
-		 
-		 
-		 if (this.pGeom3D == null)
-			 this.pGeom3D = new Point3D(0.0, 0.0, z);
-		 this.pGeom3D.setZ(z);
 	 }
 
 	 /**

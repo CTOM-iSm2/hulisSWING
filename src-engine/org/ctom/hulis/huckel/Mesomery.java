@@ -1719,7 +1719,15 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 				 * et si le couplage n'est pas deja fait
 				 */
 				if ((struct.getTotalSpin() != delocalisedSpin)&&(!struct.aUnCouplage())) {
-					struct.autoCouplage();
+					switch (Preferences.COUPLAGE_TYPE_DEFAULT) {
+					case ORBITALS : 
+						struct.autoCouplageSOM();
+					case ATOMS :
+						struct.autoCouplage();
+						break;
+					default :
+						break;
+					}
 					if (struct.isEnabledFlyCalculate())
 						struct.calculateOverlapHLP();
 					//on reteste : si c'est toujours pas bon, on ne peut rien faire
@@ -2049,7 +2057,6 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 	public int getPrecision() {
 		return this.precision;
 	}
-
 
 
 

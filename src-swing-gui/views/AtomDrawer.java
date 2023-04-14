@@ -33,7 +33,7 @@ import views.prefs.PreferencesGUI;
  * 
  */
 public class AtomDrawer {
-	public static final boolean DISPLAY_INDEX = false; // pour debugger
+	public static final boolean DISPLAY_INDEX = true; // pour debugger
 	public static final Color ATOM_TEXT_NUM_COLOR = Color.MAGENTA;
 	public static final Color ATOM_TEXT_HX_COLOR = Color.BLACK;
 	public static final Color ATOM_TEXT_CHARGE_COLOR = new Color(0,128,0);
@@ -539,23 +539,19 @@ public class AtomDrawer {
 		String txtSigle = "";
 		String txtHx = "";
 		String txtChargeDensity = "";
-		if (DISPLAY_INDEX) {
-			g2d.setColor(Color.BLACK);
-			g2d.drawString(Integer.toString(this.atom.getIndex()),  x,  y);
-		}
 		
-		if (!DISPLAY_INDEX && (this.atom instanceof HuckelAtom)) {
+		if  (this.atom instanceof HuckelAtom) {
 			HuckelAtom hAt = (HuckelAtom) this.atom;
 
 			if (this.structureView.isDisplayNum()
 					|| !this.structureView.getStructure()
 					.areCorrectAtomsSeqNum())
-				txtNum = Integer.toString(((HuckelAtom) this.atom)
+				txtNum = Integer.toString((hAt)
 						.getSeqNum())+ " " ;
 
-			if (this.structureView.isDisplayHxHxy() && this.atom instanceof HuckelAtom) {
-				txtSigle = this.atom.getSigle() ;
-				txtHx = ": hX=" + ((HuckelAtom) this.atom).getHx();
+			if (this.structureView.isDisplayHxHxy()) {
+				txtSigle = hAt.getSigle() ;
+				txtHx = ": hX=" + hAt.getHx();
 			}
 
 			if (this.structureView.isDisplayCharges()) {
@@ -565,20 +561,28 @@ public class AtomDrawer {
 					txtHx +=  this.atom.getSigle() + ": ";
 				txtChargeDensity +=  "q=" + FrameApp.form.format(hAt.getDensity());
 			}
-
-			FontMetrics metrics = this.structureView.getFontMetrics(g2d.getFont());
-
-			g2d.setColor(AtomDrawer.ATOM_TEXT_NUM_COLOR);
-			g2d.drawString(txtNum + txtSigle,  x,  y);
-
-
-			x +=  metrics.stringWidth (txtNum + txtSigle);
-			g2d.setColor(AtomDrawer.ATOM_TEXT_HX_COLOR);
-			g2d.drawString(txtHx ,  x,  y);
-
-			x +=  metrics.stringWidth (txtHx);
-			g2d.setColor(AtomDrawer.ATOM_TEXT_CHARGE_COLOR);
-			g2d.drawString(txtChargeDensity,  x, y);
 		} // if huckelAtom
+		
+		FontMetrics metrics = this.structureView.getFontMetrics(g2d.getFont());
+
+		if (DISPLAY_INDEX) {
+			g2d.setColor(Color.BLACK);
+			String txtIndex=Integer.toString(this.atom.getIndex()) + " ";
+			g2d.drawString(txtIndex,  x,  y);
+			x +=  metrics.stringWidth (txtIndex);					
+		}
+		
+		g2d.setColor(AtomDrawer.ATOM_TEXT_NUM_COLOR);
+		g2d.drawString(txtNum + txtSigle,  x,  y);
+
+
+		x +=  metrics.stringWidth (txtNum + txtSigle);
+		g2d.setColor(AtomDrawer.ATOM_TEXT_HX_COLOR);
+		g2d.drawString(txtHx ,  x,  y);
+
+		x +=  metrics.stringWidth (txtHx);
+		g2d.setColor(AtomDrawer.ATOM_TEXT_CHARGE_COLOR);
+		g2d.drawString(txtChargeDensity,  x, y);
+
 	}
 }

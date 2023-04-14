@@ -1,4 +1,4 @@
-package util.xml;
+package org.ctom.hulis.files.xml;
 
 public interface XMLConstants {
 	public static final String BALISE_RACINE = "mesomery";

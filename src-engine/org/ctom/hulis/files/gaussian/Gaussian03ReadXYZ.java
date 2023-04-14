@@ -1,8 +1,9 @@
 package org.ctom.hulis.files.gaussian;
 
 import java.io.IOException;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
 
-import org.ctom.hulis.files.Tokenizable;
 import org.ctom.hulis.files.xyz.GeometryReader;
 import org.ctom.hulis.files.xyz.ReadxyzException;
 import org.ctom.hulis.huckel.Atom;
@@ -15,15 +16,15 @@ public class Gaussian03ReadXYZ extends GeometryReader {
 	
 	
 	Geometry geomXYZ;
-	Tokenizable donnees;
+	StreamTokenizer donnees;
 	private int lineNumber;
 	int token;
 	
 	/**
 	 * @param donnees
 	 */
-	public Gaussian03ReadXYZ(Tokenizable donnees) {
-		this.donnees = donnees;
+	public Gaussian03ReadXYZ(String string) {
+		this.donnees = new StreamTokenizer(new StringReader(string));
 		this.lineNumber = 0;
 		this.token= 0;
 	}
@@ -56,9 +57,9 @@ public class Gaussian03ReadXYZ extends GeometryReader {
 	 * 
 	 * @throws IOException
 	 */
-	protected void readHeader(Tokenizable donnees) 	{	// lignes vides tolerees
+	protected void readHeader(StreamTokenizer donnees) 	{	// lignes vides tolerees
 		try {
-			while ((token = donnees.nextToken()) == donnees.isEOL()) {
+			while ((token = donnees.nextToken()) == StreamTokenizer.TT_EOL) {
 				this.lineNumber++;
 
 			}
@@ -74,7 +75,7 @@ public class Gaussian03ReadXYZ extends GeometryReader {
 	 * @param donnees
 	 * @throws ReadxyzException
 	 */
-	protected void readxyzDatas(Tokenizable donnees) throws ReadxyzException  {
+	protected void readxyzDatas(StreamTokenizer donnees) throws ReadxyzException  {
 		int flag = 0;
 		Atom atom = null;
 		boolean emptyLine = true;
@@ -82,7 +83,7 @@ public class Gaussian03ReadXYZ extends GeometryReader {
 		try {
 			while (true) {		
 	
-				if (token == donnees.isEOF()) {
+				if (token == StreamTokenizer.TT_EOF) {
 				
 					if (atom != null) {
 						if (flag < 6) 
@@ -93,7 +94,7 @@ public class Gaussian03ReadXYZ extends GeometryReader {
 
 					throw new ReadxyzException("EOF reached");
 				}
-				else if  (token == donnees.isEOL()) {
+				else if  (token == StreamTokenizer.TT_EOL) {
 					// TEST FINAL LINE
 					if (emptyLine) 
 						throw new ReadxyzException("Empty line found at line " + this.lineNumber);
@@ -113,13 +114,13 @@ public class Gaussian03ReadXYZ extends GeometryReader {
 					flag = 0;
 					this.lineNumber++;
 				}
-				else if (token == donnees.isWord()) {
+				else if (token == StreamTokenizer.TT_WORD) {
 					emptyLine = false;
 
-					throw new ReadxyzException("value is not a number : string \"" + donnees.getSVal() + "\" not expected in Gaussian03 format at line " + this.lineNumber );
+					throw new ReadxyzException("value is not a number : string \"" + donnees.sval + "\" not expected in Gaussian03 format at line " + this.lineNumber );
 							
 				
-				}else if  (token == donnees.isNumber()) {
+				}else if  (token == StreamTokenizer.TT_NUMBER) {
 					emptyLine = false;
 
 					flag++;
@@ -127,7 +128,7 @@ public class Gaussian03ReadXYZ extends GeometryReader {
 					case (1):
 						break;
 					case (2):
-						int atomicNumber =(int)donnees.getNVal();
+						int atomicNumber =(int)donnees.nval;
 						Element element = PeriodicTable.getElementByAtomicNumber(atomicNumber);
 						if (element == null)
 							throw new ReadxyzException("Atom not recongized for the atomic number = " + atomicNumber  +" at the line " + this.lineNumber);
@@ -139,16 +140,16 @@ public class Gaussian03ReadXYZ extends GeometryReader {
 					case (3):
 						break;
 					case (4):
-						setX(atom, donnees.getNVal());
+						setX(atom, donnees.nval);
 						break;
 					case (5):
-						setY(atom, donnees.getNVal());
+						setY(atom, donnees.nval);
 						break;
 					case (6):
-						setZ(atom, donnees.getNVal());
+						setZ(atom, donnees.nval);
 						break;
 					default:
-						atom.addConnect((int) donnees.getNVal());
+						atom.addConnect((int) donnees.nval);
 					}
 				}
 					

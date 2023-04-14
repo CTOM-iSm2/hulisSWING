@@ -71,8 +71,12 @@ public class Geom2DOptimizer implements IMoleculeValueListener, PowellMinimizerL
 	private void updateCoords(Matrix optgeom) {
 		for (int iat = 0; iat<listAtoms.size(); iat++) {
 			Atom a = listAtoms.get(iat);
-			a.setXNotNotify(optgeom.get(iat*2  , 0));
-			a.setYNotNotify(optgeom.get(iat*2+1, 0));
+			a.setLocationNotNotify(new Point3D(
+					optgeom.get(iat*2  , 0),
+					optgeom.get(iat*2+1, 0),
+					0
+					));
+
 			molecule.correctHBonds();
 		}
 	}

@@ -258,7 +258,9 @@ public class VirtualMethyl {
 		// affecte les coordonnes hulis et geomxyz de Me sur C si Me a ete deplace. 
 		if (! me.getLocation().equals(c.getLocation()) ) {
 			HuckelIO.PrintIfln("virtualMethyl.autoupdate : change coordinate of C because ME has been moved");
-			c.setLocation((Point3D) me.getLocation().clone()); 
+			c.setLocation((Point3D) me.getLocation().clone());
+			if (c.getLocationGeom3D()==null)
+				c.setLocationGeom3D((Point3D) me.getLocationGeom3D().clone()); 
 			meHasMoved = true;
 		}
 		
@@ -296,6 +298,13 @@ public class VirtualMethyl {
 			h1.setLocation(x.getLocation().rotateAndRenorm(me.getLocation(), Rotation.getRotationZ(Math.toRadians(110)), lgHBond));
 			h2.setLocation(h1.getLocation().rotateAndRenorm(me.getLocation(), Rotation.getRotation3D(vXMe, Math.toRadians(120)), lgHBond));
 			h3.setLocation(h1.getLocation().rotateAndRenorm(me.getLocation(), Rotation.getRotation3D(vXMe, Math.toRadians(240)), lgHBond));
+			if (h1.getLocationGeom3D()==null)
+				h1.setLocationGeom3D((Point3D) h1.getLocation().clone());
+			if (h2.getLocationGeom3D()==null)
+				h2.setLocationGeom3D((Point3D) h2.getLocation().clone());
+			if (h3.getLocationGeom3D()==null)
+				h3.setLocationGeom3D((Point3D) h3.getLocation().clone());
+		
 		}
 	}
 	

@@ -17,4 +17,6 @@ public class TestNRTSTRreader extends NRTSTRreader {
 		a.setRadR(npair);
 	}
 
+	
+	
 }

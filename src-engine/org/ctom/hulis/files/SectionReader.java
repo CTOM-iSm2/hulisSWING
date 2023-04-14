@@ -4,6 +4,8 @@
 package org.ctom.hulis.files;
 
 import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -15,15 +17,28 @@ import org.ctom.hulis.util.io.HuckelIO;
  */
 public class SectionReader {
 
-	private LineNumberReadeable lnr = null;
+	private LineNumberReader lnr = null;
 	private int lineNumber=0;;
 
-	public SectionReader(LineNumberReadeable lnr){
+	/**
+	 * 
+	 * @param lnr
+	 */
+	public SectionReader(LineNumberReader lnr){
 		this.lnr = lnr;
 		this.lineNumber = 0;
 		
 	}
 	
+	/**
+	 * 
+	 * @param s
+	 */
+	public SectionReader(String s){
+		this(new LineNumberReader(new StringReader(s)));
+		
+	}
+
 	/**
 	 * 
 	 * @return

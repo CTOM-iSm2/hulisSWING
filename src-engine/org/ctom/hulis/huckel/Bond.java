@@ -191,9 +191,10 @@ public class Bond implements IMoleculeComponent, Cloneable, Serializable {
 		/*
 		 * if (! (o instanceof Bond)) return false; Bond b = (Bond) o;
 		 */
-		return (((b.index == this.index)
-				&& (b.atom1.equals(this.atom1) && b.atom2.equals(this.atom2)) || (b.atom1
-						.equals(this.atom2) && b.atom2.equals(this.atom1))));
+		return ( /*(b.index == this.index)
+				&&*/ ( (b.atom1.equals(this.atom1) && b.atom2.equals(this.atom2)) || 
+				(b.atom1.equals(this.atom2) && b.atom2.equals(this.atom1)) )
+				);
 
 	}
 

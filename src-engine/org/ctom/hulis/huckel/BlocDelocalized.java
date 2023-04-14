@@ -104,9 +104,9 @@ public class BlocDelocalized extends HuckelBlock implements Serializable {
 			HuckelAtom a2 = (HuckelAtom) b.getAtom2();
 			
 			if (a1.getNbElectrons() > 0) 
-				throw new BlocDelocalizedException("cannot create bloc on " + a1 + ". Nb electrons > 0");
+				throw new BlocDelocalizedException("cannot create bloc on " + a1 + " : " + a1.getNbElectrons() +  " electrons instead of 0");
 			else if (a1.countDBondAtom() > 0)
-				throw new BlocDelocalizedException("cannot create bloc on " + a1 + "  : double bonds detected");
+				throw new BlocDelocalizedException("cannot create bloc on " + a1 + " : " + a1.countDBondAtom() +  " : double bonds detected");
 			else if (a1.getBlocDelocalizedParent() == null) {
 				lstHuckelObject.add(a1);
 				a1.setBlocDelocalizedParent(this);
@@ -115,9 +115,9 @@ public class BlocDelocalized extends HuckelBlock implements Serializable {
 				throw new BlocDelocalizedException("atom " + a1 + " is already in a block");
 			
 			if (a2.getNbElectrons() > 0) 
-				throw new BlocDelocalizedException("cannot create bloc on " + a2 + ". Nb electrons > 0");
+				throw new BlocDelocalizedException("cannot create bloc on " + a2 + " : " + a2.getNbElectrons() +  " electrons instead of 0");
 			else if (a2.countDBondAtom() > 0)
-				throw new BlocDelocalizedException("cannot create bloc on " + a2 + "  : double bonds detected");
+				throw new BlocDelocalizedException("cannot create bloc on " + a2 + " : " + a2.countDBondAtom() +  " : double bonds detected");
 			if (a2.getBlocDelocalizedParent() == null) {
 				lstHuckelObject.add(a2);
 				a2.setBlocDelocalizedParent(this);
@@ -130,9 +130,9 @@ public class BlocDelocalized extends HuckelBlock implements Serializable {
 		else {
 			// si atome
 			if (o.getNbElectrons() > 0)
-				throw new BlocDelocalizedException("cannot create bloc on " + o + "  Nb electrons > 0");
+				throw new BlocDelocalizedException("cannot create bloc on " + o + " : " + o.getNbElectrons() +  " electrons instead of 0" );
 			else if (((Atom) o).countDBondAtom() > 0)
-				throw new BlocDelocalizedException("cannot create bloc on " + o + "  : double bonds detected");
+				throw new BlocDelocalizedException("cannot create bloc on " + o + " : " + ((Atom) o).countDBondAtom() + " double bonds detected");
 		}
 		
 		lstHuckelObject.add(o);

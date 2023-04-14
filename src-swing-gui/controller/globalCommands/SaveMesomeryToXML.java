@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.ctom.hulis.files.xml.XMLConstants;
 import org.ctom.hulis.huckel.Mesomery;
 import org.ctom.hulis.huckel.comparators.MethodNameComparator;
 import org.ctom.hulis.huckel.methods.IMethod;
@@ -19,7 +20,6 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import util.io.SwingIO;
-import util.xml.XMLConstants;
 
 public class SaveMesomeryToXML implements XMLConstants, ICommand{
 	

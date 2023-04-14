@@ -174,7 +174,7 @@ public abstract class HuckelBlock implements Serializable {
 		
 		int  i=0;
 		int  fin=0;
-		int d= 0;// nombre de dege,eres 
+		int d= 0;// nombre de degeneres 
 		while (nbElecArepartir>0) {
 			// trouver les orbitales degenerees
 			d=1;
@@ -186,20 +186,32 @@ public abstract class HuckelBlock implements Serializable {
 			fin=i+d-1;
 			if (nbElecArepartir>=(2*d)) {
 				for (int current=i; current<fin+1; current++) {
-					repartitionElec[current] = 2;
+					System.out.println (current + "    " + repartitionElec.length );
+					if (current < repartitionElec.length) 
+						repartitionElec[current] = 2;
+					else {
+						HuckelIO.error(this.getClass().getName(), "calcDistributionElecArray", "impossible de repartir les electrons");
+						break;
+					}
+						
 				}
 				nbElecArepartir-=(2*d);
 			}
 			else if (nbElecArepartir < (2*d) ) {
 				for (int current=i; current<fin+1; current++) {
-					repartitionElec[current] = (double) nbElecArepartir/  (double) d;
+					if (current < repartitionElec.length) {
+						repartitionElec[current] = (double) nbElecArepartir/ (double) d;
+					} else {
+						HuckelIO.error(this.getClass().getName(), "calcDistributionElecArray", "impossible de repartir les electrons");
+						break;
+					}
 				}
 				nbElecArepartir=0;
 			}
 			i=fin+1;
 		}
 	
-		HuckelIO.PrintVector(repartitionElec, "distrib elec arrat petit bloc");
+		HuckelIO.PrintVector(repartitionElec, "distrib elec array petit bloc");
 
 		return repartitionElec;
 	}

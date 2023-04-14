@@ -26,10 +26,7 @@ public class Geometry {
 	
 	ArrayList<VirtualMethyl> lstVirtualMethyls = new ArrayList<VirtualMethyl>();  // liste des groupement methyl dans la geometrie
 
-	static public PeriodicTable.Entry atomToEntry(Atom atom) {
-		return PeriodicTable.getElementToEntry (atom.getElement(), atom.getConnect().size());
-	}
-
+	
 	private ArrayList<Atom> geom = new ArrayList<Atom>();
 	private List<Bond> lstBonds3D ;
 	int nombre = 0;
@@ -73,6 +70,27 @@ public class Geometry {
 
 
 	}
+	
+	/**
+	 * 
+	 * @param atom
+	 * @return
+	 */
+	public PeriodicTable.Entry atomToEntry(Atom atom) {
+		/*int iAtom = atom.getSuperSymbol();
+		int neighbourgs=0;
+		for (Atom a : this.geom) {
+			if (a.getSuperSymbol() < iAtom) {
+				for (int i : a.getConnect())
+					if (i==iAtom)
+						neighbourgs++;
+			}
+		}
+		int nbConnect = atom.getConnect().size() + neighbourgs;
+		return PeriodicTable.getElementToEntry (atom.getElement(), nbConnect);*/
+		return PeriodicTable.getElementToEntry (atom.getElement(), atom.getConnect().size());
+	}
+
 
 	/**
 	 * constructor by copy
@@ -106,10 +124,9 @@ public class Geometry {
 	public void add(Atom atom) {
 		this.nombre++;
 		atom.setSuperSymbol(this.nombre);
-		atom.setX(atom.getX() * Geometry.SCALE); 
-		atom.setY(atom.getY() * Geometry.SCALE);
-		// useless or not ?:
-		atom.setZ(atom.getZ() * Geometry.SCALE);
+		atom.setXAndXGeom3D(atom.getX() * Geometry.SCALE); 
+		atom.setYAndYGeom3D(atom.getY() * Geometry.SCALE);
+		atom.setZAndZGeom3D(atom.getZ() * Geometry.SCALE);
 		
 		this.geom.add(atom);
 		this.nbAtomSav++;
@@ -154,6 +171,20 @@ public class Geometry {
 					// atom2.addConnect(atom1.getSuperSymbol());
 				}
 			}
+		}
+	}
+	
+	
+	/**
+	 * if the atoms have not connectivity, create a list of connectivity for each atom between them from list bonds
+	 */
+	public void forceConnectivyFromBonds() {
+		for (Atom a : this.geom)
+			a.clearConnect();
+		
+		for (Bond b : this.lstBonds3D) {
+			b.getAtom1().addConnect(b.getAtom2().getSuperSymbol());
+			
 		}
 	}
 
@@ -215,12 +246,7 @@ public class Geometry {
 		return Geometry.SCALE;
 	}
 
-	/**
-	 * TODO : methode vide ?
-	 */
-	public void guessConnect() {
-
-	}
+	
 
 	/**
 	 * 
@@ -245,35 +271,6 @@ public class Geometry {
 		HuckelIO.PrintIfln();
 	}
 
-	/**
-	 * @deprecated : Please, use synchronize(molecule) instead
-	 * @param molecule
-	 * @throws GeometryException
-	 */
-	@Deprecated 
-	public void set(Molecule molecule) throws GeometryException {
-		// int iseq=0;
-		HuckelIO.PrintIfln("GEOMETRY.set(molecule)");
-		for (Atom atom : molecule.getAtoms()) {
-			HuckelIO.PrintIf("atom found\n");
-			Point3D locationxyz = atom.getLocationGeom();
-			atom.setLocation(new Point3D(atom.getX() / getscale(),
-					atom.getY() / getscale(), atom.getZ() / getscale()) );
-			
-			if (atom == null) {
-				HuckelIO.error(this.getClass().getName(), "set",
-						"Atom is null in Geometry.set(molecule)");
-				throw new GeometryException("error creating geometry : atom is null");
-			}
-			
-			
-			
-			add(atom);
-			if (locationxyz!= null)
-				atom.setLocationGeom3D(locationxyz);
-			
-		}// for
-	}
 
 
 	/**
@@ -331,8 +328,7 @@ public class Geometry {
 		Atom a,b,c;
 		VecteurCTOM 	ab, ac, n;
 		double angle; 
-		double x, y, z;  // n = norme
-
+		
 		List <VecteurCTOM> lstPlan = new ArrayList<VecteurCTOM>();
 		// on calcul l'angle des vecteurs AB (X1,Y1,Z1),AC (X2,Y2,Z2)  ou X1=xA-XB, etc.... 
 		VecteurCTOM memo_n = null;
@@ -425,7 +421,7 @@ public class Geometry {
 		// translation au centre de la geometrie avant rotation pour eviter les angles et les vecteurs nulls
 		Point3D origine =new Point3D(0,0,0);
 		for (Atom atom : this.getAtoms()) {
-			Point3D xyzOrign = (Point3D) atom.getLocationGeom().clone();
+			Point3D xyzOrign = (Point3D) atom.getLocationGeom3D().clone();
 			atom.translate(new VecteurCTOM (origine, center)); 
 			atom.setLocationGeom3D(xyzOrign);
 		}
@@ -437,7 +433,7 @@ public class Geometry {
 		
 		if (!Double.isNaN(angle)  && !v.isInfinite() &&  (angle % Math.PI != 0) ) {
 			for (Atom atom : this.getAtoms()){
-				Point3D xyzOrign = (Point3D) atom.getLocationGeom().clone();
+				Point3D xyzOrign = (Point3D) atom.getLocationGeom3D().clone();
 				atom.rotate(mRotate);
 				atom.setLocationGeom3D(xyzOrign);
 			}
@@ -519,6 +515,7 @@ public class Geometry {
 						e1.printStackTrace();
 					}
 					me.setLocation((Point3D) a.getLocation().clone()); 
+					me.setLocationGeom3D(a.getLocationGeom3D()); 
 					me.setSuperSymbol(a.getSuperSymbol());
 					me.addConnect(autreAtomeLieQueH.getSuperSymbol());
 					
@@ -655,6 +652,8 @@ public class Geometry {
 	
 	/**
 	 * 
+	 * @param me
+	 * @return
 	 */
 	protected VirtualMethyl replaceMEByCH3(Atom me) {
 
@@ -752,6 +751,8 @@ public class Geometry {
 			// on rafraichit la liste des liaisons 3D tenant compte des methyls et de la structure 2D
 			this.lstBonds3D =  this.getBonds3D(molecule);
 
+			this.forceConnectivyFromBonds();
+			
 			// QUITTER
 			return;
 		}

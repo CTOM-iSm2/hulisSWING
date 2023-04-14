@@ -1,5 +1,6 @@
 package controller.globalCommands;
 
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Hashtable;
 
@@ -9,7 +10,8 @@ import javax.swing.undo.StateEditable;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEditSupport;
 
-import org.ctom.hulis.files.gaussian.WriteGaussianException;
+import org.ctom.hulis.files.gaussian.ReadGaussian;
+import org.ctom.hulis.files.gaussian.WriteGaussian;
 import org.ctom.hulis.files.xyz.WritexyzException;
 import org.ctom.hulis.huckel.Mesomery;
 import org.ctom.hulis.huckel.events.BlocDelocalizedEvent;
@@ -30,10 +32,7 @@ import org.ctom.hulis.huckel.structures.Structure;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
 
 import util.MyJOptionPane;
-import util.gaussian.IOReadGaussian;
-import util.gaussian.IOWriteGaussian;
 import util.io.SwingIO;
-import util.xyz.PrintWriterAdapter;
 import views.FrameApp;
 
 /***
@@ -116,20 +115,17 @@ public class StateManager implements StateEditable, IMesomeryListener {
 			
 		}
 		else if (SAVE_STRATEGY == GAUSSIAN_STRATEGY) {
-			IOWriteGaussian writer;
+			WriteGaussian writer;
 			try {
-				writer = new IOWriteGaussian(this.app.getCurrentMesomery());
-				writer.setWriteInitialOrientation(true);
+				writer = new WriteGaussian(this.app.getCurrentMesomery());
+				writer.setWriteInitialOrientation(false);
 				writer.setWriteConnectivity(true); // necessaire car si les molecules ne sont pas optimisees certaines laisons ne se feront pas au undo (leture gaussian)
 				StringWriter stringWriter = new StringWriter();
-				PrintWriterAdapter printWriter = new PrintWriterAdapter (stringWriter);
+				PrintWriter printWriter = new PrintWriter (stringWriter);
 				writer.writeAll(printWriter);
 				printWriter.flush();
 				printWriter.close();
 				state.put("mesomeryString", stringWriter.toString());
-			} catch (WriteGaussianException e) {
-				SwingIO.error(this.getClass().getName(), "storeState", e.getMessage());
-				e.printStackTrace();
 			} catch (WritexyzException e) {
 				SwingIO.error(this.getClass().getName(), "storeState", e.getMessage());
 				e.printStackTrace();
@@ -175,7 +171,7 @@ public class StateManager implements StateEditable, IMesomeryListener {
 				m = this.app.getCurrentMesomery();
 				if (state.get("mesomeryString") != null){
 					m.deleteAllStructures();
-					IOReadGaussian readGaussian = new IOReadGaussian((String)state.get("mesomeryString"));
+					ReadGaussian readGaussian = new ReadGaussian((String)state.get("mesomeryString"));
 					readGaussian.readAll(m);
 				}
 

@@ -7,15 +7,15 @@ import org.ctom.hulis.util.geometry.Geometry;
 public abstract class GeometryReader implements IGeometryProvider {
 
 	protected void setX(Atom a, double value) {
-		a.setX(value);
+		a.setXAndXGeom3D(value);
 	}
 
 	protected void setY(Atom a, double value) {
-		a.setY(value);
+		a.setYAndYGeom3D(value);
 	}
 
 	protected void setZ(Atom a, double value) {
-		a.setZ(value);
+		a.setZAndZGeom3D(value);
 	}
 
 	protected void setCoords(Atom a, double x, double y, double z) {

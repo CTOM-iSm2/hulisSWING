@@ -1,8 +1,9 @@
 package org.ctom.hulis.files.gaussian.test;
 
-import org.ctom.hulis.files.LineNumberReadeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+
 import org.ctom.hulis.files.ReadSectionException;
-import org.ctom.hulis.files.Tokenizable;
 import org.ctom.hulis.files.gaussian.IGaussianConstants;
 import org.ctom.hulis.files.gaussian.ReadGaussian;
 import org.ctom.hulis.files.gaussian.ReadGaussianException;
@@ -27,13 +28,11 @@ import org.ctom.hulis.huckel.structures.StructureDelocalized;
 
 public class ReadGaussianTest extends ReadGaussian {
 	/**
-	 * @param lineNumberReadable
-	 * @param tokenizable
+	 * @throws FileNotFoundException 
+	 * 
 	 */
-	public ReadGaussianTest(LineNumberReadeable lineNumberReadable,
-			Tokenizable tokenizable) {
-		super(lineNumberReadable, tokenizable);
-		// TODO Auto-generated constructor stub
+	public ReadGaussianTest(File file) throws FileNotFoundException {
+		super(file);
 	}
 
 	final static public String KEYWORD_HX = "hx";
@@ -49,6 +48,7 @@ public class ReadGaussianTest extends ReadGaussian {
 		readNRT();
 	}
 	
+	@Override
 	protected void readNRT() throws ReadGaussianException, HuckelBondException, MesomeryDelocalizedStructureNotExistsException, CoupleException, IMethodException, MesomeryNoStructureLocalizedException, HuckelAtomException {
 		// read the nboNamelist
 	
@@ -92,6 +92,9 @@ public class ReadGaussianTest extends ReadGaussian {
 		
 	}
 	
+	/**
+	 * 
+	 */
 	public void readHXY()  throws ReadGaussianException, NumberFormatException, HulisException, HuckelBondException {
 		String[] str = null;
 		try {

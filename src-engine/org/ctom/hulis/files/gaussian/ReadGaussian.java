@@ -1,12 +1,16 @@
 package org.ctom.hulis.files.gaussian;
 
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.LineNumberReader;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
 import java.util.ArrayList;
 
-import org.ctom.hulis.files.LineNumberReadeable;
 import org.ctom.hulis.files.ReadSectionException;
 import org.ctom.hulis.files.SectionReader;
-import org.ctom.hulis.files.Tokenizable;
 import org.ctom.hulis.files.xyz.ReadxyzException;
 import org.ctom.hulis.huckel.Mesomery;
 import org.ctom.hulis.huckel.exception.BondException;
@@ -32,20 +36,30 @@ public class ReadGaussian implements IGaussianConstants {
 
 	protected boolean SWITCH_NRT = false;
 	StringBuffer xyz;
-	Tokenizable tokenizable;
+	StreamTokenizer tokenizer;
 	protected SectionReader sectionReader; 
+
 
 	/**
 	 * 
-	 * @param lineNumberReadable : please set a lineNumberReadable with the stream to read in parameter
-	 * @param tokenizable : please, set a Tokenizable without parameter (default constructor)  !
+	 * @param file
+	 * @throws FileNotFoundException 
 	 */
-	public ReadGaussian(LineNumberReadeable lineNumberReadable, Tokenizable tokenizable)  {
-		this.tokenizable = tokenizable;
-		this.sectionReader = new SectionReader(lineNumberReadable);
+	public ReadGaussian(File file) throws FileNotFoundException  {
+		FileReader fileReader = new FileReader(file);
+		this.tokenizer = new StreamTokenizer(fileReader);
+		this.sectionReader = new SectionReader(new LineNumberReader(fileReader));
 
 	}
 
+	/**
+	 * @param str
+	 */
+	public ReadGaussian(String str) {
+		StringReader stringReader = new StringReader(str);
+		this.tokenizer = new StreamTokenizer(stringReader);
+		this.sectionReader = new SectionReader(new LineNumberReader(stringReader));
+	}
 
 
 	private void bufferizeXYZ() throws ReadGaussianException {
@@ -118,8 +132,8 @@ public class ReadGaussian implements IGaussianConstants {
 	protected void readXYZ() throws HuckelBondException, BondException, MesomeryDelocalizedStructureExistsException, MoleculeTooManyNeighboursException, MoleculeBondExistsException, MoleculeCoherenceException, ReadGaussianException, ReadxyzException  {
 		bufferizeXYZ();
 		// read the xyz geometry
-		this.tokenizable.tokenize(this.xyz.toString());
-		GaussianReadXYZ gaussianReadXYZ = new GaussianReadXYZ(this.tokenizable);
+		this.tokenizer = new StreamTokenizer(new StringReader(this.xyz.toString()));
+		GaussianReadXYZ gaussianReadXYZ = new GaussianReadXYZ(this.tokenizer);
 		this.mesomery.addDelocalizedStruct(new StructureDelocalized(
 				gaussianReadXYZ));
 		this.mesomery.getDelocalizedStructure().setNbElecCharge(

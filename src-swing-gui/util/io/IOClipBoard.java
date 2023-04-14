@@ -9,19 +9,23 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
 
 import javax.swing.JOptionPane;
+
+import org.ctom.hulis.files.gamess.GamessReadXYZ;
+import org.ctom.hulis.files.gaussian.Gaussian03ReadXYZ;
+import org.ctom.hulis.files.gaussian.NRTSTRreader;
+import org.ctom.hulis.files.gaussian.ReadGaussian;
+import org.ctom.hulis.files.xyz.ReadCoordinatesxyz;
+import org.ctom.hulis.files.xyz.Readxyz;
 
 import controller.globalCommands.ICommand;
 import controller.globalCommands.ReadGaussianCommand;
 import controller.globalCommands.ReadNRTSTRCommand;
 import controller.globalCommands.ReadXYZCommand;
-import util.gamess.IOGamessReadXYZ;
-import util.gaussian.IOGaussian03ReadXYZ;
-import util.gaussian.IOReadGaussian;
-import util.gaussian.IOReadNRTSTR;
-import util.xyz.IOReadCoordinatesxyz;
-import util.xyz.IOReadxyz;
 import views.FrameApp;
 
 public class IOClipBoard implements ActionListener, ClipboardOwner {
@@ -56,12 +60,12 @@ public class IOClipBoard implements ActionListener, ClipboardOwner {
 	public void actionPerformed(ActionEvent arg0) {
 		SwingIO.log(this.getClass().getName(),"actionPerformed", "try to read clipboard content : \n" + getClipboardContents());
 		
-		if (!tryCommand("NRT string for NBO", new ReadNRTSTRCommand(this.app, new IOReadNRTSTR(getClipboardContents()))))							
-			if (!tryCommand("xyz", new ReadXYZCommand(this.app, new IOReadxyz(getClipboardContents()))))
-				if (!tryCommand("Gaussian03 xyz", new ReadXYZCommand(this.app, new IOGaussian03ReadXYZ(getClipboardContents()))))
-					if (!tryCommand("Gamess xyz", new ReadXYZCommand(this.app, new IOGamessReadXYZ(getClipboardContents()))))
-						if (!tryCommand("xyz coordinates", new ReadXYZCommand(this.app, new IOReadCoordinatesxyz(getClipboardContents()))))						
-							if (!tryCommand("Gaussian", new ReadGaussianCommand(this.app, new IOReadGaussian(getClipboardContents()))))
+		if (!tryCommand("NRT string for NBO", new ReadNRTSTRCommand(this.app, new NRTSTRreader(getClipboardContents()))))						
+			if (!tryCommand("xyz", new ReadXYZCommand(this.app, new Readxyz(new StreamTokenizer(new StringReader(getClipboardContents()))))))
+				if (!tryCommand("Gaussian03 xyz", new ReadXYZCommand(this.app, new Gaussian03ReadXYZ(getClipboardContents()))))
+					if (!tryCommand("Gamess xyz", new ReadXYZCommand(this.app, new GamessReadXYZ(getClipboardContents()))))
+						if (!tryCommand("xyz coordinates", new ReadXYZCommand(this.app, new ReadCoordinatesxyz(getClipboardContents()))))						
+							if (!tryCommand("Gaussian", new ReadGaussianCommand(this.app, new ReadGaussian(getClipboardContents()))))
 								JOptionPane.showMessageDialog(this.app, "Not recognized format." + failMessage, "Clipboard paste", JOptionPane.INFORMATION_MESSAGE);
 
 		this.failMessage = "";

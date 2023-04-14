@@ -13,17 +13,17 @@ public class GaussianTestFilter extends FileFilter implements HasDefaultExtensio
        
  
         String extension = FilesUtil.getExtension(f);
-        return extension.equals("test");
+        return extension.equals("tcom");
  
 	}
 
 	@Override
 	public String getDescription() {
-		return "Hulis Gaussian test (*.test)";
+		return "HuLiS Gaussian test input (*.tcom)";
 	}
 
 	public String getDefaultExtension() {
-		return "test";
+		return "tcom";
 	}
 
 }

@@ -15,11 +15,11 @@ import org.ctom.util.maths.VecteurCTOM;
 
 /**
  * We replace in m, A-X by A-B 
- * IF 	X = H, the distance (A,B) = sum of covalent radius, and A-B has same direction as A-H) 
- * ELSE X is just replaced by B, at the same position.
+ * IF X a un seul voisin A, on remplace X par B la distance (A,B) = sum of covalent radius, and A-B has same direction as A-X) 
+ * ELSE X a plus d'un voisin, il est juste remplace by B,  aux memes coordonnes.
  *
- * A=hBond.getAtomLinkedWith(old)
  * X=old ;
+ * A=hBond.getAtomLinkedWith(old)
  * B=newAtom;
  * 
  * @param SCALE: display scaling factor
@@ -33,8 +33,8 @@ public class ReplaceAtom {
 			{
 				// gets A, The non H atom
 	
-				Bond hBond = old.getBonds().get(0);// recupere la seule liaison H
-				Atom linkedAtom = hBond.getAtomLinkedWith(old); 
+				Bond bondNonH = old.getBonds().get(0);// recupere la seule liaison qui ne contient pas d'atome H
+				Atom linkedAtom = bondNonH.getAtomLinkedWith(old); // assertion, l'atom linkedAtom n'est pas un hydrogene
 				// compute standard distance
 				double covalentNew  = 0;
 				double covalentLinked  = 0;
@@ -47,13 +47,15 @@ public class ReplaceAtom {
 				else 
 					covalentLinked = linkedAtom.getCovalentRadius();
 				double distAB =(covalentNew+covalentLinked)*Geometry.SCALE;
-				// A-H vector
+				// A-X vector
 				VecteurCTOM v= new VecteurCTOM(linkedAtom.getLocation(),old.getLocation());
-				// H_A vector to place H on A 
+				// on inverse le vecteur (devenu X_A) et on le translate pour placer X sur A 
 				old.translate(v.times(-1));
-				// and displace H to the appropriate
+				// on renorme le vecteur de la "longueur" AB 
 				v.renormEquals(distAB);
+				// et on deplace X a la bonne distance de A
 				old.translate(v);
+				// il ne reste plus qu'A remplacer X par B
 			}
 			m.replaceAtom(old, newAtom);
 		}

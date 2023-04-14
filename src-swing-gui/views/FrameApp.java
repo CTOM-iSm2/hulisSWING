@@ -173,7 +173,7 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	 */
 
 
-	final Version version = new Version(3, 4, 0, "dev 7"); // VERSION OF HULIS
+	final Version version = new Version(3, 4, 0, "dev 13"); // VERSION OF HULIS
 
 
 	static {
@@ -599,7 +599,7 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	public ButtonGroup buttonGroup = new ButtonGroup();
 	// private Mesomery mesomery;
 
-	private boolean isExpertMode = false;
+	private boolean isExpertMode = true;
 
 	public AppMenuBar menuBar;
 
@@ -664,7 +664,6 @@ public class FrameApp extends JApplet implements IGlobalCommands {
 	 */
 
 	public void construct() {
-		this.isExpertMode = false;
 		this.currentCommand = "";
 		try {
 

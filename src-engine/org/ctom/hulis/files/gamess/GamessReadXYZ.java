@@ -1,8 +1,9 @@
 package org.ctom.hulis.files.gamess;
 
 import java.io.IOException;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
 
-import org.ctom.hulis.files.Tokenizable;
 import org.ctom.hulis.files.xyz.GeometryReader;
 import org.ctom.hulis.files.xyz.ReadxyzException;
 import org.ctom.hulis.huckel.Atom;
@@ -15,15 +16,15 @@ public class GamessReadXYZ extends GeometryReader {
 	public static final double BOHR_TO_ANGSTROM = 0.529177211;
 
 	Geometry geomXYZ;
-	Tokenizable donnees;
+	StreamTokenizer donnees;
 	private int lineNumber;
 	int token;
 
 	/**
-	 * @param donnees
+	 * @param string
 	 */
-	public GamessReadXYZ(Tokenizable donnees) {
-		this.donnees = donnees;
+	public GamessReadXYZ(String string) {
+		this.donnees = new StreamTokenizer(new StringReader(string));
 		this.lineNumber = 0;
 		this.token= 0;
 	}
@@ -56,9 +57,9 @@ public class GamessReadXYZ extends GeometryReader {
 	 * 
 	 * @throws IOException
 	 */
-	protected void readHeader(Tokenizable donnees) 	{	// lignes vides tolerees
+	protected void readHeader(StreamTokenizer donnees) 	{	// lignes vides tolerees
 		try {
-			while ((token = donnees.nextToken()) == donnees.isEOL()) {
+			while ((token = donnees.nextToken()) == StreamTokenizer.TT_EOL) {
 				this.lineNumber++;
 
 			}
@@ -75,7 +76,7 @@ public class GamessReadXYZ extends GeometryReader {
 	 * @param donnees
 	 * @throws ReadxyzException
 	 */
-	protected void readxyzDatas(Tokenizable donnees) throws ReadxyzException  {
+	protected void readxyzDatas(StreamTokenizer donnees) throws ReadxyzException  {
 		int flag = 0;
 		boolean emptyLine = true;
 		int nbAtomLus =0;
@@ -85,7 +86,7 @@ public class GamessReadXYZ extends GeometryReader {
 		try {
 			while (true) {
 				
-				if (token == donnees.isEOF()) {
+				if (token == StreamTokenizer.TT_EOF) {
 								
 					if (atom != null) {
 						if (flag < 4) 
@@ -95,7 +96,7 @@ public class GamessReadXYZ extends GeometryReader {
 					
 					throw new ReadxyzException("EOF reached");
 				}
-				else if  (token == donnees.isEOL()) {
+				else if  (token == StreamTokenizer.TT_EOL) {
 				// TEST FINAL LINE
 					if (emptyLine) 
 						throw new ReadxyzException("Empty line found at line " + this.lineNumber);
@@ -115,22 +116,22 @@ public class GamessReadXYZ extends GeometryReader {
 					flag = 0;
 					this.lineNumber++;
 				}
-				else if (token == donnees.isWord()) {
+				else if (token == StreamTokenizer.TT_WORD) {
 					emptyLine = false;
 					if ( (flag==2) )
-						throw new ReadxyzException("atomic number must be a number at the line " + this.lineNumber + " instead of " + donnees.getSVal());
+						throw new ReadxyzException("atomic number must be a number at the line " + this.lineNumber + " instead of " + donnees.sval);
 
 					else if ( (flag >=3) &&  (flag <=5) )
-						throw new ReadxyzException("coordinate must be a number at the line " + this.lineNumber + " instead of " + donnees.getSVal());
+						throw new ReadxyzException("coordinate must be a number at the line " + this.lineNumber + " instead of " + donnees.sval);
 
 				}
-				else if  (token == donnees.isNumber()) {
+				else if  (token == StreamTokenizer.TT_NUMBER) {
 					emptyLine = false;
 					flag++;
 					
 					switch (flag) {
 					case (1):
-						int atomicNumber =(int)donnees.getNVal();
+						int atomicNumber =(int)donnees.nval;
 					Element element = PeriodicTable.getElementByAtomicNumber(atomicNumber);
 					if (element == null)
 						throw new ReadxyzException("Atom not recongized for the atomic number = " + atomicNumber  +" at the line " + this.lineNumber);
@@ -140,16 +141,16 @@ public class GamessReadXYZ extends GeometryReader {
 
 					break;
 					case (2):
-						setX(atom, donnees.getNVal() * BOHR_TO_ANGSTROM);
+						setX(atom, donnees.nval * BOHR_TO_ANGSTROM);
 					break;
 					case (3):
-						setY(atom, donnees.getNVal() * BOHR_TO_ANGSTROM);
+						setY(atom, donnees.nval * BOHR_TO_ANGSTROM);
 					break;
 					case (4):
-						setZ(atom, donnees.getNVal() * BOHR_TO_ANGSTROM);
+						setZ(atom, donnees.nval * BOHR_TO_ANGSTROM);
 					break;
 					default:
-						atom.addConnect((int) donnees.getNVal());
+						atom.addConnect((int) donnees.nval);
 					}
 				}
 

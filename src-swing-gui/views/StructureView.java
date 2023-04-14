@@ -77,7 +77,7 @@ import util.languages.LanguageManager;
 @SuppressWarnings("serial")
 public class StructureView extends JPanel implements IStructureLocalizedListener, IStructureDelocalizedListener, IStructureListener, IMoleculeGeometryListener {
 	public static boolean WARNING_NEGATIVE_CHARGE = false; 
-	public static boolean DEBUG = false; // HuckelIO.isverbose();
+	public static boolean DEBUG = true; // HuckelIO.isverbose();
 	private static final Color COLOR_ETOT = Color.BLACK;
 
 	private static final Color COLOR_ERROR_INFOS = Color.RED;

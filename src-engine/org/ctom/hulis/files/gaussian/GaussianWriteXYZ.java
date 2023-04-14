@@ -1,7 +1,8 @@
 package org.ctom.hulis.files.gaussian;
 
 
-import org.ctom.hulis.files.Writer;
+import java.io.PrintWriter;
+
 import org.ctom.hulis.files.xyz.Writexyz;
 import org.ctom.hulis.files.xyz.WritexyzException;
 import org.ctom.hulis.huckel.structures.StructureDelocalized;
@@ -16,7 +17,7 @@ public class GaussianWriteXYZ extends Writexyz {
 
 	
 	@Override
-	public void writeHeader(Writer out) {
+	public void writeHeader(PrintWriter out) {
 		
 		out.println("%mem=256MB");
 		out.println("#P HF 6-31G(d) pop=nboread");

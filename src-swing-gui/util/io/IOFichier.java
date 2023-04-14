@@ -7,13 +7,20 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.LineNumberReader;
 import java.io.ObjectInputStream;
+import java.io.StreamTokenizer;
 import java.security.AccessControlException;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import org.ctom.hulis.files.gaussian.ReadGaussian;
+import org.ctom.hulis.files.gaussian.test.ReadGaussianTest;
+import org.ctom.hulis.files.xml.Readxml;
+import org.ctom.hulis.files.xyz.Readxyz;
 import org.ctom.hulis.huckel.Mesomery;
 import org.ctom.hulis.huckel.exception.CoupleException;
 import org.ctom.hulis.huckel.exception.IMethodException;
@@ -32,11 +39,7 @@ import controller.globalCommands.ReadXMLCommand;
 import controller.globalCommands.ReadXYZCommand;
 import util.MyJOptionPane;
 import util.MyResourceBundle;
-import util.gaussian.IOReadGaussian;
 import util.languages.LanguageManager;
-import util.test.IOReadGaussianTest;
-import util.xml.IOReadXML;
-import util.xyz.IOReadxyz;
 import views.FrameApp;
 import views.prefs.PreferencesGUI;
 
@@ -80,7 +83,7 @@ public class IOFichier implements ActionListener {
 				if (Rights.ALLOW_XML_FILE_FORMAT )
 					choix.addChoosableFileFilter(new XmlFilter());
 
-				choix.setFileFilter(hulisFileFilter);
+				choix.setFileFilter(gaussianFilter);
 
 				option = choix.showOpenDialog(this.app);
 				if (option == JFileChooser.APPROVE_OPTION) { // si clic sur yes
@@ -92,7 +95,7 @@ public class IOFichier implements ActionListener {
 					// ****** READ XYZ ******************/
 					if (type.equals("xyz")) {
 
-						ReadXYZCommand ReadXYZCommand = new ReadXYZCommand(this.app, new IOReadxyz(file));
+						ReadXYZCommand ReadXYZCommand = new ReadXYZCommand(this.app, new Readxyz(new StreamTokenizer(new FileReader(file))));
 						ReadXYZCommand.execute();
 						if (!ReadXYZCommand.isSucceed())
 							MyJOptionPane.showMessageDialog(this.app, ReadXYZCommand.getFailReason(), "Read XYZ error", JOptionPane.INFORMATION_MESSAGE);
@@ -100,13 +103,13 @@ public class IOFichier implements ActionListener {
 
 						// ****** READ COM ******************/
 					} else if (type.equals("com")) {
-						ReadGaussianCommand readGaussianCommand = new ReadGaussianCommand(this.app, new IOReadGaussian(file));
+						ReadGaussianCommand readGaussianCommand = new ReadGaussianCommand(this.app, new ReadGaussian(file));
 						readGaussianCommand.execute();
 						if (!readGaussianCommand.isSucceed())
 							MyJOptionPane.showMessageDialog(this.app, readGaussianCommand.getFailReason(), "Read Gaussian error", JOptionPane.INFORMATION_MESSAGE);
 
-					} else if (type.equals("test")) {
-						ReadGaussianCommand readGaussianCommand  = new ReadGaussianCommand(this.app,new IOReadGaussianTest(file)); 
+					} else if (type.equals("tcom")) {
+						ReadGaussianCommand readGaussianCommand  = new ReadGaussianCommand(this.app, new ReadGaussianTest(file)); 
 						readGaussianCommand.execute();
 						if (!readGaussianCommand.isSucceed())
 							MyJOptionPane.showMessageDialog(this.app, readGaussianCommand.getFailReason(), "Read Gaussian error", JOptionPane.INFORMATION_MESSAGE);
@@ -182,7 +185,7 @@ public class IOFichier implements ActionListener {
 						// ****** READ XML ******************/
 					} else if (type.equals("xml")) {
 						new ReadXMLCommand(this.app,
-								new IOReadXML(file)).execute();
+								new Readxml(file)).execute();
 						// ****** READ OTHER ******************/
 					} else {
 						System.out.println("Extension not recognized |" + type + "|");
@@ -196,8 +199,11 @@ public class IOFichier implements ActionListener {
 				choix.addChoosableFileFilter(gaussianFilter);
 				choix.addChoosableFileFilter(new ImagePNGFilter());
 				choix.addChoosableFileFilter(new ImageSVGFilter());
+				if (Rights.ALLOW_SAVE_TEST_FILE_FORMAT ) {
+					choix.addChoosableFileFilter(new TXmlFilter());
 
-				choix.setFileFilter(hulisFileFilter);
+				}
+				choix.setFileFilter(gaussianFilter);
 
 				option = choix.showSaveDialog(this.app);
 

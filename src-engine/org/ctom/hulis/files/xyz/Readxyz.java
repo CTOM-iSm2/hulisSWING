@@ -1,8 +1,12 @@
 package org.ctom.hulis.files.xyz;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
 
-import org.ctom.hulis.files.Tokenizable;
 import org.ctom.hulis.util.geometry.Geometry;
 import org.ctom.hulis.util.io.HuckelIO;
 
@@ -10,10 +14,31 @@ public class Readxyz extends ReadCoordinatesxyz {
 	
 	private int nAtoms;
 	private boolean isStrict;
+	
 	/**
-	 * @param donnees :  a Tokenizable with a stream already set
+	 * 
+	 * @param donnees
 	 */
-	public Readxyz(Tokenizable donnees) {
+	public Readxyz(String donnees) {
+		super(new StreamTokenizer(new StringReader(donnees)));
+		this.nAtoms = 0;
+		this.isStrict = true;
+	}
+
+	/**
+	 * @param file
+	 * @throws FileNotFoundException 
+	 */
+	public Readxyz(File file) throws FileNotFoundException {
+		super(new StreamTokenizer(new FileReader(file)));
+		this.nAtoms = 0;
+		this.isStrict = true;
+	}
+	
+	/**
+	 * @param donnees :  a tokenizer with a stream already set
+	 */
+	public Readxyz(StreamTokenizer donnees) {
 		super(donnees);
 		this.nAtoms = 0;
 		this.isStrict = true;
@@ -39,23 +64,23 @@ public class Readxyz extends ReadCoordinatesxyz {
 	/**
 	 * @param donnees
 	 */
-	protected void readHeader(Tokenizable donnees) throws ReadxyzException  {
+	protected void readHeader(StreamTokenizer donnees) throws ReadxyzException  {
 		try {
 			// la premiere ligne contient le nombre d'atomes
-			if ((token = donnees.nextToken() )== donnees.isNumber()) {
-				this.nAtoms = (int) donnees.getNVal();
+			if ((token = donnees.nextToken() )== StreamTokenizer.TT_NUMBER) {
+				this.nAtoms = (int) donnees.nval;
 				HuckelIO.PrintIf("nAtoms read = " + nAtoms + "\n");
 			} else {
 				throw new XYZErreurLigne1();
 			}
 			this.lineNumber ++;
-			if ((token = donnees.nextToken() )!= donnees.isEOL()) {
+			if ((token = donnees.nextToken() )!= StreamTokenizer.TT_EOL) {
 				HuckelIO.PrintIf(donnees+"\n");
 				throw new XYZErreurLigne2();
 			}
 			this.lineNumber ++;
 			// la troisieme ligne est ignoree
-			while ((token = donnees.nextToken() )!= donnees.isEOL()) {
+			while ((token = donnees.nextToken() )!= StreamTokenizer.TT_EOL) {
 			}
 			this.lineNumber++;
 			token = donnees.nextToken();			
@@ -74,7 +99,7 @@ public class Readxyz extends ReadCoordinatesxyz {
 	 * @param donnees
 	 * @throws ReadxyzException
 	 */
-	protected void readxyzDatas(Tokenizable donnees) throws ReadxyzException  {
+	protected void readxyzDatas(StreamTokenizer donnees) throws ReadxyzException  {
 		super.readxyzDatas(donnees);
 		if (this.isStrict && (nbAtomLus != this.nAtoms))
 			throw new ReadxyzException( this.nAtoms+" expected atoms, specified at the beginning of the file, but " + nbAtomLus + " have been read ");

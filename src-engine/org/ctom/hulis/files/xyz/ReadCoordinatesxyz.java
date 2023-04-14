@@ -1,8 +1,9 @@
 package org.ctom.hulis.files.xyz;
 
 import java.io.IOException;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
 
-import org.ctom.hulis.files.Tokenizable;
 import org.ctom.hulis.huckel.Atom;
 import org.ctom.hulis.huckel.PeriodicTable;
 import org.ctom.hulis.util.geometry.Geometry;
@@ -12,7 +13,7 @@ public class ReadCoordinatesxyz extends GeometryReader {
 	
 	
 	Geometry geomXYZ;
-	Tokenizable donnees;
+	StreamTokenizer donnees;
 	protected int lineNumber;
 	protected int token;
 	int nbAtomLus=0;
@@ -20,11 +21,18 @@ public class ReadCoordinatesxyz extends GeometryReader {
 	/**
 	 * @param donnees
 	 */
-	public ReadCoordinatesxyz(Tokenizable donnees) {
+	public ReadCoordinatesxyz(StreamTokenizer donnees) {
 		this.donnees = donnees;
 		this.lineNumber = 0;
 		this.token = 0;
 		this.nbAtomLus=0;
+	}
+	
+	/**
+	 * @param string
+	 */
+	public ReadCoordinatesxyz(String string) {
+		this( new StreamTokenizer(new StringReader(string)));
 	}
 
 	/**
@@ -54,9 +62,9 @@ public class ReadCoordinatesxyz extends GeometryReader {
 	 * @param donnees
 	 * @throws ReadxyzException 
 	 */
-	protected void readHeader(Tokenizable donnees) throws ReadxyzException 	{	// lignes vides tolerees
+	protected void readHeader(StreamTokenizer donnees) throws ReadxyzException 	{	// lignes vides tolerees
 		try {
-			while ((token = donnees.nextToken()) == donnees.isEOL()) {
+			while ((token = donnees.nextToken()) == StreamTokenizer.TT_EOL) {
 				this.lineNumber++;
 
 			}
@@ -71,7 +79,7 @@ public class ReadCoordinatesxyz extends GeometryReader {
 	 * @param donnees
 	 * @throws ReadxyzException
 	 */
-	protected void readxyzDatas(Tokenizable donnees) throws ReadxyzException  {
+	protected void readxyzDatas(StreamTokenizer donnees) throws ReadxyzException  {
 		int flag = 0;
 		nbAtomLus=0;
 		boolean emptyLine = true;
@@ -82,7 +90,7 @@ public class ReadCoordinatesxyz extends GeometryReader {
 		try {
 			while (true) {
 	
-				if (token == donnees.isEOF()){
+				if (token == StreamTokenizer.TT_EOF){
 				
 					if (atom != null) {
 						if (flag < 3) 
@@ -92,7 +100,7 @@ public class ReadCoordinatesxyz extends GeometryReader {
 
 					throw new ReadxyzException("EOF reached");
 				}
-				else if  (token == donnees.isEOL()) {
+				else if  (token == StreamTokenizer.TT_EOL) {
 					// TEST FINAL LINE			
 					if (emptyLine) 
 						throw new ReadxyzException("Empty line found at line " + this.lineNumber);
@@ -113,13 +121,13 @@ public class ReadCoordinatesxyz extends GeometryReader {
 					flag = 0;
 					this.lineNumber++;
 				}
-				else if (token == donnees.isWord()) {
+				else if (token == StreamTokenizer.TT_WORD) {
 					emptyLine = false;
 
 					if (atom != null) 
 						throw new ReadxyzException("string number format expected to define atom coordinates at line " + this.lineNumber);
 							
-					String symbol = donnees.getSVal();
+					String symbol = donnees.sval;
 					try {
 						atom = new Atom(0, null, PeriodicTable.Element.valueOf(symbol),
 								symbol, symbol, 0, 0);
@@ -127,23 +135,23 @@ public class ReadCoordinatesxyz extends GeometryReader {
 					catch(IllegalArgumentException e) {
 						throw new ReadxyzException(symbol + " is not a recognized atomic element, at the line " + this.lineNumber);
 					}
-				}else if  (token == donnees.isNumber()) {
+				}else if  (token == StreamTokenizer.TT_NUMBER) {
 					emptyLine = false;
 					if (atom == null)
 						throw new ReadxyzException("Atom symbol expected at the beginning of the line " + this.lineNumber);
 					flag++;
 					switch (flag) {
 					case (1):
-						setX(atom, donnees.getNVal());
+						setX(atom, donnees.nval);
 						break;
 					case (2):
-						setY(atom, donnees.getNVal());
+						setY(atom, donnees.nval);
 						break;
 					case (3):
-						setZ(atom, donnees.getNVal());
+						setZ(atom, donnees.nval);
 						break;
 					default:
-						atom.addConnect((int) donnees.getNVal());
+						atom.addConnect((int) donnees.nval);
 					}
 				}
 						

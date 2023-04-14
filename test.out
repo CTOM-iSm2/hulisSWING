@@ -1,6 +1,54 @@
 *****************************************************
-* Test HULIS Fri May 13 13:53:56 CEST 2022
+* Test HULIS Thu Apr 13 15:19:17 CEST 2023
 *****************************************************
 *******************************
 * Debut test001               *
+*******************************
+
+Vérifie que les poids de la mesomerie soient corrects (ie correspondent au contenu fichier xml). Fichier : acideformique
+Test Mesomery : ./src-test/datas/txml/acideformique.txml
+Searching into 3 selected structures Phitot, E=4α + 7,70β, weights : 
+Searching into 3 selected structures Phi1, E=4α + 6,50β, weights : HLCI = 0.15, HLP = 0.15
+Searching into 3 selected structures Phi2, E=4α + 7,48β, weights : HLCI = 0.85, HLP = 0.85
+TEST OK : Energies and weights of all structures are found in the xml file : ./src-test/datas/txml/acideformique.txml
+*******************************
+* Debut test002               *
+*******************************
+Vérifie que les poids de la mesomerie soient corrects (ie correspondent au contenu fichier xml). Fichier : acrolein1
+Test Mesomery : ./src-test/datas/txml/acrolein1.txml
+Searching into 4 selected structures Phitot, E=4α + 5,81β, weights : 
+Searching into 4 selected structures Phi1, E=4α + 5,30β, weights : HLCI = 0.78, HLP = 0.84
+Searching into 4 selected structures Phi2, E=4α + 2,00β, weights : HLCI = 0.05, HLP = 0.01
+Searching into 4 selected structures Phi3, E=4α + 3,94β, weights : HLCI = 0.17, HLP = 0.15
+TEST OK : Energies and weights of all structures are found in the xml file : ./src-test/datas/txml/acrolein1.txml
+*******************************
+* Debut test003               *
+*******************************
+Vérifie que les poids de la mesomerie soient corrects (ie correspondent au contenu fichier xml). Fichier : acrolein2
+Test Mesomery : ./src-test/datas/txml/acrolein2.txml
+Searching into 3 selected structures Phitot, E=4α + 5,81β, weights : 
+Searching into 3 selected structures Phi1, E=4α + 5,30β, weights : HLCI = 0.79, HLP = 0.85
+Searching into 3 selected structures Phi2, E=4α + 3,94β, weights : HLCI = 0.21, HLP = 0.15
+TEST OK : Energies and weights of all structures are found in the xml file : ./src-test/datas/txml/acrolein2.txml
+*******************************
+* Debut test004               *
+*******************************
+Vérifie que les poids de la mesomerie soient corrects (ie correspondent au contenu fichier xml). Fichier : allylCl1
+Test Mesomery : ./src-test/datas/txml/allylCl1.txml
+Searching into 3 selected structures Phitot, E=4α + 6,10β, weights : 
+Searching into 3 selected structures Phi1, E=4α + 4,96β, weights : HLCI = 0.38, HLP = 0.36
+Searching into 3 selected structures Phi2, E=4α + 5,41β, weights : HLCI = 0.62, HLP = 0.64
+TEST OK : Energies and weights of all structures are found in the xml file : ./src-test/datas/txml/allylCl1.txml
+*******************************
+* Debut test005               *
+*******************************
+Vérifie que les poids de la mesomerie soient corrects (ie correspondent au contenu fichier xml). Fichier : allylCl2
+Test Mesomery : ./src-test/datas/txml/allylCl2.txml
+Searching into 4 selected structures Phitot, E=4α + 6,10β, weights : 
+Searching into 4 selected structures Phi1, E=4α + 4,96β, weights : HLCI = 0.33, HLP = 0.32
+Searching into 4 selected structures Phi2, E=4α + 5,41β, weights : HLCI = 0.6, HLP = 0.58
+Searching into 4 selected structures Phi3, E=4α + 2,96β, weights : HLCI = 0.07, HLP = 0.11
+TEST OK : Energies and weights of all structures are found in the xml file : ./src-test/datas/txml/allylCl2.txml
+*******************************
+* Debut test006               *
 *******************************

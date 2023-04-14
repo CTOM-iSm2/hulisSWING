@@ -2,10 +2,14 @@ package org.ctom.hulis.prefs;
 
 public class Preferences {
 
+	public static enum COUPLAGE_TYPE {ORBITALS, ATOMS};
+	
 	public enum DISPLAY_ORBITAL_TYPE {
 		CANONICAL, NATURAL;
 
 	}
+	
+	public static final COUPLAGE_TYPE COUPLAGE_TYPE_DEFAULT = COUPLAGE_TYPE.ORBITALS;
 
 	//nombre de separation de charges lors de la generation automatique
 	public static final int NUM_CHARGE_SEPARATION_DEFAULT = 1;

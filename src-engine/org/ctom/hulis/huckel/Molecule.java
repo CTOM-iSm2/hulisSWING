@@ -967,9 +967,9 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		for (Atom iatom : geom2d ) {
 			if (((iatom.getElement() != PeriodicTable.Element.H) && isAutoCorrectH())
 					|| !isAutoCorrectH()) {
-				atomCree = createAtomNotNotify(Geometry.atomToEntry(iatom),
+				atomCree = createAtomNotNotify(geom.atomToEntry(iatom),
 						iatom.getLocation());
-				atomCree.setLocationGeom3D((Point3D) iatom.getLocationGeom().clone());
+				atomCree.setLocationGeom3D((Point3D) iatom.getLocationGeom3D().clone());
 				atomCree.setSuperSymbol(iatom.getSuperSymbol());
 			}
 
@@ -1813,9 +1813,8 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 
 		for (Atom a : this.lstAtoms) {
 			Point3D p = a.getLocation();
-			a.setXNotNotify(p.getX() + dx);
-			a.setYNotNotify(p.getY() + dy);
-			a.setZNotNotify(p.getZ() + dz);
+			a.setLocationNotNotify(new Point3D(p.getX() + dx, p.getY() + dy, p.getZ() + dz));
+
 		}
 
 		this.fireMoleculeMoved(this, null, null);
@@ -2018,9 +2017,11 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		newAtom.setMoleculeContainer(this);
 		newAtom.addListener((IAtomValueListener)this);
 		newAtom.addListener((IAtomGeometryListener)this);
-		Point3D oldXYZLocation = (Point3D) old.getLocationGeom().clone();
 		newAtom.setLocationNotNotify(old.getLocation());
-		newAtom.setLocationGeom3D(oldXYZLocation);
+		if (old.getLocationGeom3D() != null) {
+			Point3D oldXYZLocation = (Point3D) old.getLocationGeom3D().clone();
+			newAtom.setLocationGeom3D(oldXYZLocation);		 
+		}
 		newAtom.setIndex( old.getIndex());
 
 		if ((newAtom == null) || (old == null))
@@ -2121,7 +2122,7 @@ public class Molecule implements Cloneable, IDebuggable, IHuckelBondListener, IA
 		Point3D pCentre = getCenter();
 
 		for (Atom a : this.lstAtoms) {
-			Point3D oldLocationXYZ = (Point3D) a.getLocationGeom().clone();		
+			Point3D oldLocationXYZ = (Point3D) a.getLocation().clone();		
 			a.rotate(pCentre, mRot);
 			a.setLocationGeom3D(oldLocationXYZ);
 		}

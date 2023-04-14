@@ -1,6 +1,7 @@
 package org.ctom.hulis.files.gaussian.test;
 
-import org.ctom.hulis.files.Writer;
+import java.io.PrintWriter;
+
 import org.ctom.hulis.files.gaussian.WriteGaussian;
 import org.ctom.hulis.files.gaussian.WriteGaussianException;
 import org.ctom.hulis.files.xyz.WritexyzException;
@@ -23,12 +24,15 @@ public class WriteGaussianTest extends WriteGaussian {
 		return a.getNbRadR() ;
 	}
 	
+	
 	public WriteGaussianTest(Mesomery m) throws WriteGaussianException  {
 		super(m);
+		this.setWriteConnectivity(true);
 	}
 
 
-	protected void writeAll (Mesomery m, Writer out) throws WritexyzException  {
+	@Override
+	protected void writeAll (Mesomery m, PrintWriter out) throws WritexyzException  {
 		writeXYZ (m.getDelocalizedStructure(), out);
 		writeHX (m.getDelocalizedStructure(), out);
 		writeHXY (m.getDelocalizedStructure(), out);
@@ -36,7 +40,7 @@ public class WriteGaussianTest extends WriteGaussian {
 		writeNRTList (m,  out);
 	}
 	
-	protected void writeHX(StructureDelocalized s, Writer out) {
+	protected void writeHX(StructureDelocalized s, PrintWriter out) {
 		out.print(KEYWORD_HX.toUpperCase());
 		for (HuckelAtom a : s.getHuckelAtoms()) {
 			if (a.getHx() != ((HuckelAtom) PeriodicTable.getNewAtom(a.getEntry())).getHx() ) 
@@ -47,7 +51,7 @@ public class WriteGaussianTest extends WriteGaussian {
 	
 	}
 
-	protected void writeHXY(StructureDelocalized s, Writer out) {
+	protected void writeHXY(StructureDelocalized s, PrintWriter out) {
 		out.print(KEYWORD_HXY.toUpperCase());
 		for (HuckelBond b : s.getHuckelBonds()) {
 			try {
