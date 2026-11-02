@@ -208,6 +208,7 @@ public class InitResources implements IResource {
 		bundle.add("Nsep", "Max charge : ");
 		bundle.add("kAtomDisplay", "Atoms representation :");
 		bundle.add("kcircle", "Circles");
+		//bundle.add("kverbose", "Verbose");
 		bundle.add("ksymbols", "Symbols");
 		bundle.add("kautocouple", "Allow bi-radicals");
 		bundle.add("kautolongdistancecouple", "AutoGen couple ld");
@@ -1015,6 +1016,7 @@ public class InitResources implements IResource {
 		bundle.add("Nsep", "Max charge : ");
 		bundle.add("kAtomDisplay", "Atoms representation :");
 		bundle.add("kcircle", "Circles");
+		//bundle.add("kverbose", "Verbose");
 		bundle.add("ksymbols", "Symbols");
 		bundle.add("kautocouple", "Allow bi-radicals");
 		bundle.add("kautolongdistancecouple", "AutoGen couple ld");
@@ -2180,6 +2182,7 @@ public class InitResources implements IResource {
 		bundle.add("Nsep", "Max charge : ");
 		bundle.add("kAtomDisplay", "Atoms representation :");
 		bundle.add("kcircle", "Circles");
+		//bundle.add("kverbose", "Verbose");
 		bundle.add("ksymbols", "Symbols");
 		bundle.add("kautocouple", "Allow bi-radicals");
 		bundle.add("kautolongdistancecouple", "AutoGen couple ld");

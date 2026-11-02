@@ -65,6 +65,8 @@ public class HLPMethod implements Cloneable, IMethod, IMethodHasOptimizableMatri
 		this.ciWeights = Arrays.arrayCopy(method.ciWeights);
 		this.overlapTab = Arrays.arrayCopy(method.overlapTab);
 		this.error = method.error;
+		/* SH*/
+/*		System.out.println("SHHHH",this);*/
 	}
 
 	/**
@@ -109,7 +111,7 @@ public class HLPMethod implements Cloneable, IMethod, IMethodHasOptimizableMatri
 		for (i = 0; i < nbSelLocalizedStructs; i++) {
 			OvlStot.set(i, 0, OvlTabAll[0][i + 1]);
 		}
-		
+
 /*		for (i = 0; i < nbSelLocalizedStructs; i++) {
 			if (this.mesomery.isStopConsumingProccess())
 				return;
@@ -356,9 +358,12 @@ public class HLPMethod implements Cloneable, IMethod, IMethodHasOptimizableMatri
 
 		if (norm1 * norm2 < tol) {
 			throw new ArithmeticException(norm1 + " " + norm2 + " "
-					+ "Stop before division by 0");
+					+ "Stop before division by 0 in computeOverlap("+i+","+j+")");
 		}
 		double ovl = Structure.overlap(Phi1, Phi2);
+		if (HuckelIO.isverbose()) {
+		  System.out.println("ovl("+i+","+j+")="+ovl+"/"+norm1 + " * "+ norm2 + "SHHH ");
+		}
 		return ovl / (norm1 * norm2);
 	}
 	

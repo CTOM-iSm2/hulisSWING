@@ -32,7 +32,7 @@ public interface IRightsEvaluationApplet {
 
 	public static boolean BYPASS_CHECK_MINIMAL_VERSION_IN_DATABASE = true;
 
-	public static final Date DATE_LIMIT = new Date(2015 - 1900,
+	public static final Date DATE_LIMIT = new Date(3015 - 1900,
 			Calendar.DECEMBER, 31);
 
 	public final static String URL_TESTED_IF_NOT_ALLOWED_WITHOUT_NETWORK = "http://www.hulis.free.fr";

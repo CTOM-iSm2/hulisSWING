@@ -717,7 +717,7 @@ public class Mesomery extends Input implements Cloneable, IStructureLocalizedLis
 			if (struct.getSumOfPiElec() != correctNbPiElec) {
 				l.add(struct);
 			}
-			else if (struct.countSingleElectronsOnAtoms()>2) {
+			else if (struct.countSingleElectronsOnAtoms()>2) {// Si on met 3 radicaux, le signe du recouvrement dépend du sens de couplage
 				l.add(struct);
 			}
 

@@ -108,7 +108,7 @@ public class FrameBlocs extends JFrame implements IStructureListener, IStructure
 		}
 		else if (e.getSource() == this.btSupprimer){
 			
-			// impossible de modfier un bloc s'il ya des structures loclaisees dans la mesomerie
+			// impossible de modfier un bloc s'il y a des structures localisees dans la mesomerie
 			if (structure.getMesomeryParent().countAllSructs()>1)
 				return;
 			

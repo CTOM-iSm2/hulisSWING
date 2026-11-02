@@ -47,6 +47,7 @@ public class PreferencesFrame extends MyJDialog implements ActionListener {
 	JSlider sliderMOratio;
 	JCheckBox chkCircle;
 	JCheckBox chkSymbol;
+	//JCheckBox chkVerbose; // SH 
 	//debyc
 	JSpinner spinnerNSepCharge;
 	JCheckBox checkBoxCouple;
@@ -63,6 +64,7 @@ public class PreferencesFrame extends MyJDialog implements ActionListener {
 	int oldEnergyPrecision;
 	double oldZoomMO;
 	boolean oldDisplayAtomsCircles;
+	//boolean oldVerbose;// SH
 	boolean oldDisplayAtomsSymbols;
 	boolean  oldCheckVersion;
 	boolean  oldSendInformation;
@@ -97,6 +99,7 @@ public class PreferencesFrame extends MyJDialog implements ActionListener {
 		preferencesGUI.setResultsPrecisionEnergies(oldEnergyPrecision);
 		preferencesGUI.setSCALE_ORB(oldZoomMO);
 		preferencesGUI.setDisplayAtomsCircles(oldDisplayAtomsCircles);
+		//preferencesGUI.setVerbose(oldVerbose); // SH
 		preferencesGUI.setDisplayAtomsSymbols(oldDisplayAtomsSymbols);
 		preferencesGUI.setCheckVersion(oldCheckVersion);
 		preferencesGUI.setSendInformation(oldSendInformation);
@@ -113,6 +116,7 @@ public class PreferencesFrame extends MyJDialog implements ActionListener {
 		oldEnergyPrecision= preferencesGUI.getResultsPrecisionEnergies();
 		oldZoomMO= preferencesGUI.getSCALE_ORB();
 		oldDisplayAtomsCircles= preferencesGUI.isDisplayAtomsCircles();
+		//oldVerbose= preferencesGUI.isVerbose(); // SH 
 		oldDisplayAtomsSymbols= preferencesGUI.isDisplayAtomsSymbols();
 		oldCheckVersion = preferencesGUI.isCheckVersion();
 		oldSendInformation = preferencesGUI.isSendInformation();
@@ -128,6 +132,7 @@ public class PreferencesFrame extends MyJDialog implements ActionListener {
 		spinnerEnergy.setValue(preferencesGUI.getResultsPrecisionEnergies());
 		sliderMOratio.setValue(convertRealMoRatioToSpinnerMoRatioValue(preferencesGUI.getSCALE_ORB()));
 		this.chkCircle.setSelected(preferencesGUI.isDisplayAtomsCircles());
+		//this.chkVerbose.setSelected(preferencesGUI.isVerbose());// SH 
 		this.chkSymbol.setSelected(preferencesGUI.isDisplayAtomsSymbols());
 		//debyc
 		checkBoxCouple.setSelected(Preferences.isCOUPLE_AUTOGEN());
@@ -165,6 +170,7 @@ public class PreferencesFrame extends MyJDialog implements ActionListener {
 		preferencesGUI.setResultsPrecisionEnergies(precisionEnergies);
 		preferencesGUI.setSCALE_ORB(convertSpinnerMoRatioValueToRealMoRatio(sliderMOratio.getValue()));
 		preferencesGUI.setDisplayAtomsCircles(this.chkCircle.isSelected());
+//		preferencesGUI.setVerbose(this.chkVerbose.isSelected());// SH
 		preferencesGUI.setDisplayAtomsSymbols(this.chkSymbol.isSelected());
 		app.getCurrentMesomeryView().getCurrentStructureView().repaint();
 
