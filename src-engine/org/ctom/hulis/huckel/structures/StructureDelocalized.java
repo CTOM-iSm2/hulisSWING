@@ -373,7 +373,7 @@ public class StructureDelocalized extends Structure implements Cloneable, Serial
 			int ito=-1;
 			try {
 				/*
-				 * passage du couches ferm�es aux couches ouvertes
+				 * passage de couches fermees aux couches ouvertes
 				 */
 				ifrom = ex.getFrom().getIndex()/2;
 				ito = ex.getTo().getIndex()/2;

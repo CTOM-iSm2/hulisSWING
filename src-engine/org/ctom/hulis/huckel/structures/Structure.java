@@ -435,7 +435,11 @@ IMonoExcitationListener{
 					return;
 				}
 				this.overlapHLP =  hlpMethod.computeOverlap(-1, this.getIndex()-2);
-				System.out.println("Psi" + this.getName() +  " - overlap =" + this.overlapHLP);
+if (HuckelIO.isverbose()) 
+{	
+System.out.println("Psi" + this.getName() +  " - overlap =" + this.overlapHLP);
+}
+
 			} catch (NoElectronException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -620,7 +624,7 @@ IMonoExcitationListener{
 		boolean oneSingleElectron=false;
 		for (int i = 0; i < electronDistrib.length; i++) {
 			SpinOrbitaleMoleculaire somA=null;
-			SpinOrbitaleMoleculaire somB=null;
+			SpinOrbitaleMoleculaire somB=null;     
 			if (electronDistrib[i]% 1 ==  0) { // if ajoute par NG pour gerer les demi electrons dans le ELSE
 				switch ((int) electronDistrib[i]) {
 					case 2:
@@ -1376,8 +1380,11 @@ IMonoExcitationListener{
 		 * ici il faut tester le spin de la structure. Il y a deux cas : _sans
 		 * couplage : appel normal _avec couplage : deux appels, puis
 		 * combinaison
-		 */
-		System.out.println ("TYPE DE COUPLAGE = "  + Preferences.COUPLAGE_TYPE_DEFAULT);
+		*/
+		
+		if (HuckelIO.isverbose()) {
+		 System.out.println ("TYPE DE COUPLAGE = "  + Preferences.COUPLAGE_TYPE_DEFAULT);
+	    }
 		boolean phi1AUnCouplage = Phi1.aUnCouplage();
 		boolean phi2AUnCouplage = Phi2.aUnCouplage();
 
@@ -1407,6 +1414,7 @@ IMonoExcitationListener{
 			// electron coupled
 			// state A b | C d
 			//	System.out.printf("%s\n", "Initial OMs");
+			HuckelIO.PrintIfln("Phi1 puis Phi2 printSOMs");
 			Phi1.printSOMs();
 			Phi2.printSOMs();
 			Matrix ovlMat_11_21 = new Matrix(size, size);
@@ -1417,6 +1425,7 @@ IMonoExcitationListener{
 					SpinOrbitaleMoleculaire SOM2 = Phi2.getOccSpinOM(j);
 					ovlMat_11_21.set(i, j, SOM1.overlap(SOM2, Phi1
 							.getTopology()));
+					//System.out.print("(i,j):"+i+j+" " +SOM1.getCoeff(0)+","+SOM1.getCoeff(1)+","+SOM1.getCoeff(2)+",");
 				}
 			}
 
@@ -1429,11 +1438,14 @@ IMonoExcitationListener{
 			Matrix ovlMat_11_22 = new Matrix(size, size);
 			iSOM = Phi2.getCouplage()[0];
 			jSOM = Phi2.getCouplage()[1];
-			System.out.println("phi1&2AUnCouplage psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
+			if (HuckelIO.isverbose()) {
+				System.out.println("phi1&2AUnCouplage psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
+			}
 			Phi2.switchSpinOM(iSOM, jSOM);
-			Phi1.printSOMs();
-			Phi2.printSOMs();
-
+			if (HuckelIO.isverbose()) {
+							Phi1.printSOMs();
+							Phi2.printSOMs();
+			}
 			// switch spins of c and d
 			// state A b | c D
 			if (HuckelIO.isverbose()) {
@@ -1449,9 +1461,9 @@ IMonoExcitationListener{
 							.getTopology()));
 				}
 			}
-
+			//System.out.println("11_22"+Phi1.getTopology());
 			if (HuckelIO.isverbose()) {
-				HuckelIO.PrintIfln("Matrice 11 22");
+				HuckelIO.PrintIf("Matrice 11 22");
 				HuckelIO.PrintMatrix(ovlMat_11_22);
 			}
 			double det_11_22 = ovlMat_11_22.det();
@@ -1461,19 +1473,29 @@ IMonoExcitationListener{
 			Matrix ovlMat_12_21 = new Matrix(size, size);
 			iSOM = Phi2.getCouplage()[0];
 			jSOM = Phi2.getCouplage()[1];
-			System.out.println("phi1&2AUnCouplage ovlMat_12_21 psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
 			Phi2.switchSpinOM(iSOM, jSOM);
+			if (HuckelIO.isverbose()) {
+				System.out.println("phi1&2AUnCouplage ovlMat_12_21 psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
+			System.out.println("Size"+size+"phi2.index"+Phi2.index +"get nOA"+Phi2.getnOA());
+			}
 			iSOM = Phi1.getCouplage()[0];
 			jSOM = Phi1.getCouplage()[1];
-			System.out.println("phi1&2AUnCouplage ovlMat_12_21 psi1switch iSOM= " + iSOM + "jSOM=" + jSOM );
+			if (HuckelIO.isverbose()) {
+				System.out.println("phi1&2AUnCouplage ovlMat_12_21 psi1switch iSOM= " + iSOM + "jSOM=" + jSOM );
+			}
 			Phi1.switchSpinOM(iSOM, jSOM);
+			if (HuckelIO.isverbose()) {
+				System.out.println("Size"+size+"phi1.index"+Phi1.index +"get nOA"+Phi1.getnOA());
+			}
 			// switch spins of a and b and c and d
 			// state a B | C d
-			/*	if (HuckelIO.isverbose()) {
-					System.out.printf("%s\n", "Phi1 modified Phi2 init");
+				if (HuckelIO.isverbose()) {
+					System.out.printf("%s\n", "Phi1 modified Phi2 init"+HuckelIO.isverbose()+"VARBOSE VERBOSE"  );
 					Phi1.printSOMs();
 					Phi2.printSOMs();
-				}*/
+					
+					System.out.printf("%s\n", "-----------------------"+Phi1.getOccSOM());
+				}
 			for (int i = 0; i < size; i++) {
 				for (int j = 0; j < size; j++) {
 					SpinOrbitaleMoleculaire SOM1 = Phi1.getOccSpinOM(i);
@@ -1494,7 +1516,9 @@ IMonoExcitationListener{
 			Matrix ovlMat_12_22 = new Matrix(size, size);
 			iSOM = Phi2.getCouplage()[0];
 			jSOM = Phi2.getCouplage()[1];
-			System.out.println("phi1&2AUnCouplage ovlMat_12_22 psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
+			if (HuckelIO.isverbose()) {
+				System.out.println("phi1&2AUnCouplage ovlMat_12_22 psi2switch iSOM= " + iSOM + "jSOM=" + jSOM );
+			}
 			Phi2.switchSpinOM(iSOM, jSOM);
 			/*if (HuckelIO.isverbose()) {
 					// switch spins of c and d
@@ -1555,8 +1579,9 @@ IMonoExcitationListener{
 			Matrix ovlMat_12 = new Matrix(size, size);
 			iSOM = Phi1.getCouplage()[0];
 			jSOM = Phi1.getCouplage()[1];
-			
+			if(HuckelIO.isverbose()) {
 			System.out.println("phi1AUnCouplage iSOM= " + iSOM + "jSOM=" + jSOM );
+			}
 			Phi1.switchSpinOM(iSOM, jSOM);
 			/*if (HuckelIO.isverbose()) {
 					System.out.printf("%s\n", "Phi1 modified");
@@ -1581,7 +1606,7 @@ IMonoExcitationListener{
 			// Phi1 : a b
 			// Ab - aB
 			// equiv 11 - 12
-			ovl = det_11 - det_12;
+			ovl = -(det_11 - det_12);// SH change le signe
 			ovl *= norm;
 
 		} else if (phi2AUnCouplage) { /* coupling in 2 only */
@@ -1613,7 +1638,9 @@ IMonoExcitationListener{
 			Matrix ovlMat_22 = new Matrix(size, size);
 			iSOM = Phi2.getCouplage()[0];
 			jSOM = Phi2.getCouplage()[1];
-			System.out.println("ph2AUnCouplage Phi2.switchSpinOM iSOM= " + iSOM + "jSOM=" + jSOM );
+			if (HuckelIO.isverbose()) {
+				System.out.println("ph2AUnCouplage Phi2.switchSpinOM iSOM= " + iSOM + "jSOM=" + jSOM );
+			}
 			Phi2.switchSpinOM(iSOM, jSOM);
 			if (HuckelIO.isverbose()) {
 				//		System.out.printf("%s\n", "Phi2 modified");
@@ -1635,8 +1662,9 @@ IMonoExcitationListener{
 			// Phi2 : c d
 			// Cd - cD
 			// equiv 21 - 22
-			ovl = det_21 - det_22;
+			ovl = -(det_21 - det_22);// SH change le signe
 			ovl *= norm;
+			HuckelIO.PrintIfln("Matrice 22 , det_21 et det_22"+det_21+" "+ det_22+ " "+norm);
 
 		} else { /* no coupling */
 			//			size=Phi1.getSOMofSpin(Spin.ALPHA).size();

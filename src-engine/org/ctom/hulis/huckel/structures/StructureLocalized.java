@@ -379,6 +379,7 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 		this.lstBlocDelocalized = new ArrayList<BlocDelocalized>();
 		BlocDelocalized blocClone;
 		for (BlocDelocalized bloc : structure.getListBlocDelocalized()){
+			System.out.println ("ICI_SH"+this.getHuckelBlocks().get(index).toString());
 			blocClone = bloc.getCopy(this); 
 			blocClone.setMoleculeParent(this);
 			blocClone.addListener(this);
@@ -710,7 +711,8 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 					} catch (HulisException e) {
 						e.printStackTrace();
 					}
-					System.out.println ("add mono block " + huckelObject);
+					if (HuckelIO.isverbose())
+					{System.out.println ("add mono block " + huckelObject);}
 			}
 				
 		}
@@ -1138,30 +1140,47 @@ public class StructureLocalized extends Structure implements IBlocDelocalizedLis
 
 
 
+
 	/* (non-Javadoc)
 	 * @see org.ctom.hulis.huckel.structures.Structure#generateSpinOM()
 	 */
 	@Override 
 	protected void generateSpinOM() throws NoElectronException, NoSOMAvailableException, UnavailableSOMException {
 		super.generateSpinOM();
-		System.out.println("GENERATE SPIN OM @Override");
+		if (HuckelIO.isverbose()) {
+		System.out.print("GENERATE SPIN OM @Override");
+		}
+		int itest=0;
 		for (int i = 0; i < this.countSpinOM() ; i++){
 			SpinOrbitaleMoleculaire som = this.getSpinOM(i);
-			System.out.println(i + " " + som.getSpin() + " " + som.getPartner().getSpin());
+	if (HuckelIO.isverbose()) {
+		{if (itest == 0 ) {itest=1; System.out.println("Configuration (ajouter 1 au numero des OM): ");}}
+		if (( som.getSpin() == Spin.ALPHA) && (som.getPartner().getSpin() == Spin.BETA))             {System.out.print(" "+som.getIndex()+ "_"+som.getPartner().getIndex()+"    "); }
+		else if (( som.getSpin() == Spin.BETA) && (som.getPartner().getSpin() == Spin.ALPHA))        {System.out.print("_"+som.getIndex()+" "+som.getPartner().getIndex()+"    ");} 
+		else if (( som.getSpin() == Spin.NOSPIN_BETA) && (som.getPartner().getSpin() == Spin.ALPHA)) {System.out.print(" "+" ^"+som.getPartner().getIndex()+"    ");} 
+		else if (( som.getSpin() == Spin.ALPHA) && (som.getPartner().getSpin() == Spin.NOSPIN_BETA)) {System.out.print(" ^"+som.getIndex()+" "+"    ");} 
+		else if (( som.getSpin() == Spin.BETA) && (som.getPartner().getSpin() == Spin.NOSPIN_ALPHA)) {System.out.print("_"+""  +som.getIndex()+"    ");} 
+		else if (( som.getSpin() == Spin.NOSPIN_ALPHA) && (som.getPartner().getSpin() == Spin.BETA)) {System.out.print("_"+""  +som.getPartner().getIndex()+ "    ");} 
+	}
+		//	System.out.println(i + " " + som.getSpin() + " " + som.getPartner().getSpin());
 			
 		}
-		System.out.println("FIN GENERATE SPIN OM @Override"  + lstCouplesOMs.size());
-		
+		if (HuckelIO.isverbose()) {
+		System.out.println();
+		System.out.println("FIN GENERATE SPIN OM @Overrid:"  + lstCouplesOMs.size()+ lstCouplesOMs);/* SH MODIF*/
+		}
 		for (CoupleOMs coupleOM : lstCouplesOMs) {
 			try {
 				SpinOrbitaleMoleculaire spinOM1 = this.getSpinOM(2 * coupleOM.om1);
 				SpinOrbitaleMoleculaire spinOM2 = this.getSpinOM(2 * coupleOM.om2);
+			if (HuckelIO.isverbose()) {
 				System.out.println(coupleOM.om1);
 				System.out.println(coupleOM.om2);
 				System.out.println(spinOM1.getSpin());
 				System.out.println(spinOM1.getPartner().getSpin());
 				System.out.println(spinOM2.getSpin());
 				System.out.println(spinOM2.getPartner().getSpin());
+			}
 				if (((spinOM1.getSpin() == Spin.ALPHA) && (spinOM1.getPartner().getSpin() == Spin.NOSPIN_BETA))
 					&& ((spinOM2.getSpin() == Spin.ALPHA) && (spinOM2.getPartner().getSpin() == Spin.NOSPIN_BETA)))
 					spinOM2.switchSpin();

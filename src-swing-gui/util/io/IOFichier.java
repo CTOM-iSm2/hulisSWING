@@ -58,6 +58,8 @@ public class IOFichier implements ActionListener {
 			HulisFilter hulisFileFilter = new HulisFilter();
 			XyzFilter xyzFileFilter = new XyzFilter();
 			GaussianFilter gaussianFilter = new GaussianFilter();
+			//SH modif
+			GaussianTestFilter gaussianTestFilter = new GaussianTestFilter();
 			if (Rights.ALLOW_SAVE_TEST_FILE_FORMAT ) {
 				choix.addChoosableFileFilter(new GaussianTestFilter());
 
@@ -82,7 +84,8 @@ public class IOFichier implements ActionListener {
 				choix.addChoosableFileFilter(gaussianFilter);
 				if (Rights.ALLOW_XML_FILE_FORMAT )
 					choix.addChoosableFileFilter(new XmlFilter());
-
+				// SH MODIF
+				//choix.setFileFilter(gaussianTestFilter);
 				choix.setFileFilter(gaussianFilter);
 
 				option = choix.showOpenDialog(this.app);

@@ -19,6 +19,7 @@ public final class PreferencesGUI {
 	public static  final int RESULTS_PRECISION_MO_DEFAULT = 2;  
 	public static final int RESULTS_PRECISION_ENERGIES_DEFAULT = 2;  
 	public static final boolean DISPLAY_ATOMS_CIRCLES_DEFAULT = true;
+	public static final boolean VERBOSE_DEFAULT=false;// SH
 	public static final boolean DISPLAY_ATOMS_SYMBOLS_DEFAULT = true;
 	private static final boolean CHECK_VERSION_DEFAULT = true;
 	private static final boolean SEND_INFORMATION_DEFAULT = true;
@@ -164,6 +165,13 @@ public final class PreferencesGUI {
 	public  boolean isDisplayAtomsCircles() {
 		return prefs.getBoolean("isDisplayAtomsCircles", DISPLAY_ATOMS_CIRCLES_DEFAULT);
 	}
+	/**
+	 * 
+//	 * @return true if Verbose
+//	 */
+//	public  boolean isVerbose() {
+//		return prefs.getBoolean("isVerbose", VERBOSE_DEFAULT);
+//	}
 	
 	/**
 	 * 
@@ -197,6 +205,15 @@ public final class PreferencesGUI {
 	 */
 	public  void setDisplayAtomsCircles(boolean selected) {
 		prefs.putBoolean("isDisplayAtomsCircles", selected);
+	
+	}
+	
+	/**
+	 * 
+	 * @param selected
+	 */
+	public  void setVerbose(boolean selected) {
+		prefs.putBoolean("isVerbose", selected);
 	
 	}
 

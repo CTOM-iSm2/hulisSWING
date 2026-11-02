@@ -6,14 +6,17 @@ public interface IRightsTest {
 	
 	public boolean STOP_DATABASE_CONNECTION =false;
 
-	public final boolean CONSOLE_VERBOSE = false;
+	public final boolean CONSOLE_VERBOSE = true;
+// SH false
 	public boolean ALLOW_EXCITATIONS = true;
-	public boolean ALLOW_POLYNOMES = true;
+	public boolean ALLOW_POLYNOMES = false;
+//	SH
 	public boolean ALLOW_BLOCKS = true;
 	public boolean ALLOW_SAVE_TEST_FILE_FORMAT = true;
 	public boolean  ALLOW_XML_FILE_FORMAT =true;
-	public boolean ALLOW_NRT = true;
-	
+// SH false
+	public boolean ALLOW_NRT = false;
+// SH	
 	public static final boolean MOVE_MOUSE_QUICKLY_DURING_TESTS = false;
 	
 	public final static boolean CHECK_USER_ACCESS_RIGHTS = false;
