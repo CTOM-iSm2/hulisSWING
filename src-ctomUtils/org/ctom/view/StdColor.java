@@ -28,15 +28,15 @@ public enum StdColor {
 	Magenta(Color.MAGENTA),
 	Pink(Color.PINK),
 	NormalColor(Color.BLACK);
-	/** L'attribut qui contient la valeur associé à l'enum */
+	/** L'attribut qui contient la valeur associ√©e √† l'enum */
 	private final Color color;
 
-	/** Le constructeur qui associe une valeur à l'enum */
+	/** Le constructeur qui associe une valeur √† l'enum */
 	private StdColor(Color color) {
 		this.color = color;
 	}
 
-	/** La méthode accesseur qui renvoit la valeur de l'enum */
+	/** La m√©thode accesseur qui renvoit la valeur de l'enum */
 	public Color getColor() {
 		return this.color;
 	}
