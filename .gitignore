@@ -13,3 +13,7 @@ bin/
 *.zip
 *.jar
 /bin/
+bin_old/
+
+build
+compile.log
